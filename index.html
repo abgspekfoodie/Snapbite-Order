@@ -4,88 +4,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Snapbite™ Order Form</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
+    body { font-family: 'Poppins', sans-serif; background-color: #1a1a1a; color: #f5f5f5; margin: 0; padding: 2rem; }
     h1 { text-align: center; color: #ff9500; }
-    .menu-item { border: 1px solid #444; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #2b2b2b; }
-    label { display: block; margin: 8px 0 4px; }
-    input, select, textarea { width: 100%; padding: 8px; border: none; border-radius: 4px; margin-bottom: 10px; }
-    button { background: #ff9500; color: #000; padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+    form { max-width: 700px; margin: auto; background: #2a2a2a; padding: 2rem; border-radius: 10px; }
+    label, select, input, textarea { display: block; width: 100%; margin-bottom: 1rem; font-size: 1rem; }
+    select, input, textarea { padding: 0.5rem; border: none; border-radius: 5px; background: #333; color: #fff; }
+    .submit-btn { background-color: #ff9500; color: #000; font-weight: bold; cursor: pointer; padding: 0.75rem; border: none; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order</h1>  <form id="orderForm">
-    <div class="menu-item">
-      <label>Menu Item</label>
-      <select name="menu[]">
-        <option value="Primebite™">Primebite™</option>
-        <option value="Beef N' Cheese™">Beef N' Cheese™</option>
-        <option value="The Fun Guy™">The Fun Guy™</option>
-        <option value="The Fixer™">The Fixer™</option>
-        <option value="Chickbite™">Chickbite™</option>
-        <option value="Goldcut™">Goldcut™</option>
-        <option value="The Cap Cut™">The Cap Cut™</option>
-        <option value="Stripstack™">Stripstack™</option>
-      </select><label>Kuantiti</label>
-  <input type="number" name="quantity[]" min="1" value="1" />
+  <h1>Snapbite™ Order Form</h1>
+  <form id="orderForm">
+    <label for="item">Choose Menu Item:</label>
+    <select id="item" required>
+      <optgroup label="Burger Series">
+        <option value="Primebite – RM10">Primebite™ – Classic build – juicy & bold. (RM10)</option>
+        <option value="Beef N’ Cheese – RM11">Beef N’ Cheese™ – Melted cheese stacked over pure beef. (RM11)</option>
+        <option value="The Fun Guy – RM12">The Fun Guy™ – Topped with sautéed mushrooms. (RM12)</option>
+        <option value="The Fixer – RM15">The Fixer™ – Beef, crispy bacon, egg & cheese. (RM15)</option>
+        <option value="Chickbite – RM9">Chickbite™ – Classic deep-fried chicken burger. (RM9)</option>
+        <option value="Goldcut – RM10">Goldcut™ – Fried chicken with melted cheese. (RM10)</option>
+        <option value="The Cap Cut – RM11">The Cap Cut™ – Fried chicken with mushrooms. (RM11)</option>
+        <option value="Stripstack – RM14">Stripstack™ – Chicken bacon & egg. (RM14)</option>
+      </optgroup>
+      <optgroup label="Tex-Mex Series">
+        <option value="Smoke Beef Taco – RM10">Smoke Beef Taco™ – Smoked beef with Limewitch™ sauce. (RM10)</option>
+        <option value="Smokey Chicken Taco – RM9">Smokey Chicken Taco™ – Smoked chicken with Limewitch™ sauce. (RM9)</option>
+        <option value="Mix Taco – RM12">Mix Taco™ – Beef + chicken with Limewitch™ sauce. (RM12)</option>
+        <option value="Smoke Beef Quesadilla – RM15">Smoke Beef Quesadilla™ – Beef & cheese tortilla. (RM15)</option>
+        <option value="Smoke Chicken Quesadilla – RM14">Smoke Chicken Quesadilla™ – Chicken & cheese tortilla. (RM14)</option>
+        <option value="Mix Quesadilla – RM16">Mix Quesadilla™ – Beef + chicken & cheese. (RM16)</option>
+      </optgroup>
+      <optgroup label="Sausage Series">
+        <option value="Classic Sausage – RM6">Classic Sausage™ – Grilled cheese-filled sausage. (RM6)</option>
+        <option value="Loaded Sausage – RM12">Loaded Sausage™ – With bacon, mushrooms, cheese & salad. (RM12)</option>
+      </optgroup>
+      <optgroup label="Snack Series">
+        <option value="Popcorn Chicken – RM6">Popcorn Chicken – Crispy bite-sized chicken. (RM6)</option>
+      </optgroup>
+    </select><label for="quantity">Quantity:</label>
+<input type="number" id="quantity" min="1" value="1" required />
 
-  <label>Add-ons</label>
-  <input type="checkbox" name="addon1[]" value="Cheese"> Cheese (RM2)<br>
-  <input type="checkbox" name="addon2[]" value="Bacon"> Bacon (RM2)<br>
-  <input type="checkbox" name="addon3[]" value="Mushroom"> Mushroom (RM2)<br>
-  <input type="checkbox" name="addon4[]" value="Egg"> Egg (RM1)<br>
+<label for="addons">Add-Ons (Optional):</label>
+<select id="addons" multiple>
+  <option value="Cheese (+RM2)">Cheese (+RM2)</option>
+  <option value="Bacon (+RM2)">Bacon (+RM2)</option>
+  <option value="Mushroom (+RM2)">Mushroom (+RM2)</option>
+  <option value="Egg (+RM1)">Egg (+RM1)</option>
+</select>
 
-  <label>Request</label>
-  <textarea name="request[]" placeholder="Contoh: tak nak bawang..."></textarea>
-</div>
+<label for="request">Special Request:</label>
+<textarea id="request" placeholder="No onion, extra sauce, etc."></textarea>
 
-<!-- Duplicate menu-item divs as needed for more selections -->
-
-<label>Nama (Optional)</label>
-<input type="text" name="customerName" />
-
-<label>Nombor Telefon (Optional)</label>
-<input type="text" name="customerPhone" />
-
-<button type="submit">Hantar ke WhatsApp</button>
+<button type="submit" class="submit-btn">Order via WhatsApp</button>
 
   </form>  <script>
-    document.getElementById("orderForm").addEventListener("submit", function (e) {
+    const form = document.getElementById('orderForm');
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
+      const item = document.getElementById('item').value;
+      const quantity = document.getElementById('quantity').value;
+      const addons = Array.from(document.getElementById('addons').selectedOptions).map(opt => opt.value).join(', ');
+      const request = document.getElementById('request').value;
 
-      const menu = document.getElementsByName("menu[]");
-      const quantity = document.getElementsByName("quantity[]");
-      const addon1 = document.getElementsByName("addon1[]");
-      const addon2 = document.getElementsByName("addon2[]");
-      const addon3 = document.getElementsByName("addon3[]");
-      const addon4 = document.getElementsByName("addon4[]");
-      const request = document.getElementsByName("request[]");
-
-      let message = "Order Snapbite™:%0a";
-
-      for (let i = 0; i < menu.length; i++) {
-        message += `%0a*${menu[i].value}* x${quantity[i].value}`;
-
-        let addons = [];
-        if (addon1[i].checked) addons.push("Cheese");
-        if (addon2[i].checked) addons.push("Bacon");
-        if (addon3[i].checked) addons.push("Mushroom");
-        if (addon4[i].checked) addons.push("Egg");
-
-        if (addons.length) message += `%0a  Add-on: ${addons.join(", ")}`;
-
-        if (request[i].value) message += `%0a  Note: ${request[i].value}`;
-      }
-
-      const name = document.querySelector("input[name='customerName']").value;
-      const phone = document.querySelector("input[name='customerPhone']").value;
-
-      if (name) message += `%0a%0aNama: ${name}`;
-      if (phone) message += `%0aTel: ${phone}`;
-
-      const whatsappNumber = "60173209379";
-      const url = `https://wa.me/${whatsappNumber}?text=${message}`;
-
-      window.open(url);
+      const message = `Hi, I would like to order:\n\nItem: ${item}\nQuantity: ${quantity}\nAdd-ons: ${addons || 'None'}\nRequest: ${request || 'None'}`;
+      const encoded = encodeURIComponent(message);
+      window.open(`https://wa.me/60173209379?text=${encoded}`, '_blank');
     });
   </script></body>
 </html>
