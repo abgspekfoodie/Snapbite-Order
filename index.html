@@ -1,12 +1,13 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snapbite™ Ordering</title>
+  <title>Snapbite™ Order Form</title>
   <style>
     body { font-family:'Poppins', sans-serif; margin:0; padding:2rem; background:#1a1a1a; color:#fff; }
     h1 { color:#ff9500; text-align:center; }
-    form { max-width:700px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
+    form { max-width:800px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
     label { display:block; margin-top:1rem; font-weight:600; }
     input[type=text], input[type=tel], textarea, select {
       width:100%; padding:10px; border:none; border-radius:5px; margin-top:5px; background:#444; color:#fff;
@@ -14,66 +15,71 @@
     .menu-group { margin-top:2rem; border-top:1px solid #444; padding-top:1rem; }
     .menu-item { margin-bottom:1.5rem; }
     .menu-name { font-weight:bold; }
-    .add-on-list { margin-top:0.5rem; }
+    .item-desc { font-size:0.9rem; color:#ccc; margin:4px 0 6px 0; }
     .add-on-list label { font-weight:normal; margin-right:15px; display:inline-block; }
-    #totalBox { margin-top:2rem; font-size:1.2rem; color:#ff9500; font-weight:bold; }
-    button { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
+    button { margin-top:2rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; width:100%; }
   </style>
 </head>
 <body>
   <h1>Snapbite™ Order Form</h1>
-  <form id="orderForm" action="https://api.whatsapp.com/send" method="GET" target="_blank">
+  <form action="https://api.whatsapp.com/send" method="GET" target="_blank">
     <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Your name" required><label for="phone">Contact Number</label>
-<input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" required>
+    <input type="text" id="name" name="name" placeholder="Your name" required>
 
-<div class="menu-group">
-  <div class="menu-item">
-    <label class="menu-name">Primebite™ (RM10)</label>
-    <label><input type="checkbox" class="menu-item-checkbox" data-price="10" name="order" value="Primebite"> Add this item</label>
-    <div class="add-on-list">
-      <label><input type="checkbox" class="addon-checkbox" data-price="1.5" name="addon" value="Cheese (RM1.50)"> Cheese (RM1.50)</label>
-      <label><input type="checkbox" class="addon-checkbox" data-price="1.0" name="addon" value="Egg (RM1.00)"> Egg (RM1.00)</label>
-      <label><input type="checkbox" class="addon-checkbox" data-price="2.5" name="addon" value="Mushroom (RM2.50)"> Mushroom (RM2.50)</label>
-      <label><input type="checkbox" class="addon-checkbox" data-price="3.5" name="addon" value="Bacon (RM3.50)"> Bacon (RM3.50)</label>
+    <label for="phone">Contact Number</label>
+    <input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" required>
+
+    <div class="menu-group">
+      <div class="menu-item">
+        <label class="menu-name">Primebite™ (RM10)</label>
+        <div class="item-desc">Classic build – juicy & bold.</div>
+        <label><input type="checkbox" name="order" value="Primebite"> Add this item</label>
+        <div class="add-on-list">
+          <label><input type="checkbox" name="addon" value="Cheese (RM1.50)"> Cheese (RM1.50)</label>
+          <label><input type="checkbox" name="addon" value="Egg (RM1.00)"> Egg (RM1.00)</label>
+          <label><input type="checkbox" name="addon" value="Mushroom (RM2.50)"> Mushroom (RM2.50)</label>
+          <label><input type="checkbox" name="addon" value="Bacon (RM3.50)"> Bacon (RM3.50)</label>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <label class="menu-name">Beef N’ Cheese™ (RM11)</label>
+        <div class="item-desc">Melted cheese stacked over pure beef.</div>
+        <label><input type="checkbox" name="order" value="Beef N’ Cheese"> Add this item</label>
+      </div>
+
+      <div class="menu-item">
+        <label class="menu-name">Smoke Beef Taco™ (RM10)</label>
+        <div class="item-desc">Slow-smoked beef wrapped in soft tortilla.</div>
+        <label><input type="checkbox" name="order" value="Smoke Beef Taco"> Add this item</label>
+      </div>
+
+      <div class="menu-item">
+        <label class="menu-name">Mix Quesadilla™ (RM16)</label>
+        <div class="item-desc">Blend of beef & chicken with cheese in grilled tortilla.</div>
+        <label><input type="checkbox" name="order" value="Mix Quesadilla"> Add this item</label>
+      </div>
+
+      <div class="menu-item">
+        <label class="menu-name">Loaded Sausage™ (RM12)</label>
+        <div class="item-desc">Sausage with bacon, mushrooms, cheese & salad.</div>
+        <label><input type="checkbox" name="order" value="Loaded Sausage"> Add this item</label>
+      </div>
     </div>
-  </div>
-  <!-- Repeat menu-item block for other items as needed -->
-</div>
 
-<label for="notes">Special Request / Notes</label>
-<textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
+    <label for="notes">Special Request / Notes</label>
+    <textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
 
-<label for="payment">Payment Method</label>
-<select id="payment" name="payment">
-  <option value="Cash">Cash</option>
-  <option value="Online Transfer">Online Transfer</option>
-</select>
+    <label for="payment">Payment Method</label>
+    <select id="payment" name="payment">
+      <option value="Cash">Cash</option>
+      <option value="Online Banking (QR or transfer)">Online Banking (QR or transfer)</option>
+    </select>
 
-<label for="pickup">Pickup Time (Optional)</label>
-<input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
+    <label for="pickup">Pickup Time (Optional)</label>
+    <input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
 
-<div id="totalBox">Estimated Total: RM0.00</div>
-
-<button type="submit">Submit Order via WhatsApp</button>
-
-  </form>  <script>
-    const menuCheckboxes = document.querySelectorAll('.menu-item-checkbox');
-    const addonCheckboxes = document.querySelectorAll('.addon-checkbox');
-    const totalBox = document.getElementById('totalBox');
-
-    function updateTotal() {
-      let total = 0;
-      menuCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) total += parseFloat(checkbox.dataset.price);
-      });
-      addonCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) total += parseFloat(checkbox.dataset.price);
-      });
-      totalBox.textContent = `Estimated Total: RM${total.toFixed(2)}`;
-    }
-
-    menuCheckboxes.forEach(cb => cb.addEventListener('change', updateTotal));
-    addonCheckboxes.forEach(cb => cb.addEventListener('change', updateTotal));
-  </script></body>
+    <button type="submit">Submit Order via WhatsApp</button>
+  </form>
+</body>
 </html>
