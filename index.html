@@ -1,79 +1,118 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snapbite™ Order Form</title>
+  <title>Snapbite™ Menu</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
-    h1 { color: #ff9500; text-align: center; }
-    form { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; }
-    label { font-weight: 500; display: block; margin: 10px 0 5px; }
-    input, textarea, select { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
-    .add-btn, .submit-btn { background: #ff9500; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-    .add-btn:hover, .submit-btn:hover { background: #e58f00; }
-    .menu-section { margin-bottom: 30px; padding: 15px; background: #fdfdfd; border-radius: 8px; border: 1px solid #ddd; }
-    .item-title { font-weight: 600; margin-bottom: 8px; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #1a1a1a;
+      color: #f5f5f5;
+    }
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: min-content;
+      gap: 20px;
+    }
+    h1 {
+      grid-column: 1 / 3;
+      text-align: center;
+      font-size: 3rem;
+      color: #ff9500;
+      margin-bottom: 10px;
+    }
+    .section {
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    h2 {
+      font-size: 1.8rem;
+      color: #ff9500;
+      margin-bottom: 0.5rem;
+    }
+    .tagline {
+      font-style: italic;
+      color: #cccccc;
+      margin-bottom: 1rem;
+    }
+    .item {
+      margin-bottom: 1rem;
+    }
+    .item-name {
+      float: left;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .item-price {
+      float: right;
+      font-weight: 700;
+      color: #ff9500;
+    }
+    .item-desc {
+      clear: both;
+      margin: 4px 0 0 1.5rem;
+      font-size: 0.9rem;
+      color: #dddddd;
+    }
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>
-  <form>
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Enter your name" required><label for="contact">Contact Number</label>
-<input type="text" id="contact" name="contact" placeholder="Phone number" required>
+  <div class="container">
+    <h1>Snapbite™</h1>
 
-<div id="menu-items">
-  <div class="menu-section">
-    <label class="item-title">Menu Item</label>
-    <select name="item[]">
-      <option value="Primebite™">Primebite™</option>
-      <option value="Beef N’ Cheese™">Beef N’ Cheese™</option>
-      <option value="The Fun Guy™">The Fun Guy™</option>
-      <option value="The Fixer™">The Fixer™</option>
-      <option value="Chickbite™">Chickbite™</option>
-      <option value="Goldcut™">Goldcut™</option>
-      <option value="The Cap Cut™">The Cap Cut™</option>
-      <option value="Stripstack™">Stripstack™</option>
-      <option value="Smoke Beef Taco™">Smoke Beef Taco™</option>
-      <option value="Smokey Chicken Taco™">Smokey Chicken Taco™</option>
-      <option value="Mix Taco™">Mix Taco™</option>
-      <option value="Smoke Beef Quesadilla™">Smoke Beef Quesadilla™</option>
-      <option value="Smoke Chicken Quesadilla™">Smoke Chicken Quesadilla™</option>
-      <option value="Mix Quesadilla™">Mix Quesadilla™</option>
-      <option value="Classic Sausage™">Classic Sausage™</option>
-      <option value="Loaded Sausage™">Loaded Sausage™</option>
-      <option value="Popcorn Chicken">Popcorn Chicken</option>
-    </select>
+    <!-- Burger Series -->
+    <div class="section">
+      <h2>🍔 Burger Series</h2>
+      <div class="tagline">Our beef burgers are crafted using 140g patties — slow-smoked for bold flavour. Our chicken burgers use juicy deep-fried thigh fillets.</div>
+      <div class="item"><span class="item-name">Primebite™</span><span class="item-price">RM10</span><div class="item-desc">Classic build – juicy & bold.</div></div>
+      <div class="item"><span class="item-name">Beef N’ Cheese™</span><span class="item-price">RM11</span><div class="item-desc">Melted cheese stacked over pure beef.</div></div>
+      <div class="item"><span class="item-name">The Fun Guy™</span><span class="item-price">RM12</span><div class="item-desc">Topped with sautéed mushrooms – earthy & smooth.</div></div>
+      <div class="item"><span class="item-name">The Fixer™</span><span class="item-price">RM15</span><div class="item-desc">Stacked with beef, crispy bacon, egg & cheese.</div></div>
+      <div class="item"><span class="item-name">Chickbite™</span><span class="item-price">RM9</span><div class="item-desc">Classic deep-fried chicken burger.</div></div>
+      <div class="item"><span class="item-name">Goldcut™</span><span class="item-price">RM10</span><div class="item-desc">Fried chicken with melted cheese.</div></div>
+      <div class="item"><span class="item-name">The Cap Cut™</span><span class="item-price">RM11</span><div class="item-desc">Fried chicken topped with sautéed mushrooms.</div></div>
+      <div class="item"><span class="item-name">Stripstack™</span><span class="item-price">RM14</span><div class="item-desc">Fried chicken with chicken bacon & egg.</div></div>
+    </div>
 
-    <label>Add-Ons</label>
-    <input type="checkbox" name="addon[]" value="Cheese"> Cheese (RM2)<br>
-    <input type="checkbox" name="addon[]" value="Bacon"> Bacon (RM2)<br>
-    <input type="checkbox" name="addon[]" value="Mushroom"> Mushroom (RM2)<br>
-    <input type="checkbox" name="addon[]" value="Egg"> Egg (RM0.80)<br>
+    <!-- Tex-Mex Series -->
+    <div class="section">
+      <h2>🌮 Tex-Mex Series</h2>
+      <div class="tagline">Tacos and quesadillas with Snapbite™'s signature Limewitch™ sauce — slow-smoked beef or chicken cuts, sliced to perfection.</div>
+      <div class="item"><span class="item-name">Smoke Beef Taco™</span><span class="item-price">RM10</span><div class="item-desc">Slow-smoked beef wrapped in soft tortilla.</div></div>
+      <div class="item"><span class="item-name">Smokey Chicken Taco™</span><span class="item-price">RM9</span><div class="item-desc">Slow-smoked chicken wrapped in soft tortilla.</div></div>
+      <div class="item"><span class="item-name">Mix Taco™</span><span class="item-price">RM12</span><div class="item-desc">Beef & chicken combo in soft tortilla.</div></div>
+      <div class="item"><span class="item-name">Smoke Beef Quesadilla™</span><span class="item-price">RM15</span><div class="item-desc">Beef with mozzarella cheese in grilled tortilla.</div></div>
+      <div class="item"><span class="item-name">Smoke Chicken Quesadilla™</span><span class="item-price">RM14</span><div class="item-desc">Chicken with mozzarella cheese in grilled tortilla.</div></div>
+      <div class="item"><span class="item-name">Mix Quesadilla™</span><span class="item-price">RM16</span><div class="item-desc">Blend of beef & chicken with mozzarella in grilled tortilla.</div></div>
+    </div>
 
-    <label>Special Request</label>
-    <textarea name="request[]" rows="2" placeholder="Add notes here..."></textarea>
+    <!-- Sausage Series -->
+    <div class="section">
+      <h2>🌭 Sausage Series</h2>
+      <div class="tagline">Cheese-filled sausage, grilled to juicy perfection – soft bun, savoury toppings.</div>
+      <div class="item"><span class="item-name">Classic Sausage™</span><span class="item-price">RM6</span><div class="item-desc">Grilled cheese sausage in soft bun.</div></div>
+      <div class="item"><span class="item-name">Loaded Sausage™</span><span class="item-price">RM12</span><div class="item-desc">Sausage with mushrooms, bacon, cheese & salad.</div></div>
+    </div>
+
+    <!-- Snack Series -->
+    <div class="section">
+      <h2>🍟 Snack Series</h2>
+      <div class="item"><span class="item-name">Popcorn Chicken</span><span class="item-price">RM6</span><div class="item-desc">Crispy bite-sized fried chicken pieces.</div></div>
+    </div>
+
   </div>
-</div>
-
-<button type="button" class="add-btn" onclick="addMenuItem()">+ Add Another Item</button>
-
-<label for="pickupTime">Pickup Time (Optional)</label>
-<input type="text" id="pickupTime" name="pickupTime" placeholder="e.g. 1:30 PM">
-
-<label>Payment Method</label>
-<input type="radio" id="cash" name="payment" value="Cash" checked>
-<label for="cash">Cash</label>
-<input type="radio" id="qr" name="payment" value="QR Code">
-<label for="qr">QR Code</label>
-
-<button type="submit" class="submit-btn">Submit Order</button>
-
-  </form>  <script>
-    function addMenuItem() {
-      const menuSection = document.querySelector('.menu-section');
-      const clone = menuSection.cloneNode(true);
-      document.getElementById('menu-items').appendChild(clone);
-    }
-  </script></body>
+</body>
 </html>
