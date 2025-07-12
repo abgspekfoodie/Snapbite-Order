@@ -1,97 +1,79 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Snapbite™ Order Form</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #f5f5f5; padding: 20px; color: #333; }
-    h1 { text-align: center; color: #ff9500; }
-    .menu-item { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: 600; }
-    input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 5px; border: 1px solid #ccc; }
-    button { padding: 10px 20px; background: #ff9500; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .menu-container { margin-bottom: 20px; }
-    .output { white-space: pre-wrap; background: #eee; padding: 10px; margin-top: 20px; border-radius: 5px; }
+    body { font-family: 'Poppins', sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
+    h1 { color: #ff9500; text-align: center; }
+    form { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; }
+    label { font-weight: 500; display: block; margin: 10px 0 5px; }
+    input, textarea, select { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    .add-btn, .submit-btn { background: #ff9500; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    .add-btn:hover, .submit-btn:hover { background: #e58f00; }
+    .menu-section { margin-bottom: 30px; padding: 15px; background: #fdfdfd; border-radius: 8px; border: 1px solid #ddd; }
+    .item-title { font-weight: 600; margin-bottom: 8px; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>  <form id="orderForm">
-    <div class="menu-container" id="menuContainer"></div><button type="button" onclick="addMenuItem()">+ Tambah Menu</button>
-<label>Nama</label>
-<input type="text" id="customerName" required />
+  <h1>Snapbite™ Order Form</h1>
+  <form>
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" required><label for="contact">Contact Number</label>
+<input type="text" id="contact" name="contact" placeholder="Phone number" required>
 
-<label>Nombor WhatsApp</label>
-<input type="text" id="whatsappNumber" required />
+<div id="menu-items">
+  <div class="menu-section">
+    <label class="item-title">Menu Item</label>
+    <select name="item[]">
+      <option value="Primebite™">Primebite™</option>
+      <option value="Beef N’ Cheese™">Beef N’ Cheese™</option>
+      <option value="The Fun Guy™">The Fun Guy™</option>
+      <option value="The Fixer™">The Fixer™</option>
+      <option value="Chickbite™">Chickbite™</option>
+      <option value="Goldcut™">Goldcut™</option>
+      <option value="The Cap Cut™">The Cap Cut™</option>
+      <option value="Stripstack™">Stripstack™</option>
+      <option value="Smoke Beef Taco™">Smoke Beef Taco™</option>
+      <option value="Smokey Chicken Taco™">Smokey Chicken Taco™</option>
+      <option value="Mix Taco™">Mix Taco™</option>
+      <option value="Smoke Beef Quesadilla™">Smoke Beef Quesadilla™</option>
+      <option value="Smoke Chicken Quesadilla™">Smoke Chicken Quesadilla™</option>
+      <option value="Mix Quesadilla™">Mix Quesadilla™</option>
+      <option value="Classic Sausage™">Classic Sausage™</option>
+      <option value="Loaded Sausage™">Loaded Sausage™</option>
+      <option value="Popcorn Chicken">Popcorn Chicken</option>
+    </select>
 
-<button type="submit">Hantar ke WhatsApp</button>
+    <label>Add-Ons</label>
+    <input type="checkbox" name="addon[]" value="Cheese"> Cheese (RM2)<br>
+    <input type="checkbox" name="addon[]" value="Bacon"> Bacon (RM2)<br>
+    <input type="checkbox" name="addon[]" value="Mushroom"> Mushroom (RM2)<br>
+    <input type="checkbox" name="addon[]" value="Egg"> Egg (RM0.80)<br>
+
+    <label>Special Request</label>
+    <textarea name="request[]" rows="2" placeholder="Add notes here..."></textarea>
+  </div>
+</div>
+
+<button type="button" class="add-btn" onclick="addMenuItem()">+ Add Another Item</button>
+
+<label for="pickupTime">Pickup Time (Optional)</label>
+<input type="text" id="pickupTime" name="pickupTime" placeholder="e.g. 1:30 PM">
+
+<label>Payment Method</label>
+<input type="radio" id="cash" name="payment" value="Cash" checked>
+<label for="cash">Cash</label>
+<input type="radio" id="qr" name="payment" value="QR Code">
+<label for="qr">QR Code</label>
+
+<button type="submit" class="submit-btn">Submit Order</button>
 
   </form>  <script>
-    let menuCount = 0;
-
-    const menuOptions = [
-      'Primebite™', 'Beef N’ Cheese™', 'The Fun Guy™', 'The Fixer™',
-      'Chickbite™', 'Goldcut™', 'The Cap Cut™', 'Stripstack™',
-      'Smoke Beef Taco™', 'Smokey Chicken Taco™', 'Mix Taco™',
-      'Smoke Beef Quesadilla™', 'Smoke Chicken Quesadilla™', 'Mix Quesadilla™',
-      'Classic Sausage™', 'Loaded Sausage™', 'Popcorn Chicken'
-    ];
-
-    const addMenuItem = () => {
-      const container = document.getElementById('menuContainer');
-      const div = document.createElement('div');
-      div.className = 'menu-item';
-      div.innerHTML = `
-        <label>Menu</label>
-        <select name="menu">
-          ${menuOptions.map(m => `<option value="${m}">${m}</option>`).join('')}
-        </select>
-        <label>Kuantiti</label>
-        <input type="number" name="quantity" value="1" min="1" required />
-        <label>Add-On</label>
-        <select name="addon">
-          <option value="">Tiada</option>
-          <option value="Cheese">Cheese (+RM2)</option>
-          <option value="Bacon">Bacon (+RM2)</option>
-          <option value="Mushroom">Mushroom (+RM1.50)</option>
-          <option value="Egg">Egg (+RM0.80)</option>
-        </select>
-        <label>Sos Pilihan</label>
-        <input type="text" name="sauce" placeholder="Contoh: Spicy Mayo" />
-        <label>Catatan</label>
-        <textarea name="note" placeholder="Contoh: Kurangkan sayur, lebih sos..."></textarea>`;
-  container.appendChild(div);
-  menuCount++;
-};
-
-document.getElementById('orderForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const name = document.getElementById('customerName').value;
-  const number = document.getElementById('whatsappNumber').value;
-  const items = document.querySelectorAll('.menu-item');
-
-  let message = `Order Baru dari ${name} (%0a`;
-
-  items.forEach((item, i) => {
-    const menu = item.querySelector('select[name="menu"]').value;
-    const qty = item.querySelector('input[name="quantity"]').value;
-    const addon = item.querySelector('select[name="addon"]').value;
-    const sauce = item.querySelector('input[name="sauce"]').value;
-    const note = item.querySelector('textarea[name="note"]').value;
-
-    message += `%0a${i+1}. ${menu} x${qty}`;
-    if (addon) message += ` | Add-on: ${addon}`;
-    if (sauce) message += ` | Sos: ${sauce}`;
-    if (note) message += ` | Catatan: ${note}`;
-  });
-
-  message += `%0a%0aHubungi balik: ${number}`;
-
-  window.open(`https://wa.me/6${number}?text=${message}`, '_blank');
-});
-
-// Auto add first menu
-addMenuItem();
-
-  </script>
-</body>
+    function addMenuItem() {
+      const menuSection = document.querySelector('.menu-section');
+      const clone = menuSection.cloneNode(true);
+      document.getElementById('menu-items').appendChild(clone);
+    }
+  </script></body>
 </html>
