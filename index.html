@@ -1,118 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snapbite™ Menu</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snapbite™ Ordering Form</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
       background: #1a1a1a;
       color: #f5f5f5;
-    }
-    .container {
-      width: 90%;
-      max-width: 1200px;
-      margin: 40px auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-auto-rows: min-content;
-      gap: 20px;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0 1rem;
     }
     h1 {
-      grid-column: 1 / 3;
       text-align: center;
-      font-size: 3rem;
       color: #ff9500;
-      margin-bottom: 10px;
+      margin-top: 2rem;
     }
-    .section {
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.05);
+    form {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: #2a2a2a;
+      padding: 1.5rem;
       border-radius: 10px;
     }
-    h2 {
-      font-size: 1.8rem;
-      color: #ff9500;
+    .menu-item {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 5px;
       margin-bottom: 0.5rem;
     }
-    .tagline {
-      font-style: italic;
-      color: #cccccc;
+    .addons label {
+      display: inline-block;
+      margin-right: 1rem;
+    }
+    .add-button {
+      background: #ff9500;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
       margin-bottom: 1rem;
     }
-    .item {
-      margin-bottom: 1rem;
-    }
-    .item-name {
-      float: left;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    .item-price {
-      float: right;
-      font-weight: 700;
-      color: #ff9500;
-    }
-    .item-desc {
-      clear: both;
-      margin: 4px 0 0 1.5rem;
-      font-size: 0.9rem;
-      color: #dddddd;
-    }
-    @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
+    .submit-button {
+      background: #00cc66;
+      color: #000;
+      font-weight: bold;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      display: block;
+      margin: 2rem auto 0;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Snapbite™</h1>
+  <h1>Snapbite™ Ordering Form</h1>
+  <form id="orderForm">
+    <div id="menuItems"></div>
+    <button type="button" class="add-button" onclick="addMenuItem()">+ Add Menu Item</button><label>Nama</label>
+<input type="text" id="customerName" required>
 
-    <!-- Burger Series -->
-    <div class="section">
-      <h2>🍔 Burger Series</h2>
-      <div class="tagline">Our beef burgers are crafted using 140g patties — slow-smoked for bold flavour. Our chicken burgers use juicy deep-fried thigh fillets.</div>
-      <div class="item"><span class="item-name">Primebite™</span><span class="item-price">RM10</span><div class="item-desc">Classic build – juicy & bold.</div></div>
-      <div class="item"><span class="item-name">Beef N’ Cheese™</span><span class="item-price">RM11</span><div class="item-desc">Melted cheese stacked over pure beef.</div></div>
-      <div class="item"><span class="item-name">The Fun Guy™</span><span class="item-price">RM12</span><div class="item-desc">Topped with sautéed mushrooms – earthy & smooth.</div></div>
-      <div class="item"><span class="item-name">The Fixer™</span><span class="item-price">RM15</span><div class="item-desc">Stacked with beef, crispy bacon, egg & cheese.</div></div>
-      <div class="item"><span class="item-name">Chickbite™</span><span class="item-price">RM9</span><div class="item-desc">Classic deep-fried chicken burger.</div></div>
-      <div class="item"><span class="item-name">Goldcut™</span><span class="item-price">RM10</span><div class="item-desc">Fried chicken with melted cheese.</div></div>
-      <div class="item"><span class="item-name">The Cap Cut™</span><span class="item-price">RM11</span><div class="item-desc">Fried chicken topped with sautéed mushrooms.</div></div>
-      <div class="item"><span class="item-name">Stripstack™</span><span class="item-price">RM14</span><div class="item-desc">Fried chicken with chicken bacon & egg.</div></div>
-    </div>
+<label>Nombor yang boleh dihubungi</label>
+<input type="text" id="contactNumber" required>
 
-    <!-- Tex-Mex Series -->
-    <div class="section">
-      <h2>🌮 Tex-Mex Series</h2>
-      <div class="tagline">Tacos and quesadillas with Snapbite™'s signature Limewitch™ sauce — slow-smoked beef or chicken cuts, sliced to perfection.</div>
-      <div class="item"><span class="item-name">Smoke Beef Taco™</span><span class="item-price">RM10</span><div class="item-desc">Slow-smoked beef wrapped in soft tortilla.</div></div>
-      <div class="item"><span class="item-name">Smokey Chicken Taco™</span><span class="item-price">RM9</span><div class="item-desc">Slow-smoked chicken wrapped in soft tortilla.</div></div>
-      <div class="item"><span class="item-name">Mix Taco™</span><span class="item-price">RM12</span><div class="item-desc">Beef & chicken combo in soft tortilla.</div></div>
-      <div class="item"><span class="item-name">Smoke Beef Quesadilla™</span><span class="item-price">RM15</span><div class="item-desc">Beef with mozzarella cheese in grilled tortilla.</div></div>
-      <div class="item"><span class="item-name">Smoke Chicken Quesadilla™</span><span class="item-price">RM14</span><div class="item-desc">Chicken with mozzarella cheese in grilled tortilla.</div></div>
-      <div class="item"><span class="item-name">Mix Quesadilla™</span><span class="item-price">RM16</span><div class="item-desc">Blend of beef & chicken with mozzarella in grilled tortilla.</div></div>
-    </div>
+<label>Cara Pembayaran</label>
+<label><input type="radio" name="payment" value="Cash" checked> Cash</label>
+<label><input type="radio" name="payment" value="Online"> Online</label>
 
-    <!-- Sausage Series -->
-    <div class="section">
-      <h2>🌭 Sausage Series</h2>
-      <div class="tagline">Cheese-filled sausage, grilled to juicy perfection – soft bun, savoury toppings.</div>
-      <div class="item"><span class="item-name">Classic Sausage™</span><span class="item-price">RM6</span><div class="item-desc">Grilled cheese sausage in soft bun.</div></div>
-      <div class="item"><span class="item-name">Loaded Sausage™</span><span class="item-price">RM12</span><div class="item-desc">Sausage with mushrooms, bacon, cheese & salad.</div></div>
-    </div>
+<label>Masa Pickup (Optional)</label>
+<input type="text" id="pickupTime" placeholder="Contoh: 8.00 malam">
 
-    <!-- Snack Series -->
-    <div class="section">
-      <h2>🍟 Snack Series</h2>
-      <div class="item"><span class="item-name">Popcorn Chicken</span><span class="item-price">RM6</span><div class="item-desc">Crispy bite-sized fried chicken pieces.</div></div>
-    </div>
+<button type="submit" class="submit-button">Hantar ke WhatsApp</button>
 
-  </div>
-</body>
+  </form>  <script>
+    const menuData = {
+      "Primebite™": "Classic build – juicy & bold.",
+      "Beef N’ Cheese™": "Melted cheese stacked over pure beef.",
+      "The Fun Guy™": "Topped with sautéed mushrooms – earthy & smooth.",
+      "The Fixer™": "Stacked with beef, crispy bacon, egg & cheese.",
+      "Chickbite™": "Classic deep-fried chicken burger.",
+      "Goldcut™": "Fried chicken with melted cheese.",
+      "The Cap Cut™": "Fried chicken topped with sautéed mushrooms.",
+      "Stripstack™": "Fried chicken with chicken bacon & egg.",
+      "Smoke Beef Taco™": "Slow-smoked beef wrapped in soft tortilla.",
+      "Smokey Chicken Taco™": "Slow-smoked chicken wrapped in soft tortilla.",
+      "Mix Taco™": "Beef & chicken combo in soft tortilla.",
+      "Smoke Beef Quesadilla™": "Beef with melted mozzarella in grilled tortilla.",
+      "Smoke Chicken Quesadilla™": "Chicken with melted mozzarella in grilled tortilla.",
+      "Mix Quesadilla™": "Blend of beef & chicken with cheese in grilled tortilla.",
+      "Classic Sausage™": "Grilled cheese-filled sausage in soft bun.",
+      "Loaded Sausage™": "Sausage with bacon, mushrooms, cheese & salad.",
+      "Popcorn Chicken": "Crispy bite-sized chicken."
+    };
+
+    function addMenuItem() {
+      const container = document.getElementById('menuItems');
+      const div = document.createElement('div');
+      div.className = 'menu-item';
+      div.innerHTML = `
+        <label>Pilih Menu</label>
+        <select onchange="updateDescription(this)">
+          <option value="" disabled selected>-- Pilih --</option>
+          ${Object.keys(menuData).map(item => `<option value="${item}">${item}</option>`).join('')}
+        </select>
+        <div class="desc"></div>
+
+        <label>Add-ons:</label>
+        <div class="addons">
+          <label><input type="checkbox" value="Cheese"> Cheese</label>
+          <label><input type="checkbox" value="Bacon"> Bacon</label>
+          <label><input type="checkbox" value="Mushroom"> Mushroom</label>
+          <label><input type="checkbox" value="Egg"> Egg (+RM0.80)</label>
+        </div>
+
+        <label>Permintaan khas</label>
+        <input type="text" placeholder="Contoh: extra sos, tiada sayur">
+
+        <label>Kuantiti</label>
+        <input type="number" value="1" min="1">
+      `;
+      container.appendChild(div);
+    }
+
+    function updateDescription(selectEl) {
+      const descDiv = selectEl.parentElement.querySelector('.desc');
+      descDiv.innerText = menuData[selectEl.value] || '';
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('contactNumber').value.trim();
+      const payment = document.querySelector('input[name="payment"]:checked').value;
+      const pickup = document.getElementById('pickupTime').value.trim();
+      const items = [...document.querySelectorAll('.menu-item')].map(div => {
+        const menu = div.querySelector('select').value;
+        const desc = menuData[menu] || '';
+        const addons = [...div.querySelectorAll('.addons input:checked')].map(i => i.value).join(', ');
+        const note = div.querySelector('input[type="text"]').value;
+        const qty = div.querySelector('input[type="number"]').value;
+        return `• ${menu} (${desc})\n  Add-ons: ${addons || 'None'}\n  Qty: ${qty} | Note: ${note}`;
+      }).join('\n\n');
+
+      let msg = `Order Snapbite™\n\n${items}\n\nNama: ${name}\nHubungi: ${phone}\nBayar: ${payment}`;
+      if(pickup) msg += `\nPickup: ${pickup}`;
+
+      window.open(`https://wa.me/60173209379?text=${encodeURIComponent(msg)}`, '_blank');
+    });
+
+    // Auto add one menu on page load
+    window.onload = addMenuItem;
+  </script></body>
 </html>
