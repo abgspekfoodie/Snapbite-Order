@@ -1,83 +1,91 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Snapbite™ Order Form</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #1e1e1e; color: #f5f5f5; margin: 0; padding: 20px; }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
     h1 { text-align: center; color: #ff9500; }
-    form { max-width: 600px; margin: auto; background: #2b2b2b; padding: 20px; border-radius: 10px; }
-    label { display: block; margin: 15px 0 5px; font-weight: bold; }
-    select, input[type=text], input[type=tel], textarea { width: 100%; padding: 10px; border: none; border-radius: 5px; }
-    button { background: #ff9500; color: #000; padding: 12px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-    button:hover { background: #e08900; }
+    .menu-item { border: 1px solid #444; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #2b2b2b; }
+    label { display: block; margin: 8px 0 4px; }
+    input, select, textarea { width: 100%; padding: 8px; border: none; border-radius: 4px; margin-bottom: 10px; }
+    button { background: #ff9500; color: #000; padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>
-  <form id="orderForm">
-    <label for="name">Nama</label>
-    <input type="text" id="name" name="name" required><label for="phone">Nombor Telefon</label>
-<input type="tel" id="phone" name="phone" required>
+  <h1>Snapbite™ Order</h1>  <form id="orderForm">
+    <div class="menu-item">
+      <label>Menu Item</label>
+      <select name="menu[]">
+        <option value="Primebite™">Primebite™</option>
+        <option value="Beef N' Cheese™">Beef N' Cheese™</option>
+        <option value="The Fun Guy™">The Fun Guy™</option>
+        <option value="The Fixer™">The Fixer™</option>
+        <option value="Chickbite™">Chickbite™</option>
+        <option value="Goldcut™">Goldcut™</option>
+        <option value="The Cap Cut™">The Cap Cut™</option>
+        <option value="Stripstack™">Stripstack™</option>
+      </select><label>Kuantiti</label>
+  <input type="number" name="quantity[]" min="1" value="1" />
 
-<label for="menu">Pilih Menu</label>
-<select id="menu" name="menu" required>
-  <option value="Primebite™">Primebite™ – RM10</option>
-  <option value="Beef N’ Cheese™">Beef N’ Cheese™ – RM11</option>
-  <option value="The Fun Guy™">The Fun Guy™ – RM12</option>
-  <option value="The Fixer™">The Fixer™ – RM15</option>
-  <option value="Chickbite™">Chickbite™ – RM9</option>
-  <option value="Goldcut™">Goldcut™ – RM10</option>
-  <option value="The Cap Cut™">The Cap Cut™ – RM11</option>
-  <option value="Stripstack™">Stripstack™ – RM14</option>
-  <option value="Smoke Beef Taco™">Smoke Beef Taco™ – RM10</option>
-  <option value="Smokey Chicken Taco™">Smokey Chicken Taco™ – RM9</option>
-  <option value="Mix Taco™">Mix Taco™ – RM12</option>
-  <option value="Smoke Beef Quesadilla™">Smoke Beef Quesadilla™ – RM15</option>
-  <option value="Smoke Chicken Quesadilla™">Smoke Chicken Quesadilla™ – RM14</option>
-  <option value="Mix Quesadilla™">Mix Quesadilla™ – RM16</option>
-  <option value="Classic Sausage™">Classic Sausage™ – RM6</option>
-  <option value="Loaded Sausage™">Loaded Sausage™ – RM12</option>
-  <option value="Popcorn Chicken">Popcorn Chicken – RM6</option>
-</select>
+  <label>Add-ons</label>
+  <input type="checkbox" name="addon1[]" value="Cheese"> Cheese (RM2)<br>
+  <input type="checkbox" name="addon2[]" value="Bacon"> Bacon (RM2)<br>
+  <input type="checkbox" name="addon3[]" value="Mushroom"> Mushroom (RM2)<br>
+  <input type="checkbox" name="addon4[]" value="Egg"> Egg (RM1)<br>
 
-<label for="sauce">Pilihan Sos</label>
-<select id="sauce" name="sauce">
-  <option value="BBQ">BBQ</option>
-  <option value="Cheese">Cheese</option>
-  <option value="Spicy Mayo">Spicy Mayo</option>
-  <option value="Garlic Aioli">Garlic Aioli</option>
-</select>
+  <label>Request</label>
+  <textarea name="request[]" placeholder="Contoh: tak nak bawang..."></textarea>
+</div>
 
-<label for="addons">Add-On (Optional)</label>
-<select id="addons" name="addons" multiple>
-  <option value="Cheese +RM2">Cheese +RM2</option>
-  <option value="Bacon +RM2">Bacon +RM2</option>
-  <option value="Mushroom +RM2">Mushroom +RM2</option>
-  <option value="Egg +RM1">Egg +RM1</option>
-</select>
+<!-- Duplicate menu-item divs as needed for more selections -->
 
-<label for="note">Catatan Tambahan</label>
-<textarea id="note" name="note" rows="4"></textarea>
+<label>Nama (Optional)</label>
+<input type="text" name="customerName" />
+
+<label>Nombor Telefon (Optional)</label>
+<input type="text" name="customerPhone" />
 
 <button type="submit">Hantar ke WhatsApp</button>
 
   </form>  <script>
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
+    document.getElementById("orderForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const menu = document.getElementById("menu").value;
-      const sauce = document.getElementById("sauce").value;
-      const addons = Array.from(document.getElementById("addons").selectedOptions).map(option => option.value).join(", ");
-      const note = document.getElementById("note").value;
 
-      const message = `Order dari Snapbite™:\nNama: ${name}\nPhone: ${phone}\nMenu: ${menu}\nSos: ${sauce}\nAdd-on: ${addons}\nCatatan: ${note}`;
-      const encodedMessage = encodeURIComponent(message);
-      const phoneNumber = "60173209379"; // test number
-      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      const menu = document.getElementsByName("menu[]");
+      const quantity = document.getElementsByName("quantity[]");
+      const addon1 = document.getElementsByName("addon1[]");
+      const addon2 = document.getElementsByName("addon2[]");
+      const addon3 = document.getElementsByName("addon3[]");
+      const addon4 = document.getElementsByName("addon4[]");
+      const request = document.getElementsByName("request[]");
 
-      window.open(whatsappURL, '_blank');
+      let message = "Order Snapbite™:%0a";
+
+      for (let i = 0; i < menu.length; i++) {
+        message += `%0a*${menu[i].value}* x${quantity[i].value}`;
+
+        let addons = [];
+        if (addon1[i].checked) addons.push("Cheese");
+        if (addon2[i].checked) addons.push("Bacon");
+        if (addon3[i].checked) addons.push("Mushroom");
+        if (addon4[i].checked) addons.push("Egg");
+
+        if (addons.length) message += `%0a  Add-on: ${addons.join(", ")}`;
+
+        if (request[i].value) message += `%0a  Note: ${request[i].value}`;
+      }
+
+      const name = document.querySelector("input[name='customerName']").value;
+      const phone = document.querySelector("input[name='customerPhone']").value;
+
+      if (name) message += `%0a%0aNama: ${name}`;
+      if (phone) message += `%0aTel: ${phone}`;
+
+      const whatsappNumber = "60173209379";
+      const url = `https://wa.me/${whatsappNumber}?text=${message}`;
+
+      window.open(url);
     });
   </script></body>
 </html>
