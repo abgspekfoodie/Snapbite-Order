@@ -1,54 +1,83 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snapbite™ Order</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snapbite™ Order Form</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #1a1a1a; color: #f5f5f5; margin: 0; padding: 20px; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1e1e1e; color: #f5f5f5; margin: 0; padding: 20px; }
     h1 { text-align: center; color: #ff9500; }
-    .menu { max-width: 600px; margin: 0 auto; }
-    .item { border-bottom: 1px solid #444; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
-    .item label { flex: 1; }
-    .item input[type="number"] { width: 50px; background: #333; color: #fff; border: 1px solid #777; padding: 5px; border-radius: 5px; }
-    .btn { display: block; width: 100%; margin-top: 20px; padding: 10px; background: #ff9500; color: #1a1a1a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
-    .form-field { margin-top: 15px; }
-    .form-field input { width: 100%; padding: 10px; background: #333; color: #fff; border: 1px solid #555; border-radius: 5px; }
+    form { max-width: 600px; margin: auto; background: #2b2b2b; padding: 20px; border-radius: 10px; }
+    label { display: block; margin: 15px 0 5px; font-weight: bold; }
+    select, input[type=text], input[type=tel], textarea { width: 100%; padding: 10px; border: none; border-radius: 5px; }
+    button { background: #ff9500; color: #000; padding: 12px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    button:hover { background: #e08900; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order</h1>
-  <div class="menu">
-    <div class="item"><label>Primebite™ (RM10)</label><input type="number" id="Primebite" min="0" value="0"></div>
-    <div class="item"><label>Beef N’ Cheese™ (RM11)</label><input type="number" id="BeefNCheese" min="0" value="0"></div>
-    <div class="item"><label>Chickbite™ (RM9)</label><input type="number" id="Chickbite" min="0" value="0"></div>
-    <div class="item"><label>Goldcut™ (RM10)</label><input type="number" id="Goldcut" min="0" value="0"></div><div class="form-field"><input type="text" id="custName" placeholder="Nama (optional)"></div>
-<div class="form-field"><input type="text" id="custPhone" placeholder="Nombor Telefon (optional)"></div>
-<button class="btn" onclick="placeOrder()">Place Order</button>
+  <h1>Snapbite™ Order Form</h1>
+  <form id="orderForm">
+    <label for="name">Nama</label>
+    <input type="text" id="name" name="name" required><label for="phone">Nombor Telefon</label>
+<input type="tel" id="phone" name="phone" required>
 
-  </div>  <script>
-    function placeOrder() {
-      const items = [
-        { id: 'Primebite', name: 'Primebite™', price: 10 },
-        { id: 'BeefNCheese', name: 'Beef N’ Cheese™', price: 11 },
-        { id: 'Chickbite', name: 'Chickbite™', price: 9 },
-        { id: 'Goldcut', name: 'Goldcut™', price: 10 }
-      ];
-      let orderList = '', total = 0;
-      items.forEach(item => {
-        const qty = parseInt(document.getElementById(item.id).value);
-        if (qty > 0) {
-          orderList += `${qty} x ${item.name} - RM${item.price * qty}\n`;
-          total += item.price * qty;
-        }
-      });
-      if (!orderList) return alert("Sila pilih sekurang-kurangnya satu item.");
+<label for="menu">Pilih Menu</label>
+<select id="menu" name="menu" required>
+  <option value="Primebite™">Primebite™ – RM10</option>
+  <option value="Beef N’ Cheese™">Beef N’ Cheese™ – RM11</option>
+  <option value="The Fun Guy™">The Fun Guy™ – RM12</option>
+  <option value="The Fixer™">The Fixer™ – RM15</option>
+  <option value="Chickbite™">Chickbite™ – RM9</option>
+  <option value="Goldcut™">Goldcut™ – RM10</option>
+  <option value="The Cap Cut™">The Cap Cut™ – RM11</option>
+  <option value="Stripstack™">Stripstack™ – RM14</option>
+  <option value="Smoke Beef Taco™">Smoke Beef Taco™ – RM10</option>
+  <option value="Smokey Chicken Taco™">Smokey Chicken Taco™ – RM9</option>
+  <option value="Mix Taco™">Mix Taco™ – RM12</option>
+  <option value="Smoke Beef Quesadilla™">Smoke Beef Quesadilla™ – RM15</option>
+  <option value="Smoke Chicken Quesadilla™">Smoke Chicken Quesadilla™ – RM14</option>
+  <option value="Mix Quesadilla™">Mix Quesadilla™ – RM16</option>
+  <option value="Classic Sausage™">Classic Sausage™ – RM6</option>
+  <option value="Loaded Sausage™">Loaded Sausage™ – RM12</option>
+  <option value="Popcorn Chicken">Popcorn Chicken – RM6</option>
+</select>
 
-      const name = document.getElementById('custName').value;
-      const phone = document.getElementById('custPhone').value;
-      const msg = `Order dari Snapbite™:\n\n${orderList}\nTotal: RM${total}\n\nNama: ${name}\nNombor: ${phone}`;
+<label for="sauce">Pilihan Sos</label>
+<select id="sauce" name="sauce">
+  <option value="BBQ">BBQ</option>
+  <option value="Cheese">Cheese</option>
+  <option value="Spicy Mayo">Spicy Mayo</option>
+  <option value="Garlic Aioli">Garlic Aioli</option>
+</select>
 
-      const waURL = `https://wa.me/60173209379?text=${encodeURIComponent(msg)}`;
-      window.open(waURL, '_blank');
-    }
+<label for="addons">Add-On (Optional)</label>
+<select id="addons" name="addons" multiple>
+  <option value="Cheese +RM2">Cheese +RM2</option>
+  <option value="Bacon +RM2">Bacon +RM2</option>
+  <option value="Mushroom +RM2">Mushroom +RM2</option>
+  <option value="Egg +RM1">Egg +RM1</option>
+</select>
+
+<label for="note">Catatan Tambahan</label>
+<textarea id="note" name="note" rows="4"></textarea>
+
+<button type="submit">Hantar ke WhatsApp</button>
+
+  </form>  <script>
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const menu = document.getElementById("menu").value;
+      const sauce = document.getElementById("sauce").value;
+      const addons = Array.from(document.getElementById("addons").selectedOptions).map(option => option.value).join(", ");
+      const note = document.getElementById("note").value;
+
+      const message = `Order dari Snapbite™:\nNama: ${name}\nPhone: ${phone}\nMenu: ${menu}\nSos: ${sauce}\nAdd-on: ${addons}\nCatatan: ${note}`;
+      const encodedMessage = encodeURIComponent(message);
+      const phoneNumber = "60173209379"; // test number
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+      window.open(whatsappURL, '_blank');
+    });
   </script></body>
 </html>
