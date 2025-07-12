@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,77 +8,114 @@
     h1 { color:#ff9500; text-align:center; }
     form { max-width:800px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
     label { display:block; margin-top:1rem; font-weight:600; }
-    input[type=text], input[type=tel], textarea, select {
-      width:100%; padding:10px; border:none; border-radius:5px; margin-top:5px; background:#444; color:#fff;
-    }
-    .menu-group { margin-top:2rem; border-top:1px solid #444; padding-top:1rem; }
-    .menu-item { margin-bottom:1.5rem; }
-    .menu-name { font-weight:bold; }
-    .item-desc { font-size:0.9rem; color:#ccc; margin:4px 0 6px 0; }
-    .add-on-list label { font-weight:normal; margin-right:15px; display:inline-block; }
-    button { margin-top:2rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; width:100%; }
+    input, select, textarea { width:100%; padding:10px; margin-top:5px; background:#444; border:none; border-radius:5px; color:#fff; }
+    button { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
+    .menu-section { margin-top:2rem; border-top:1px solid #555; padding-top:1rem; }
+    .item-block { background:#333; padding:15px; border-radius:8px; margin-bottom:1rem; }
+    .inline { display:flex; gap:10px; align-items:center; margin-top:1rem; }
+    .inline input[type='number'] { max-width:80px; }
+    .addons label { display:inline-block; margin-right:15px; font-weight:normal; }
+    .total-display { text-align:right; font-size:1.2rem; margin-top:1rem; font-weight:bold; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>
-  <form action="https://api.whatsapp.com/send" method="GET" target="_blank">
+  <h1>Snapbite™ Ordering</h1>
+  <form id="orderForm">
     <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Your name" required>
+    <input type="text" id="name" name="name" placeholder="Your name" required><label for="contact">Contact Number</label>
+<input type="tel" id="contact" name="contact" placeholder="e.g. 0123456789" required>
 
-    <label for="phone">Contact Number</label>
-    <input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" required>
+<div id="menuContainer"></div>
 
-    <div class="menu-group">
-      <div class="menu-item">
-        <label class="menu-name">Primebite™ (RM10)</label>
-        <div class="item-desc">Classic build – juicy & bold.</div>
-        <label><input type="checkbox" name="order" value="Primebite"> Add this item</label>
-        <div class="add-on-list">
-          <label><input type="checkbox" name="addon" value="Cheese (RM1.50)"> Cheese (RM1.50)</label>
-          <label><input type="checkbox" name="addon" value="Egg (RM1.00)"> Egg (RM1.00)</label>
-          <label><input type="checkbox" name="addon" value="Mushroom (RM2.50)"> Mushroom (RM2.50)</label>
-          <label><input type="checkbox" name="addon" value="Bacon (RM3.50)"> Bacon (RM3.50)</label>
+<button type="button" onclick="addMenuItem()">+ Add Another Item</button>
+
+<div class="total-display" id="totalDisplay">Total: RM0.00</div>
+
+<label for="payment">Payment Method</label>
+<select id="payment" name="payment">
+  <option value="Cash">Cash</option>
+  <option value="Online Banking (QR or Transfer)">Online Banking (QR or Transfer)</option>
+</select>
+
+<label for="pickup">Pickup Time (Optional)</label>
+<input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
+
+<button type="submit">Submit Order</button>
+
+  </form>  <script>
+    const menuItems = [
+      { name: "Primebite™", price: 10, desc: "Classic build – juicy & bold." },
+      { name: "Beef N’ Cheese™", price: 11, desc: "Melted cheese stacked over pure beef." },
+      { name: "The Fun Guy™", price: 12, desc: "Topped with sautéed mushrooms – earthy & smooth." },
+      { name: "The Fixer™", price: 15, desc: "Stacked with beef, crispy bacon, egg & cheese." },
+      { name: "Chickbite™", price: 9, desc: "Classic deep-fried chicken burger." },
+      { name: "Goldcut™", price: 10, desc: "Fried chicken with melted cheese." },
+      { name: "The Cap Cut™", price: 11, desc: "Fried chicken topped with sautéed mushrooms." },
+      { name: "Stripstack™", price: 14, desc: "Fried chicken with chicken bacon & egg." },
+      { name: "Smoke Beef Taco™", price: 10, desc: "Slow-smoked beef wrapped in soft tortilla." },
+      { name: "Smokey Chicken Taco™", price: 9, desc: "Slow-smoked chicken wrapped in soft tortilla." },
+      { name: "Mix Taco™", price: 12, desc: "Beef & chicken combo in soft tortilla." },
+      { name: "Smoke Beef Quesadilla™", price: 15, desc: "Beef with melted mozzarella in grilled tortilla." },
+      { name: "Smoke Chicken Quesadilla™", price: 14, desc: "Chicken with melted mozzarella in grilled tortilla." },
+      { name: "Mix Quesadilla™", price: 16, desc: "Blend of beef & chicken with cheese in grilled tortilla." },
+      { name: "Classic Sausage™", price: 6, desc: "Grilled cheese-filled sausage in soft bun." },
+      { name: "Loaded Sausage™", price: 12, desc: "Sausage with bacon, mushrooms, cheese & salad." },
+      { name: "Popcorn Chicken", price: 6, desc: "Crispy bite-sized chicken." },
+    ];
+
+    const addons = [
+      { label: "Cheese", price: 1.5 },
+      { label: "Egg", price: 1.0 },
+      { label: "Mushroom", price: 2.5 },
+      { label: "Bacon", price: 3.5 },
+    ];
+
+    function addMenuItem() {
+      const container = document.getElementById('menuContainer');
+      const itemIndex = container.children.length;
+      const block = document.createElement('div');
+      block.className = 'item-block';
+      block.innerHTML = `
+        <label>Menu Item</label>
+        <select name="item" onchange="updateDesc(this, ${itemIndex})">
+          <option value="">-- Choose --</option>
+          ${menuItems.map(i => `<option value="${i.name}" data-price="${i.price}" data-desc="${i.desc}">${i.name} (RM${i.price})</option>`).join('')}
+        </select>
+        <div id="desc-${itemIndex}" style="font-size:0.9rem; color:#ccc; margin-top:4px;"></div>
+        <div class="inline">
+          <label>Quantity</label>
+          <input type="number" value="1" min="1" onchange="updateTotal()">
         </div>
-      </div>
+        <div class="addons">
+          ${addons.map(a => `<label><input type="checkbox" data-price="${a.price}" onchange="updateTotal()"> ${a.label} (RM${a.price.toFixed(2)})</label>`).join('')}
+        </div>
+        <label>Note</label>
+        <input type="text" placeholder="Any special request?">
+      `;
+      container.appendChild(block);
+    }
 
-      <div class="menu-item">
-        <label class="menu-name">Beef N’ Cheese™ (RM11)</label>
-        <div class="item-desc">Melted cheese stacked over pure beef.</div>
-        <label><input type="checkbox" name="order" value="Beef N’ Cheese"> Add this item</label>
-      </div>
+    function updateDesc(select, idx) {
+      const descDiv = document.getElementById(`desc-${idx}`);
+      descDiv.innerText = select.options[select.selectedIndex].getAttribute('data-desc');
+      updateTotal();
+    }
 
-      <div class="menu-item">
-        <label class="menu-name">Smoke Beef Taco™ (RM10)</label>
-        <div class="item-desc">Slow-smoked beef wrapped in soft tortilla.</div>
-        <label><input type="checkbox" name="order" value="Smoke Beef Taco"> Add this item</label>
-      </div>
-
-      <div class="menu-item">
-        <label class="menu-name">Mix Quesadilla™ (RM16)</label>
-        <div class="item-desc">Blend of beef & chicken with cheese in grilled tortilla.</div>
-        <label><input type="checkbox" name="order" value="Mix Quesadilla"> Add this item</label>
-      </div>
-
-      <div class="menu-item">
-        <label class="menu-name">Loaded Sausage™ (RM12)</label>
-        <div class="item-desc">Sausage with bacon, mushrooms, cheese & salad.</div>
-        <label><input type="checkbox" name="order" value="Loaded Sausage"> Add this item</label>
-      </div>
-    </div>
-
-    <label for="notes">Special Request / Notes</label>
-    <textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
-
-    <label for="payment">Payment Method</label>
-    <select id="payment" name="payment">
-      <option value="Cash">Cash</option>
-      <option value="Online Banking (QR or transfer)">Online Banking (QR or transfer)</option>
-    </select>
-
-    <label for="pickup">Pickup Time (Optional)</label>
-    <input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
-
-    <button type="submit">Submit Order via WhatsApp</button>
-  </form>
-</body>
+    function updateTotal() {
+      let total = 0;
+      const blocks = document.querySelectorAll('.item-block');
+      blocks.forEach(block => {
+        const select = block.querySelector('select');
+        const quantity = parseInt(block.querySelector('input[type=number]').value);
+        const itemPrice = parseFloat(select.selectedOptions[0]?.getAttribute('data-price')) || 0;
+        let itemTotal = itemPrice * quantity;
+        const addons = block.querySelectorAll('input[type=checkbox]:checked');
+        addons.forEach(add => {
+          itemTotal += parseFloat(add.getAttribute('data-price')) * quantity;
+        });
+        total += itemTotal;
+      });
+      document.getElementById('totalDisplay').innerText = `Total: RM${total.toFixed(2)}`;
+    }
+  </script></body>
 </html>
