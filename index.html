@@ -39,8 +39,7 @@
   </style>  
 </head>  
 <body>  
-  <h1>Snapbite™ Live Order</h1>  
-<div id="closedMsg" class="closed-msg" style="display: none;">
+  <h1>Snapbite™ Live Order</h1>    <div id="closedMsg" class="closed-msg" style="display:   <div id="closedMsg" class="closed-msg" style="display: none;">
   🔒 Snapbite™ is clocked out for the day.<br><br>
   No sizzle, no flip, no juicy display. 🍔🔥<br><br>
   We're recharging the taste, giving dreams some play,<br>
@@ -81,7 +80,6 @@
     const db = firebase.database();  
   
     // Menu  
-    const menuData = {  
     const menuData = {
   "Beef": [
     { id: "primebite", name: "Primebite™", price: 10, desc: "Classic build – juicy & bold." },
@@ -107,21 +105,25 @@
     { id: "classicsausage", name: "Classic Sausage™", price: 6, desc: "Juicy grilled sausage — simple and satisfying." },
     { id: "loadedsausage", name: "Loaded Sausage™", price: 12, desc: "Sausage stacked with cheese, bacon & sauce." }
   ]
-};  
-    };  
-  
+};
     const addonsData = [  
       { id: "cheese", label: "Cheese", price: 2 },  
       { id: "egg", label: "Egg", price: 1 },  
       { id: "bacon", label: "Bacon", price: 3 }  
     ];  
   
-    const saucesData = [
-  { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce." },
-  { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist." },
-  { id: "redriot", label: "Redriot", desc: "Crafted chili sauce. For brave and bold only." },
-  { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch." }
-];
+    <div class="sauces">
+  <label>Choose Sauce</label><br/>
+  <label>
+    <input type="radio" name="sauce-0" value="Nancho Cheese" onchange="updateSummary()">
+    <strong>Nancho Cheese</strong> — <span class="desc">Rich, creamy cheddar-style cheese sauce</span>
+  </label><br/>
+  <label>
+    <input type="radio" name="sauce-0" value="Snapbite Special" onchange="updateSummary()">
+    <strong>Snapbite Special</strong> — <span class="desc">Zesty layered sauce with tangy twist</span>
+  </label><br/>
+  ...
+</div>
   
     let menuCount = 0;  
   
@@ -139,30 +141,17 @@
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;  
       html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;  
   
-      html += `<div class="addons">`;
-html += `<label>Add-ons</label>`;
-html += `<div style="margin-top: 6px;">`;
-addonsData.forEach(add => {
-  html += `
-    <label style="display: inline-block; margin-right: 10px; margin-bottom: 6px;">
-      <input type="checkbox" class="addon"
-             data-label="${add.label}"
-             data-price="${add.price}"
-             onchange="updateSummary()"> 
-      ${add.label} <span style="color:#ccc;">RM${add.price}</span>
-    </label>`;
-});
-html += `</div></div>`;
+      html += `<div class="addons"><label>Add-ons</label><br/>`;  
+      addonsData.forEach(add => {  
+        html += `<label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} RM${add.price}</label>`;  
+      });  
+      html += `</div>`;  
   
-      html += `<div class="sauces"><label>Choose Sauce <span style="font-weight:normal;">(Pick up to 2)</span></label><br/>`;
-saucesData.forEach(s => {
-  html += `
-    <label style="display:block; margin-top:6px;">
-      <input type="checkbox" class="sauce-check" data-label="${s.label}" data-block="${menuCount}" onchange="limitSauceSelection(${menuCount})">
-      <strong>${s.label}</strong> — <span class="desc">${s.desc}</span>
-    </label>`;
-});
-html += `</div>`;
+      html += `<div class="sauces"><label>Choose Sauce</label><br/>`;  
+      saucesData.forEach(s => {  
+        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} (${s.desc})</label>`;  
+      });  
+      html += `</div>`;  
   
       block.innerHTML = html;  
       container.appendChild(block);  
