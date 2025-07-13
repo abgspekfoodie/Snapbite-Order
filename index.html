@@ -116,12 +116,10 @@
     ]
   };
 
-  // Addons with category restriction
+  // Addons with beefPatty & chickenPatty removed
   const addonsData = [
     { id: "cheese", label: "Cheese", price: 2, applicableTo: ["all"] },
-    { id: "beefPatty", label: "140gm Beef Patty", price: 6, applicableTo: ["Beef"] },
     { id: "egg", label: "Egg", price: 1, applicableTo: ["all"] },
-    { id: "chickenPatty", label: "Chicken Patty", price: 4, applicableTo: ["Chicken"] },
     { id: "bacon", label: "Bacon", price: 3, applicableTo: ["all"] }
   ];
 
@@ -204,14 +202,12 @@
     updateOrderSummary();
   }
 
+  // Show addons always if category selected
   function updateAddonVisibility(block, category) {
     const addonLabels = block.querySelectorAll(".addons label");
     addonLabels.forEach(label => {
       const checkbox = label.querySelector("input.addon-checkbox");
-      const addonId = checkbox.dataset.id;
-      const addon = addonsData.find(a => a.id === addonId);
-      if (!addon) return;
-      if (addon.applicableTo.includes("all") || addon.applicableTo.includes(category)) {
+      if (category) {
         label.style.display = "inline-block";
       } else {
         label.style.display = "none";
