@@ -95,7 +95,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Menu
+    // Menu & Addons & Sauces data
     const menuData = {
       "Beef": [
         { id: "primebite", name: "Primebite™", desc: "Juicy slow-smoked Angus patty with fresh toppings", price: 10 },
@@ -138,6 +138,7 @@
 
     let menuCount = 0;
 
+    // Add menu item block
     function addMenu() {
       const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
@@ -179,6 +180,7 @@
       updateSummary();
     }
 
+    // When category changes, load menu items available in that category & available in Firebase
     function onCategoryChange(select) {
       const cat = select.value;
       const block = select.closest(".menu-block");
@@ -187,7 +189,6 @@
       menuSelect.disabled = !cat;
 
       if (cat) {
-        // Filter by availability from Firebase
         db.ref("menuAvailability").once("value").then(snapshot => {
           const availData = snapshot.val() || {};
           menuData[cat].forEach(item => {
@@ -202,6 +203,7 @@
       }
     }
 
+    // Update order summary and total price
     function updateSummary() {
       let total = 0;
       const ul = document.getElementById("orderSummary");
@@ -235,7 +237,7 @@
       document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
 
-    // Limit 2 sauces per menu item
+    // Limit max 2 sauces per menu block
     function checkSauceLimit(clickedCheckbox) {
       const block = clickedCheckbox.closest(".menu-block");
       const checked = [...block.querySelectorAll(".sauce:checked")];
@@ -246,36 +248,147 @@
       updateSummary();
     }
 
+    // Load pickup times dynamically for next 4 hours every 15 mins
+    function loadPickupTimes() {
+      const select = document.getElementById("pickupTime");
+      select.innerHTML = `<option value="">-- Select Pickup Time --</option>`;
+
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 15 - (now.getMinutes() % 15)); // Round up to next 15 min
+      for (let i = 0; i < 16; i++) {
+        const optionTime = new Date(now.getTime() + i * 15 * 60000);
+        const hh = optionTime.getHours().toString().padStart(2, "0");
+        const mm = optionTime.getMinutes().toString().padStart(2, "0");
+        const display = `${hh}:${mm}`;
+        select.innerHTML += `<option value="${display}">${display}</option>`;
+      }
+    }
+
+    // Check if today is offday and toggle form
+    function checkOffday() {
+      db.ref("settings/offday").once("value").then(snap => {
+        const isOff = snap.val() === true;
+        if (isOff) {
+          document.getElementById("orderForm").style.display = "none";
+          document.getElementById("closedMsg").style.display = "block";
+        } else {
+          document.getElementById("orderForm").style.display = "block";
+          document.getElementById("closedMsg").style.display = "none";
+        }
+      });
+    }
+
+    // Load menu availability and update select lists that are open
+    function loadMenuAvailability() {
+      db.ref("menuAvailability").once("value").then(snap => {
+        const availData = snap.val() || {};
+        // Update all open menu selects
+        document.querySelectorAll(".menu-block").forEach(block => {
+          const catSelect = block.querySelector(".category");
+          const menuSelect = block.querySelector(".menu");
+          if (!catSelect.value) return;
+          if (menuSelect.disabled) return;
+
+          const currentVal = menuSelect.value;
+
+          menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
+          menuData[catSelect.value].forEach(item => {
+            if (availData[item.id] !== false) {
+              menuSelect.innerHTML += `<option value="${item.id}" data-price="${item.price}" data-desc="${item.desc}">${item.name} - ${item.desc} (RM${item.price})</option>`;
+            }
+          });
+          if ([...menuSelect.options].some(o => o.value === currentVal)) {
+            menuSelect.value = currentVal;
+          } else {
+            menuSelect.value = "";
+          }
+        });
+      });
+    }
+
+    // Submit order: save to Firebase and open WhatsApp with order details
     document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const name = document.getElementById("custName").value.trim();
       const phone = document.getElementById("custPhone").value.trim();
-      const notes = document.getElementById("notes").value.trim();
-      const pickupTime = document.getElementById("pickupTime").value;
-      if (!name || !phone) return alert("Please enter your name and phone.");
-      if (!pickupTime) return alert("Please select a pickup time.");
+      const notes = document.getElementById("notes").value.trim
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+  const pickupTime = document.getElementById("pickupTime").value;
+  if (!name || !phone) return alert("Please enter your name and phone.");
+  if (!pickupTime) return alert("Please select a pickup time.");
 
-      const items = [];
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menu || !menu.value) return;
+  const items = [];
+  document.querySelectorAll(".menu-block").forEach(block => {
+    const menu = block.querySelector(".menu");
+    const qty = parseInt(block.querySelector(".qty").value || 1);
+    if (!menu || !menu.value) return;
 
-        const itemName = menu.options[menu.selectedIndex].text;
-        const itemId = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
-          label: a.dataset.label,
-          price: parseFloat(a.dataset.price)
-        }));
-        const sauces = [...block.querySelectorAll(".sauce:checked")].map(s => s.value);
+    const itemName = menu.options[menu.selectedIndex].text;
+    const itemId = menu.value;
+    const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+    const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
+      label: a.dataset.label,
+      price: parseFloat(a.dataset.price)
+    }));
+    const sauces = [...block.querySelectorAll(".sauce:checked")].map(s => s.value);
 
-        items.push({ id: itemId, name: itemName, quantity: qty, price: itemPrice, addons, sauces });
-      });
+    items.push({ id: itemId, name: itemName, quantity: qty, price: itemPrice, addons, sauces });
+  });
 
-      if (items.length === 0) return alert("Please add at least one menu item.");
+  if (items.length === 0) return alert("Please add at least one menu item.");
 
-      let total = items.reduce((sum, i) =>
-        sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
+  let total = items.reduce((sum, i) =>
+    sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
 
-      let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\nPickup Time: ${pickupTime}\n\nOrder:\
+  // Prepare order text
+  let orderText = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}\nPickup Time: ${pickupTime}\n\nOrder Details:\n`;
+  items.forEach(i => {
+    orderText += `- ${i.name} x${i.quantity}`;
+    if (i.addons.length) orderText += " + " + i.addons.map(a => a.label).join(", ");
+    if (i.sauces.length) orderText += ` [Sauces: ${i.sauces.join(", ")}]`;
+    orderText += `\n`;
+  });
+  orderText += `\nNotes: ${notes || "None"}\nTotal: RM${total.toFixed(2)}`;
+
+  // Save order to Firebase
+  const newOrderRef = db.ref("orders").push();
+  const orderId = newOrderRef.key;
+  newOrderRef.set({
+    id: orderId,
+    name,
+    phone,
+    pickupTime,
+    notes,
+    items,
+    total,
+    status: "Pending",
+    timestamp: Date.now()
+  }).then(() => {
+    // Show WhatsApp link with order text + link to live queue status page
+    const waNumber = "601120568858"; // Replace with your WhatsApp number (country code + phone)
+    const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(orderText)}`;
+
+    alert(`Order submitted! Please click OK to open WhatsApp and send your order.`);
+
+    // Open WhatsApp chat
+    window.open(waUrl, "_blank");
+
+    // Optionally show live queue link
+    const liveQueueUrl = `${window.location.origin}/live-queue.html?orderId=${orderId}`;
+    alert(`You can also check your order status here:\n${liveQueueUrl}`);
+
+    // Reset form
+    document.getElementById("orderForm").reset();
+    document.getElementById("menuContainer").innerHTML = "";
+    menuCount = 0;
+    addMenu();
+    updateSummary();
+  }).catch(err => {
+    alert("Failed to submit order, please try again.");
+    console.error(err);
+  });
+});
