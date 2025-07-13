@@ -80,32 +80,33 @@
     const db = firebase.database();  
   
     // Menu  
-    const menuData = {  
-      "Beef": [  
-        { id: "primebite", name: "Primebite™", price: 10 },  
-        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11 },  
-        { id: "thefunguy", name: "The Fun Guy™", price: 12 },  
-        { id: "thefixer", name: "The Fixer™", price: 15 }  
-      ],  
-      "Chicken": [  
-        { id: "chickbite", name: "Chickbite™", price: 9 },  
-        { id: "goldcut", name: "Goldcut™", price: 10 },  
-        { id: "thecapcut", name: "The Cap Cut™", price: 11 },  
-        { id: "stripstack", name: "Stripstack™", price: 14 }  
-      ],  
-      "Tex-Mex": [  
-        { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10 },  
-        { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9 },  
-        { id: "mixtaco", name: "Mix Taco™", price: 12 },  
-        { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15 },  
-        { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14 },  
-        { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16 }  
-      ],  
-      "Sausage": [  
-        { id: "classicsausage", name: "Classic Sausage™", price: 6 },  
-        { id: "loadedsausage", name: "Loaded Sausage™", price: 12 }  
-      ]  
-    };  
+const menuData = {    
+  "Beef": [    
+    { id: "primebite", name: "Primebite™", price: 10, desc: "Classic Angus beef burger — juicy & bold" },    
+    { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Beef patty with melted cheese overload" },    
+    { id: "thefunguy", name: "The Fun Guy™", price: 12, desc: "Sautéed mushrooms on smoky Angus beef" },    
+    { id: "thefixer", name: "The Fixer™", price: 15, desc: "Beef, bacon, egg & cheese stacked high" }    
+  ],    
+  "Chicken": [    
+    { id: "chickbite", name: "Chickbite™", price: 9, desc: "Classic crispy chicken thigh burger" },    
+    { id: "goldcut", name: "Goldcut™", price: 10, desc: "Fried chicken layered with gooey cheese" },    
+    { id: "thecapcut", name: "The Cap Cut™", price: 11, desc: "Chicken burger with sautéed mushrooms" },    
+    { id: "stripstack", name: "Stripstack™", price: 14, desc: "Chicken bacon & cheese on crispy fillet" },
+    { id: "popcornchicken", name: "Popcorn Chicken™", price: 7, desc: "Bite-sized crispy chicken — snack-ready" }  
+  ],    
+  "Tex-Mex": [    
+    { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10, desc: "Slow-smoked beef with Tex-Mex flavor" },    
+    { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9, desc: "Smoked chicken wrapped in taco shell" },    
+    { id: "mixtaco", name: "Mix Taco™", price: 12, desc: "Half beef, half chicken — double the flavor" },    
+    { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15, desc: "Cheesy quesadilla with smoked beef" },    
+    { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14, desc: "Quesadilla with tender smoked chicken" },    
+    { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16, desc: "Half chicken, half beef in cheesy quesadilla" }    
+  ],    
+  "Sausage": [    
+    { id: "classicsausage", name: "Classic Sausage™", price: 6, desc: "Grilled sausage in soft bun" },    
+    { id: "loadedsausage", name: "Loaded Sausage™", price: 12, desc: "Topped sausage with sauce & cheese" }    
+  ]    
+}; 
   
     const addonsData = [  
       { id: "cheese", label: "Cheese", price: 2 },  
@@ -169,7 +170,7 @@ html += `</fieldset>`;
   menuSelect.disabled = !cat;
   if (cat) {
     menuData[cat].forEach(item => {
-      const label = `${item.name} (RM${item.price}) - ${item.desc}`;
+      const label = `${item.name} (RM${item.price}) - ${item.desc || ""}`;
       menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
     });
   }
