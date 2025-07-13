@@ -2,61 +2,140 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Snapbite™ Order Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snapbite™ Live Order</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
-  body { font-family: Arial, sans-serif; background: #111; color: #fff; padding: 2rem; }
-  h1 { color: #ff9500; }
-  label { display: block; margin-top: 1rem; font-weight: bold; }
-  select, input[type=number], input[type=text], input[type=tel] {
-    width: 100%; padding: 8px; border-radius: 5px; border: none; background: #222; color: #fff; margin-top: 5px;
+  body {
+    background: #0e0e0e;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    padding: 2rem;
   }
-  .menu-block {
-    background: #1e1e1e; padding: 1rem; margin-top: 1rem; border-radius: 10px;
+  h1 {
+    color: #ff9500;
+    text-align: center;
+    margin-bottom: 0.1rem;
+  }
+  .tagline {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 2rem;
+    font-weight: 600;
+  }
+  form {
+    max-width: 800px;
+    margin: auto;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(255,149,0,0.2);
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  input[type=text], input[type=tel], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: #fff;
+    font-size: 1rem;
+  }
+  .menu-category {
+    margin-top: 2rem;
+    border-top: 1px solid #444;
+    padding-top: 1rem;
+  }
+  .menu-item {
+    background: #222;
+    margin-bottom: 1rem;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  .menu-item h4 {
+    margin: 0 0 4px 0;
+    color: #ff9500;
+  }
+  .desc {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 6px;
+  }
+  .qty-select {
+    width: 70px;
+    font-weight: 600;
   }
   .addons, .sauces {
-    margin-top: 0.5rem;
+    margin-top: 6px;
   }
   .addons label, .sauces label {
     font-weight: normal;
     display: inline-block;
-    margin-right: 1rem;
+    margin-right: 10px;
   }
   .summary {
-    margin-top: 2rem; background: #222; padding: 1rem; border-radius: 10px;
+    margin-top: 2rem;
+    background: #222;
+    padding: 1rem;
+    border-radius: 8px;
   }
-  .submit-btn {
-    background: #ff9500; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; margin-top: 1rem; cursor: pointer;
-    border-radius: 5px;
+  .summary h3 {
+    margin-top: 0;
+    color: #ff9500;
+    font-weight: 700;
+  }
+  .summary ul {
+    padding-left: 1.2rem;
+  }
+  .summary li {
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+  }
+  button.submit-btn {
+    margin-top: 2rem;
+    background: #ff9500;
+    color: #000;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
   }
 </style>
 </head>
 <body>
-
-<h1>Snapbite™ Live Order</h1>
+<h1>Snapbite™</h1>
+<div class="tagline">No Rules. Just Bite. Repeat.</div>
 
 <form id="orderForm">
 
-  <label>Name</label>
-  <input type="text" id="custName" required />
+<label for="custName">Name</label>
+<input type="text" id="custName" required placeholder="Your name" />
 
-  <label>Phone</label>
-  <input type="tel" id="custPhone" required />
+<label for="custPhone">Contact Number</label>
+<input type="tel" id="custPhone" required placeholder="e.g. 0123456789" />
 
-  <div id="menuContainer"></div>
-  <button type="button" onclick="addMenu()">+ Add Menu Item</button>
+<!-- Menu Categories Container -->
+<div id="menuContainer"></div>
 
-  <label>Notes</label>
-  <textarea id="notes" rows="3" style="width: 100%; background:#222; color:#fff; border:none; border-radius:5px;"></textarea>
+<label for="notes">Special Requests / Notes</label>
+<textarea id="notes" rows="3" placeholder="Write here..."></textarea>
 
-  <div class="summary">
-    <strong>Order Summary:</strong>
-    <ul id="orderSummary"></ul>
-    <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
-  </div>
+<div class="summary">
+  <h3>Order Summary</h3>
+  <ul id="orderSummary"></ul>
+  <strong>Total: RM <span id="totalPrice">0.00</span></strong>
+</div>
 
-  <button type="submit" class="submit-btn">Submit Order (WhatsApp + Save)</button>
+<button type="submit" class="submit-btn">Submit Order via WhatsApp</button>
 </form>
 
 <script>
@@ -70,104 +149,245 @@ const firebaseConfig = {
   appId: "1:146625734660:web:23ada593e4818ed7332d51",
   measurementId: "G-7RR3W1WJYK"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const menusByCategory = {
+const menus = {
   "Beef": [
-    { id: "primebite", emoji: "🥩", name: "Primebite™", price: 10.00 },
-    { id: "beefncheese", emoji: "🧀", name: "Beef N' Cheese™", price: 11.00 },
-    { id: "thefunguy", emoji: "🍄", name: "The Fun Guy™", price: 13.00 },
-    { id: "thefixer", emoji: "🥓🍳", name: "The Fixer™", price: 15.00 }
+    {name: "Primebite™", price: 10, desc: "Classic build – juicy & bold."},
+    {name: "Beef N’ Cheese™", price: 11, desc: "Melted cheese stacked over pure Angus."},
+    {name: "The Fun Guy™", price: 12, desc: "Topped with sautéed mushrooms – earthy & smooth."},
+    {name: "The Fixer™", price: 15, desc: "Stacked with beef, bacon, egg & cheese."},
   ],
   "Chicken": [
-    { id: "chickbite", emoji: "🍗", name: "Chickbite™", price: 5.00 },
-    { id: "goldcut", emoji: "🧀", name: "Goldcut™", price: 6.00 },
-    { id: "thecapcut", emoji: "🍄", name: "The Cap Cut™", price: 8.00 },
-    { id: "stripstack", emoji: "🥓🧀", name: "Stripstack™", price: 9.00 }
+    {name: "Chickbite™", price: 9, desc: "Classic deep-fried chicken burger."},
+    {name: "Goldcut™", price: 10, desc: "Fried chicken with melted cheese."},
+    {name: "The Cap Cut™", price: 11, desc: "Fried chicken topped with sautéed mushrooms."},
+    {name: "Stripstack™", price: 14, desc: "Fried chicken with chicken bacon & egg."}
   ],
   "Tex-Mex": [
-    { id: "smokebeeftaco", emoji: "🌮", name: "Smoke Beef Taco™", price: 11.00 },
-    { id: "smokeychoptaco", emoji: "🌮", name: "Smokey Chop Taco™", price: 9.00 },
-    { id: "mixtaco", emoji: "🌮", name: "Mix Taco™", price: 12.00 },
-    { id: "smokebeefquesadilla", emoji: "🫔", name: "Smoke Beef Quesadilla™", price: 16.00 },
-    { id: "smokechickenquesadilla", emoji: "🫔", name: "Smoke Chicken Quesadilla™", price: 14.00 },
-    { id: "mixquesadilla", emoji: "🫔", name: "Mix Quesadilla™", price: 17.00 }
+    {name: "Smoke Beef Taco™", price: 10, desc: "Slow-smoked beef wrapped in soft tortilla."},
+    {name: "Smokey Chicken Taco™", price: 9, desc: "Slow-smoked chicken wrapped in soft tortilla."},
+    {name: "Mix Taco™", price: 12, desc: "Beef & chicken combo in soft tortilla."},
+    {name: "Smoke Beef Quesadilla™", price: 15, desc: "Beef with melted mozzarella in grilled tortilla."},
+    {name: "Smoke Chicken Quesadilla™", price: 14, desc: "Chicken with cheese in grilled tortilla."},
+    {name: "Mix Quesadilla™", price: 16, desc: "Blend of beef & chicken with cheese."}
   ],
   "Sausage": [
-    { id: "classicsausage", emoji: "🌭", name: "Classic Sausage™", price: 7.00 },
-    { id: "chickola", emoji: "🍗", name: "Chickola™", price: 8.00 }
+    {name: "Classic Sausage™", price: 6, desc: "Grilled cheese-filled sausage in soft bun."},
+    {name: "Loaded Sausage™", price: 12, desc: "Sausage with bacon, mushrooms, cheese & salad."}
+  ],
+  "Sides": [
+    {name: "Popcorn Chicken", price: 6, desc: "Crispy bite-sized chicken."}
   ]
 };
 
 const addons = [
-  { id: "cheese", emoji: "🧀", name: "Cheese", price: 2.00 },
-  { id: "egg", emoji: "🍳", name: "Egg", price: 1.00 },
-  { id: "bacon", emoji: "🥓", name: "Bacon", price: 3.00 },
-  { id: "mushroom", emoji: "🍄", name: "Mushroom", price: 2.50 }
+  {label: "Cheese", price: 2},
+  {label: "140gm Beef Patty", price: 6},
+  {label: "Chicken Patty", price: 4},
+  {label: "Egg", price: 1},
+  {label: "Bacon", price: 3}
 ];
 
 const sauces = [
-  "🌶️🌶️ Redriot",
-  "🌶️ Whiteblaze"
+  "Redriot (Spicy)",
+  "Whiteblaze (White BBQ)"
 ];
 
-let menuCount = 0;
+function createMenuItem(category, item, index) {
+  const idPrefix = category + "-" + index;
+  const container = document.createElement("div");
+  container.className = "menu-item";
 
-function addMenu() {
-  const id = menuCount++;
-  const container = document.createElement('div');
-  container.className = 'menu-block';
-  container.dataset.id = id;
+  container.innerHTML = `
+    <h4>${item.name} — RM${item.price.toFixed(2)}</h4>
+    <div class="desc">${item.desc}</div>
 
-  let html = `<label>Menu Item</label><select onchange="updateSummary()" class="menu-select" data-id="${id}" required>
-    <option value="">-- Select Menu --</option>`;
+    <label for="${idPrefix}-qty">Quantity</label>
+    <select id="${idPrefix}-qty" class="qty-select" onchange="updateSummary()">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
 
-  for (const [cat, items] of Object.entries(menusByCategory)) {
-    html += `<optgroup label="${cat}">`;
-    items.forEach(menu => {
-      html += `<option value="${menu.id}">${menu.emoji} ${menu.name} – RM${menu.price.toFixed(2)}</option>`;
-    });
-    html += `</optgroup>`;
-  }
+    <div class="addons">
+      <label>Add-ons</label><br />
+      ${addons.map((a, i) => `
+        <label>
+          <input type="checkbox" data-price="${a.price}" data-label="${a.label}" onchange="updateSummary()" id="${idPrefix}-addon-${i}"> ${a.label} (RM${a.price})
+        </label>
+      `).join('')}
+    </div>
 
-  html += '</select>';
+    <div class="sauces">
+      <label>Choice of Sauce</label><br />
+      ${sauces.map((s, i) => `
+        <label>
+          <input type="radio" name="${idPrefix}-sauce" value="${s}" onchange="updateSummary()">${s}
+        </label>
+      `).join('')}
+    </div>
+  `;
 
-  html += `<label>Quantity</label><input type="number" min="1" value="1" onchange="updateSummary()" class="menu-qty" data-id="${id}" required />`;
-
-  html += '<div class="addons"><label>Add-ons</label><br>';
-  addons.forEach(addon => {
-    html += `<label><input type="checkbox" data-id="${id}" data-addon-id="${addon.id}" data-addon-price="${addon.price}" onchange="updateSummary()"> ${addon.emoji} ${addon.name} RM${addon.price.toFixed(2)}</label>`;
-  });
-  html += '</div>';
-
-  html += '<div class="sauces"><label>Choice of Sauce</label><br>';
-  sauces.forEach((sauce, i) => {
-    html += `<label><input type="radio" name="sauce-${id}" value="${sauce}" onchange="updateSummary()"> ${sauce}</label>`;
-  });
-  html += '</div>';
-
-  container.innerHTML = html;
-  document.getElementById('menuContainer').appendChild(container);
-
-  updateSummary();
+  return container;
 }
 
-function findMenuById(id) {
-  for (const items of Object.values(menusByCategory)) {
-    for (const menu of items) {
-      if (menu.id === id) return menu;
-    }
-  }
-  return null;
+function buildMenu() {
+  const menuContainer = document.getElementById("menuContainer");
+  menuContainer.innerHTML = "";
+  Object.entries(menus).forEach(([category, items]) => {
+    const catDiv = document.createElement("div");
+    catDiv.className = "menu-category";
+    const h3 = document.createElement("h3");
+    h3.textContent = category;
+    catDiv.appendChild(h3);
+    items.forEach((item, i) => {
+      catDiv.appendChild(createMenuItem(category, item, i));
+    });
+    menuContainer.appendChild(catDiv);
+  });
 }
 
 function updateSummary() {
+  const summary = document.getElementById("orderSummary");
   let total = 0;
-  let summaryHtml = '';
+  summary.innerHTML = "";
 
-  const blocks = document.querySelectorAll('.menu-block');
-  blocks.forEach(block => {
-    const select = block.querySelector('select.menu-select');
-    const qty
+  Object.entries(menus).forEach(([category, items]) => {
+    items.forEach((item, i) => {
+      const idPrefix = category + "-" + i;
+      const qty = parseInt(document.getElementById(idPrefix + "-qty").value);
+      if (qty === 0) return;
+
+      let addonsSelected = [];
+      let addonsCost = 0;
+      addons.forEach((a, idx) => {
+        const cb = document.getElementById(idPrefix + "-addon-" + idx);
+        if (cb && cb.checked) {
+          addonsSelected.push(a.label);
+          addonsCost += a.price;
+        }
+      });
+
+      // Sauce
+      const saucesInputs = document.getElementsByName(idPrefix + "-sauce");
+      let sauceSelected = "";
+      for (let si of saucesInputs) {
+        if (si.checked) {
+          sauceSelected = si.value;
+          break;
+        }
+      }
+
+      let itemTotal = (item.price + addonsCost) * qty;
+      total += itemTotal;
+
+      let line = `${item.name} x${qty} — RM${itemTotal.toFixed(2)}`;
+      if (addonsSelected.length > 0) line += ` + Add-ons: ${addonsSelected.join(", ")}`;
+      if (sauceSelected) line += ` + Sauce: ${sauceSelected}`;
+
+      const li = document.createElement("li");
+      li.textContent = line;
+      summary.appendChild(li);
+    });
+  });
+
+  document.getElementById("totalPrice").textContent = total.toFixed(2);
+}
+
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+  if (!name || !phone) {
+    alert("Please fill your name and contact number.");
+    return;
+  }
+
+  let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
+  let orderItems = [];
+  let total = 0;
+
+  Object.entries(menus).forEach(([category, items]) => {
+    items.forEach((item, i) => {
+      const idPrefix = category + "-" + i;
+      const qty = parseInt(document.getElementById(idPrefix + "-qty").value);
+      if (qty === 0) return;
+
+      let addonsSelected = [];
+      let addonsCost = 0;
+      addons.forEach((a, idx) => {
+        const cb = document.getElementById(idPrefix + "-addon-" + idx);
+        if (cb && cb.checked) {
+          addonsSelected.push(a.label);
+          addonsCost += a.price;
+        }
+      });
+
+      const saucesInputs = document.getElementsByName(idPrefix + "-sauce");
+      let sauceSelected = "";
+      for (let si of saucesInputs) {
+        if (si.checked) {
+          sauceSelected = si.value;
+          break;
+        }
+      }
+
+      let itemTotal = (item.price + addonsCost) * qty;
+      total += itemTotal;
+
+      let line = `${item.name} x${qty}`;
+      if (addonsSelected.length > 0) line += ` + Add-ons: ${addonsSelected.join(", ")}`;
+      if (sauceSelected) line += ` + Sauce: ${sauceSelected}`;
+      msg += line + "\n";
+
+      orderItems.push({
+        category,
+        name: item.name,
+        basePrice: item.price,
+        quantity: qty,
+        addons: addonsSelected,
+        addonsPrice: addonsCost,
+        sauce: sauceSelected,
+        totalPrice: itemTotal
+      });
+    });
+  });
+
+  msg += `\nTotal: RM ${total.toFixed(2)}`;
+  if (notes) msg += `\nNotes: ${notes}`;
+
+  // Save order to Firebase Realtime DB
+  const orderData = {
+    customerName: name,
+    customerPhone: phone,
+    notes: notes,
+    total: total.toFixed(2),
+    items: orderItems,
+    timestamp: new Date().toISOString()
+  };
+
+  firebase.database().ref("orders").push(orderData, (err) => {
+    if (err) {
+      alert("Error saving order. Try again.");
+    } else {
+      // Open WhatsApp link with message
+      const waUrl = "https://wa.me/60173209379?text="
+       encodeURIComponent(msg);
+      window.open(waUrl, "_blank");
+      alert("Order saved and WhatsApp opened. Thank you!");
+      document.getElementById("orderForm").reset();
+      updateSummary();
+    }
+  });
+});
+
+buildMenu();
+updateSummary();
+</script>
+</body>
+</html>
