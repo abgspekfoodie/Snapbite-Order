@@ -159,19 +159,20 @@
       updateSummary();  
     }  
   
-    function onCategoryChange(select) {  
-      const cat = select.value;  
-      const block = select.closest(".menu-block");  
-      const menuSelect = block.querySelector(".menu");  
-      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;  
-      menuSelect.disabled = !cat;  
-      if (cat) {  
-        menuData[cat].forEach(item => {  
-          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;  
-        });  
-      }  
-      updateSummary();  
-    }  
+    function onCategoryChange(select) {
+  const cat = select.value;
+  const block = select.closest(".menu-block");
+  const menuSelect = block.querySelector(".menu");
+  menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
+  menuSelect.disabled = !cat;
+  if (cat) {
+    menuData[cat].forEach(item => {
+      const label = `${item.name} (RM${item.price}) - ${item.desc}`;
+      menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
+    });
+  }
+  updateSummary();
+}
   
     function updateSummary() {  
       let total = 0;  
