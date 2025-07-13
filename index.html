@@ -2,181 +2,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snapbite™ Order Form</title>
+  <title>Snapbite™ Order Page</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #111; color: #fff; padding: 2rem; }
-    h1 { color: #ff9500; }
-    input, select, textarea {
-      width: 100%; padding: 10px; margin-top: 5px;
-      background: #222; color: #fff; border: none; border-radius: 5px;
-    }
-    label { font-weight: bold; display: block; margin-top: 1rem; }
-    .menu-block { background: #1e1e1e; margin-top: 1rem; padding: 1rem; border-radius: 10px; }
-    .addons, .sauces { margin-top: 0.5rem; }
-    .addons label, .sauces label { font-weight: normal; }
-    .summary { margin-top: 2rem; background: #222; padding: 1rem; border-radius: 10px; }
-    .submit-btn { background: #ff9500; color: #000; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 1rem; }
+    body { font-family: 'Poppins', sans-serif; background: #0e0e0e; color: #fff; padding: 2rem; }
+    h1 { text-align: center; color: #ff9500; }
+    select, input[type='number'] { padding: 5px; border-radius: 4px; border: none; margin-top: 5px; width: 100%; background: #222; color: #fff; }
+    .menu-category { margin-top: 2rem; }
+    .menu-block { margin-bottom: 1rem; padding: 1rem; background: #1e1e1e; border-radius: 8px; }
+    .addons, .sauces { margin-top: 1rem; }
+    .addons label, .sauces label { display: inline-block; width: 48%; margin: 0.5rem 1%; background: #2a2a2a; padding: 0.5rem; border-radius: 6px; cursor: pointer; }
+    .total { margin-top: 2rem; font-weight: bold; font-size: 1.2rem; text-align: center; }
+    button { margin-top: 2rem; background: #ff9500; color: #000; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
+    .summary-box { background: #222; padding: 1rem; border-radius: 8px; margin-top: 2rem; }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order</h1>
-  <form id="orderForm">
+  <h1>Snapbite™ Order</h1>  <form id="orderForm">
     <label>Name</label>
-    <input type="text" id="custName" required>
-    <label>Phone</label>
-    <input type="tel" id="custPhone" required><div id="menuContainer"></div>
-<button type="button" onclick="addMenu()">+ Add Menu Item</button>
+    <input type="text" id="custName" required><label>Phone</label>
+<input type="tel" id="custPhone" required>
 
-<label>Notes</label>
-<textarea id="notes" rows="3"></textarea>
+<div class="menu-category">
+  <div class="menu-block">
+    <label>Choose Menu Item</label>
+    <select id="menuItem">
+      <option value="Primebite™ - 10">🥩 Primebite™ - RM10</option>
+      <option value="Beef N' Cheese™ - 11">🥩 Beef N' Cheese™ - RM11</option>
+      <option value="The Fun Guy™ - 13">🥩 The Fun Guy™ - RM13</option>
+      <option value="The Fixer™ - 15">🥩 The Fixer™ - RM15</option>
+      <option value="Chickbite™ - 5">🥗 Chickbite™ - RM5</option>
+      <option value="Goldcut™ - 6">🥗 Goldcut™ - RM6</option>
+      <option value="The Cap Cut™ - 8">🥗 The Cap Cut™ - RM8</option>
+      <option value="Stripstack™ - 9">🥗 Stripstack™ - RM9</option>
+    </select>
 
-<div class="summary">
-  <strong>Order Summary:</strong>
-  <ul id="orderSummary"></ul>
-  <p>Total: RM <span id="totalPrice">0.00</span></p>
+    <label>Quantity</label>
+    <input type="number" id="menuQty" value="1" min="1">
+
+    <div class="addons">
+      <h3>Add-ons</h3>
+      <label><input type="checkbox" value="Cheese - 2"> 🍽 Cheese - RM2</label>
+      <label><input type="checkbox" value="140gm Beef patty - 6"> 🥩 140gm Beef patty - RM6</label>
+      <label><input type="checkbox" value="Egg - 1"> 🍳 Egg - RM1</label>
+      <label><input type="checkbox" value="Chicken patty - 4"> 🍗 Chicken patty - RM4</label>
+      <label><input type="checkbox" value="Bacon - 3"> 🥓 Bacon - RM3</label>
+    </div>
+
+    <div class="sauces">
+      <h3>Choice of Sauce</h3>
+      <label><input type="radio" name="sauce" value="Redriot"> 🌶️🌶️ Redriot</label>
+      <label><input type="radio" name="sauce" value="Whiteblaze"> 🌶️ Whiteblaze</label>
+    </div>
+  </div>
 </div>
-<button type="submit" class="submit-btn">Submit via WhatsApp</button>
 
-  </form><script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
-  authDomain: "snapbite-admin.firebaseapp.com",
-  databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "snapbite-admin",
-  storageBucket: "snapbite-admin.appspot.com",
-  messagingSenderId: "146625734660",
-  appId: "1:146625734660:web:23ada593e4818ed7332d51",
-  measurementId: "G-7RR3W1WJYK"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+<div class="summary-box">
+  <h3>Order Summary</h3>
+  <div id="orderSummary"></div>
+  <div class="total">Total: RM <span id="totalAmount">0.00</span></div>
+</div>
 
-let menus = {}, addons = [
-  { label: 'Cheese', price: 1.5 },
-  { label: 'Egg', price: 1.0 },
-  { label: 'Mushroom', price: 2.5 },
-  { label: 'Bacon', price: 3.5 }
-], sauces = ['Redriot (Spicy)', 'Whiteblaze (White BBQ)'];
-let menuCount = 0;
+<button type="submit">Submit Order</button>
 
-// Load menu items from Firebase
-function fetchMenus() {
-  db.ref("menus").once("value").then(snapshot => {
-    const data = snapshot.val();
-    menus = {};
-    Object.entries(data).forEach(([key, item]) => {
-      if (item.available) {
-        if (!menus[item.category]) menus[item.category] = [];
-        menus[item.category].push({ ...item, id: key });
-      }
-    });
-    document.getElementById("menuContainer").innerHTML = '';
-    menuCount = 0;
-    addMenu();
-  });
-}
+  </form>  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
+      authDomain: "snapbite-admin.firebaseapp.com",
+      databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "snapbite-admin",
+      storageBucket: "snapbite-admin.appspot.com",
+      messagingSenderId: "146625734660",
+      appId: "1:146625734660:web:23ada593e4818ed7332d51",
+      measurementId: "G-7RR3W1WJYK"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-function addMenu() {
-  const id = menuCount++;
-  const container = document.createElement("div");
-  container.className = "menu-block";
-  container.setAttribute("data-id", id);
+    const menuSelect = document.getElementById("menuItem");
+    const qtyInput = document.getElementById("menuQty");
+    const addonCheckboxes = document.querySelectorAll(".addons input[type='checkbox']");
+    const summaryDiv = document.getElementById("orderSummary");
+    const totalAmount = document.getElementById("totalAmount");
 
-  let html = '<label>Menu</label><select onchange="updateSummary()">';
-  html += '<option value="">-- Select --</option>';
-  Object.entries(menus).forEach(([category, items]) => {
-    html += `<optgroup label="${category} Series">`;
-    items.forEach((m, i) => {
-      html += `<option value="${m.id}" data-price="${m.price}" data-name="${m.name}">${m.name} – RM${m.price.toFixed(2)}</option>`;
-    });
-    html += '</optgroup>';
-  });
-  html += '</select>';
+    function updateSummary() {
+      let [menuName, menuPrice] = menuSelect.value.split(" - ");
+      let qty = parseInt(qtyInput.value);
+      let basePrice = parseFloat(menuPrice) * qty;
+      let addons = [];
+      let addonTotal = 0;
 
-  html += '<div class="addons"><label>Add-ons</label>';
-  addons.forEach((a, i) => {
-    html += `<label><input type="checkbox" data-label="${a.label}" data-price="${a.price}" onchange="updateSummary()"> ${a.label} (RM${a.price})</label>`;
-  });
-  html += '</div>';
-
-  html += '<div class="sauces"><label>Sauces</label>';
-  sauces.forEach((s, i) => {
-    html += `<label><input type="radio" name="sauce-${id}" value="${s}" onchange="updateSummary()"> ${s}</label>`;
-  });
-  html += '</div>';
-
-  container.innerHTML = html;
-  document.getElementById("menuContainer").appendChild(container);
-}
-
-function updateSummary() {
-  let total = 0;
-  let summary = "";
-  document.querySelectorAll(".menu-block").forEach((block, i) => {
-    const select = block.querySelector("select");
-    const option = select.options[select.selectedIndex];
-    const name = option.getAttribute("data-name");
-    const basePrice = parseFloat(option.getAttribute("data-price"));
-    if (!name || isNaN(basePrice)) return;
-
-    let itemTotal = basePrice;
-    let line = name + " (RM" + basePrice.toFixed(2) + ")";
-    let addonsText = [];
-
-    block.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
-      const label = cb.getAttribute("data-label");
-      const price = parseFloat(cb.getAttribute("data-price"));
-      itemTotal += price;
-      addonsText.push(`${label} (RM${price.toFixed(2)})`);
-    });
-
-    const sauce = block.querySelector("input[type=radio]:checked");
-    if (sauce) addonsText.push("Sauce: " + sauce.value);
-
-    if (addonsText.length > 0) line += " + " + addonsText.join(", ");
-    total += itemTotal;
-    summary += "<li>" + line + "</li>";
-  });
-
-  document.getElementById("orderSummary").innerHTML = summary;
-  document.getElementById("totalPrice").textContent = total.toFixed(2);
-}
-
-// Submit
-  document.getElementById("orderForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const name = document.getElementById("custName").value;
-    const phone = document.getElementById("custPhone").value;
-    const notes = document.getElementById("notes").value;
-    const total = document.getElementById("totalPrice").textContent;
-
-    let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
-    document.querySelectorAll(".menu-block").forEach(block => {
-      const select = block.querySelector("select");
-      const option = select.options[select.selectedIndex];
-      const itemName = option.getAttribute("data-name");
-      if (!itemName) return;
-      let line = "- " + itemName;
-
-      block.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
-        const label = cb.getAttribute("data-label");
-        line += " + " + label;
+      addonCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          const [label, price] = cb.value.split(" - ");
+          addons.push(label + " (RM" + price + ")");
+          addonTotal += parseFloat(price);
+        }
       });
 
-      const sauce = block.querySelector("input[type=radio]:checked");
-      if (sauce) line += " with " + sauce.value;
-      msg += line + "\n";
+      let sauce = document.querySelector("input[name='sauce']:checked");
+      let sauceText = sauce ? ` with ${sauce.value}` : '';
+
+      summaryDiv.innerHTML = `${qty} x ${menuName}${sauceText}<br>Add-ons: ${addons.join(', ')}`;
+      let total = (basePrice + addonTotal).toFixed(2);
+      totalAmount.textContent = total;
+    }
+
+    menuSelect.addEventListener("change", updateSummary);
+    qtyInput.addEventListener("input", updateSummary);
+    addonCheckboxes.forEach(cb => cb.addEventListener("change", updateSummary));
+    document.querySelectorAll("input[name='sauce']").forEach(r => r.addEventListener("change", updateSummary));
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("custName").value;
+      const phone = document.getElementById("custPhone").value;
+      const orderText = summaryDiv.innerText;
+      const total = totalAmount.textContent;
+
+      const order = {
+        name,
+        phone,
+        orderText,
+        total,
+        timestamp: new Date().toISOString()
+      };
+
+      firebase.database().ref("orders").push(order, (err) => {
+        if (!err) {
+          window.open(`https://wa.me/60173209379?text=${encodeURIComponent(
+            `Name: ${name}\nPhone: ${phone}\nOrder: ${orderText}\nTotal: RM${total}`
+          )}`);
+        } else {
+          alert("Error sending order");
+        }
+      });
     });
-
-    msg += `\nTotal: RM ${total}`;
-    if (notes) msg += `\nNotes: ${notes}`;
-
-    // Open WhatsApp
-    window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg));
-  });
-
-fetchMenus();
-</script></body>
+  </script></body>
 </html>
