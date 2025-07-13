@@ -1,235 +1,147 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Snapbite™ Live Order</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snapbite™ Order</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
+      font-family: 'Inter', sans-serif;
+      background-color: #111;
       color: #fff;
       padding: 1.5rem;
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
     }
     h1 {
-      color: #ff9500;
       text-align: center;
+      color: #ff9500;
       margin-bottom: 1rem;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+    .menu-section {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
-    select,
-    input,
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: none;
-      background: #222;
-      color: #fff;
-      font-size: 1rem;
-    }
-    .menu-block {
+    .card {
       background: #1e1e1e;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 10px;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
       position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .menu-block .remove-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff3b3b;
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+    .title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    .desc {
+      font-size: 0.92rem;
+      opacity: 0.8;
+    }
+    .order-btn {
+      margin-top: 1rem;
+      background: #ff9500;
       border: none;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
-      font-size: 0.9rem;
+      transition: background 0.3s;
+      color: #000;
     }
-    .addons label,
-    .sauces label {
-      display: inline-block;
-      margin-right: 12px;
-      font-size: 0.9rem;
-      font-weight: normal;
+    .order-btn:hover {
+      background: #ffa733;
     }
-    .menu-desc {
-      margin-top: 5px;
-      font-size: 0.9rem;
-      font-style: italic;
-      color: #ccc;
-    }
-    .summary {
+    #summary {
       background: #222;
-      padding: 15px;
+      padding: 1.2rem;
       border-radius: 10px;
-      margin-top: 25px;
     }
-    .summary h3 {
-      margin-top: 0;
+    #summary h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+    #summary ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+    #summary ul li {
+      padding: 4px 0;
+      font-size: 0.95rem;
+    }
+    #summary strong {
       color: #ff9500;
     }
-    button.submit-btn,
-    button.add-menu-btn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      margin-top: 20px;
+    .fade {
+      animation: fadeIn 0.4s ease-in-out;
     }
-    button.submit-btn {
-      background: #ff9500;
-      color: #000;
-      font-weight: bold;
-    }
-    button.add-menu-btn {
-      background: #0a84ff;
-      color: #fff;
-    }
-    .closed-msg {
-      text-align: center;
-      background: #330000;
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 10px;
-      color: #ff6b6b;
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(5px);}
+      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Live Order</h1>
-  <div id="closedMsg" class="closed-msg" style="display: none;">
-    🔒 Snapbite™ is clocked out for the day.<br /><br />
-    No sizzle, no flip, no juicy display. 🍔🔥<br /><br />
-    We're recharging the taste, giving dreams some play,<br />
-    But don't you worry — we’re not far away.<br /><br />
-    💬 Stay tuned, stay hype, we’ll be back your way!
-  </div>  <form id="orderForm" style="display: none;">
-    <label for="custName">Name</label>
-    <input type="text" id="custName" required placeholder="Your name" />
-    <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
-<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
+  <h1>Snapbite™ Order</h1>
+  <div class="menu-section" id="menuSection"></div>  <div id="summary">
+    <h2>Order Summary</h2>
+    <ul id="orderList"></ul>
+    <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+  </div>  <script>
+    const menu = [
+      { id: 'primebite', name: 'Primebite™', desc: 'Crafted 140g premium patty, slow-smoked to perfection.', price: 10 },
+      { id: 'chickbite', name: 'Chickbite™', desc: 'Golden, juicy fried chicken fillet. Classic and comforting.', price: 8 },
+      { id: 'smokebeeftaco', name: 'Smoke Beef Taco™', desc: 'Soft tortilla with tender smoked beef and signature sauce.', price: 11 },
+      { id: 'classicsausage', name: 'Classic Sausage™', desc: 'Grilled sausage with a surprise — subtle and satisfying.', price: 6 }
+    ];
 
-<label for="notes">Notes</label>
-<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+    const menuSection = document.getElementById('menuSection');
+    const orderList = document.getElementById('orderList');
+    const totalPrice = document.getElementById('totalPrice');
+    const orderItems = [];
 
-<div class="summary">
-  <h3>Order Summary</h3>
-  <ul id="orderSummary"></ul>
-  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
-</div>
-
-<button type="submit" class="submit-btn">Submit Order</button>
-
-  </form>  <script>
-    const firebaseConfig = { /* your firebase config here */ };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const menuData = {
-      Beef: [
-        { id: "primebite", name: "Primebite™", price: 10, desc: "Classic Angus beef burger with bold flavors." },
-        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Angus beef stacked with melted cheese." }
-      ],
-      Chicken: [
-        { id: "chickbite", name: "Chickbite™", price: 9, desc: "Crispy fried chicken burger, classic and juicy." }
-      ]
-    };
-
-    let menuCount = 0;
-    function addMenu() {
-      const container = document.getElementById("menuContainer");
-      const block = document.createElement("div");
-      block.className = "menu-block";
-      block.dataset.id = menuCount;
-
-      let html = `<button type="button" class="remove-btn" onclick="removeMenu(${menuCount})">Remove</button>`;
-      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
-      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);
-      html += `</select>`;
-
-      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
-      html += `<div class="menu-desc"></div>`;
-      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
-
-      block.innerHTML += html;
-      container.appendChild(block);
-      menuCount++;
+    function renderMenu() {
+      menu.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card fade';
+        card.innerHTML = `
+          <div class="title">${item.name}</div>
+          <div class="desc">${item.desc}</div>
+          <button class="order-btn" onclick="addToOrder('${item.id}')">Add to Order</button>
+        `;
+        menuSection.appendChild(card);
+      });
     }
 
-    function removeMenu(id) {
-      const block = document.querySelector(`.menu-block[data-id="${id}"]`);
-      if (block) block.remove();
-      updateSummary();
-    }
-
-    function onCategoryChange(select) {
-      const cat = select.value;
-      const block = select.closest(".menu-block");
-      const menuSelect = block.querySelector(".menu");
-      const descBox = block.querySelector(".menu-desc");
-
-      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-      menuSelect.disabled = !cat;
-
-      if (cat) {
-        menuData[cat].forEach(item => {
-          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}" data-desc="${item.desc}">${item.name} (RM${item.price})</option>`;
-        });
-      }
-
-      menuSelect.onchange = function() {
-        const selected = this.options[this.selectedIndex];
-        descBox.textContent = selected.dataset.desc || "";
-        updateSummary();
-      };
-
+    function addToOrder(id) {
+      const item = menu.find(m => m.id === id);
+      orderItems.push(item);
       updateSummary();
     }
 
     function updateSummary() {
-      const ul = document.getElementById("orderSummary");
-      ul.innerHTML = "";
+      orderList.innerHTML = '';
       let total = 0;
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menu || !menu.value) return;
-        const itemName = menu.value;
-        const price = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const lineTotal = qty * price;
-        total += lineTotal;
-        const li = document.createElement("li");
-        li.textContent = `${itemName} x${qty} = RM${lineTotal.toFixed(2)}`;
-        ul.appendChild(li);
+      orderItems.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} - RM${item.price.toFixed(2)}`;
+        orderList.appendChild(li);
+        total += item.price;
       });
-
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
+      totalPrice.textContent = total.toFixed(2);
     }
 
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("Order submitted. Thank you!");
-    });
-
-    db.ref("settings/offday").on("value", snap => {
-      const isOff = snap.val() === true;
-      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
-      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
-    });
-
-    addMenu();
+    renderMenu();
   </script></body>
 </html>
