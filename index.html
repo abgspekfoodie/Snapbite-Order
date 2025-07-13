@@ -82,30 +82,32 @@
   
     // Menu  
     const menuData = {  
-      "Beef": [  
-        { id: "primebite", name: "Primebite™", price: 10 },  
-        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11 },  
-        { id: "thefunguy", name: "The Fun Guy™", price: 12 },  
-        { id: "thefixer", name: "The Fixer™", price: 15 }  
-      ],  
-      "Chicken": [  
-        { id: "chickbite", name: "Chickbite™", price: 9 },  
-        { id: "goldcut", name: "Goldcut™", price: 10 },  
-        { id: "thecapcut", name: "The Cap Cut™", price: 11 },  
-        { id: "stripstack", name: "Stripstack™", price: 14 }  
-      ],  
-      "Tex-Mex": [  
-        { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10 },  
-        { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9 },  
-        { id: "mixtaco", name: "Mix Taco™", price: 12 },  
-        { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15 },  
-        { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14 },  
-        { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16 }  
-      ],  
-      "Sausage": [  
-        { id: "classicsausage", name: "Classic Sausage™", price: 6 },  
-        { id: "loadedsausage", name: "Loaded Sausage™", price: 12 }  
-      ]  
+    const menuData = {
+  "Beef": [
+    { id: "primebite", name: "Primebite™", price: 10, desc: "Classic build – juicy & bold." },
+    { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Melted cheese stacked over pure Angus." },
+    { id: "thefunguy", name: "The Fun Guy™", price: 12, desc: "Topped with sautéed mushrooms – earthy & smooth." },
+    { id: "thefixer", name: "The Fixer™", price: 15, desc: "Beef, crispy bacon, egg & cheese." }
+  ],
+  "Chicken": [
+    { id: "chickbite", name: "Chickbite™", price: 9, desc: "Classic deep-fried chicken burger." },
+    { id: "goldcut", name: "Goldcut™", price: 10, desc: "Fried chicken with melted cheese." },
+    { id: "thecapcut", name: "The Cap Cut™", price: 11, desc: "Fried chicken topped with sautéed mushrooms." },
+    { id: "stripstack", name: "Stripstack™", price: 14, desc: "Fried chicken with chicken bacon & cheese." }
+  ],
+  "Tex-Mex": [
+    { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10, desc: "Smoked Angus beef with Limewitch™ sauce." },
+    { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9, desc: "Smoked chicken chop with Limewitch™ sauce." },
+    { id: "mixtaco", name: "Mix Taco™", price: 12, desc: "Beef + chicken mix in taco wrap." },
+    { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15, desc: "Smoked beef & cheese grilled in tortilla." },
+    { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14, desc: "Smoked chicken with cheese in tortilla." },
+    { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16, desc: "Beef + chicken quesadilla – melty & bold." }
+  ],
+  "Sausage": [
+    { id: "classicsausage", name: "Classic Sausage™", price: 6, desc: "Juicy grilled sausage — simple and satisfying." },
+    { id: "loadedsausage", name: "Loaded Sausage™", price: 12, desc: "Sausage stacked with cheese, bacon & sauce." }
+  ]
+};  
     };  
   
     const addonsData = [  
@@ -114,12 +116,12 @@
       { id: "bacon", label: "Bacon", price: 3 }  
     ];  
   
-    const saucesData = [  
-      { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce" },  
-      { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist" },  
-      { id: "redriot", label: "Redriot", desc: "Housemade chili-based sauce with a kick" },  
-      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }  
-    ];  
+    const saucesData = [
+  { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce." },
+  { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist." },
+  { id: "redriot", label: "Redriot", desc: "Crafted chili sauce. For brave and bold only." },
+  { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch." }
+];
   
     let menuCount = 0;  
   
@@ -137,17 +139,30 @@
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;  
       html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;  
   
-      html += `<div class="addons"><label>Add-ons</label><br/>`;  
-      addonsData.forEach(add => {  
-        html += `<label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} RM${add.price}</label>`;  
-      });  
-      html += `</div>`;  
+      html += `<div class="addons">`;
+html += `<label>Add-ons</label>`;
+html += `<div style="margin-top: 6px;">`;
+addonsData.forEach(add => {
+  html += `
+    <label style="display: inline-block; margin-right: 10px; margin-bottom: 6px;">
+      <input type="checkbox" class="addon"
+             data-label="${add.label}"
+             data-price="${add.price}"
+             onchange="updateSummary()"> 
+      ${add.label} <span style="color:#ccc;">RM${add.price}</span>
+    </label>`;
+});
+html += `</div></div>`;
   
-      html += `<div class="sauces"><label>Choose Sauce</label><br/>`;  
-      saucesData.forEach(s => {  
-        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} (${s.desc})</label>`;  
-      });  
-      html += `</div>`;  
+      html += `<div class="sauces"><label>Choose Sauce <span style="font-weight:normal;">(Pick up to 2)</span></label><br/>`;
+saucesData.forEach(s => {
+  html += `
+    <label style="display:block; margin-top:6px;">
+      <input type="checkbox" class="sauce-check" data-label="${s.label}" data-block="${menuCount}" onchange="limitSauceSelection(${menuCount})">
+      <strong>${s.label}</strong> — <span class="desc">${s.desc}</span>
+    </label>`;
+});
+html += `</div>`;
   
       block.innerHTML = html;  
       container.appendChild(block);  
