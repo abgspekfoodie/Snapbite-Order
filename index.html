@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Snapbite™ Order Form (Live + Save)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snapbite™ Order Form</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    body { font-family: 'Arial', sans-serif; background: #111; color: #fff; padding: 2rem; }
+    body { font-family: 'Poppins', sans-serif; background: #111; color: #fff; padding: 2rem; }
     h1 { color: #ff9500; }
     input, select, textarea {
       width: 100%; padding: 10px; margin-top: 5px;
@@ -21,37 +21,25 @@
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Live Order</h1>
+  <h1>Snapbite™ Order</h1>
   <form id="orderForm">
     <label>Name</label>
     <input type="text" id="custName" required>
     <label>Phone</label>
-    <input type="tel" id="custPhone" required>
+    <input type="tel" id="custPhone" required><div id="menuContainer"></div>
+<button type="button" onclick="addMenu()">+ Add Menu Item</button>
 
-    <div id="menuContainer"></div>
-    <button type="button" onclick="addMenu()">+ Add Menu Item</button>
+<label>Notes</label>
+<textarea id="notes" rows="3"></textarea>
 
-    <label>Notes</label>
-    <textarea id="notes" rows="3"></textarea>
+<div class="summary">
+  <strong>Order Summary:</strong>
+  <ul id="orderSummary"></ul>
+  <p>Total: RM <span id="totalPrice">0.00</span></p>
+</div>
+<button type="submit" class="submit-btn">Submit via WhatsApp</button>
 
-    <label>Pickup Time</label>
-    <input type="text" id="pickup" placeholder="e.g. 6:30 PM">
-
-    <label>Payment</label>
-    <select id="payment">
-      <option value="Cash">Cash</option>
-      <option value="Online Banking">Online Banking</option>
-    </select>
-
-    <div class="summary">
-      <strong>Order Summary:</strong>
-      <ul id="orderSummary"></ul>
-      <p>Total: RM <span id="totalPrice">0.00</span></p>
-    </div>
-    <button type="submit" class="submit-btn">Submit Order</button>
-  </form>
-
-<script>
+  </form><script>
 const firebaseConfig = {
   apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
   authDomain: "snapbite-admin.firebaseapp.com",
@@ -65,20 +53,30 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let menus = [], addons = [
+let menus = {}, addons = [
   { label: 'Cheese', price: 1.5 },
   { label: 'Egg', price: 1.0 },
   { label: 'Mushroom', price: 2.5 },
   { label: 'Bacon', price: 3.5 }
 ], sauces = ['Redriot (Spicy)', 'Whiteblaze (White BBQ)'];
-
 let menuCount = 0;
-db.ref("menus").on("value", snap => {
-  menus = snap.val().filter(m => m.available);
-  document.getElementById("menuContainer").innerHTML = '';
-  menuCount = 0;
-  addMenu();
-});
+
+// Load menu items from Firebase
+function fetchMenus() {
+  db.ref("menus").once("value").then(snapshot => {
+    const data = snapshot.val();
+    menus = {};
+    Object.entries(data).forEach(([key, item]) => {
+      if (item.available) {
+        if (!menus[item.category]) menus[item.category] = [];
+        menus[item.category].push({ ...item, id: key });
+      }
+    });
+    document.getElementById("menuContainer").innerHTML = '';
+    menuCount = 0;
+    addMenu();
+  });
+}
 
 function addMenu() {
   const id = menuCount++;
@@ -88,8 +86,12 @@ function addMenu() {
 
   let html = '<label>Menu</label><select onchange="updateSummary()">';
   html += '<option value="">-- Select --</option>';
-  menus.forEach((m, i) => {
-    html += `<option value="${i}">${m.name} – RM${m.price.toFixed(2)}</option>`;
+  Object.entries(menus).forEach(([category, items]) => {
+    html += `<optgroup label="${category} Series">`;
+    items.forEach((m, i) => {
+      html += `<option value="${m.id}" data-price="${m.price}" data-name="${m.name}">${m.name} – RM${m.price.toFixed(2)}</option>`;
+    });
+    html += '</optgroup>';
   });
   html += '</select>';
 
@@ -113,11 +115,14 @@ function updateSummary() {
   let total = 0;
   let summary = "";
   document.querySelectorAll(".menu-block").forEach((block, i) => {
-    const menuIdx = block.querySelector("select").value;
-    if (menuIdx === "") return;
-    const menu = menus[menuIdx];
-    let itemTotal = menu.price;
-    let line = menu.name + " (RM" + menu.price.toFixed(2) + ")";
+    const select = block.querySelector("select");
+    const option = select.options[select.selectedIndex];
+    const name = option.getAttribute("data-name");
+    const basePrice = parseFloat(option.getAttribute("data-price"));
+    if (!name || isNaN(basePrice)) return;
+
+    let itemTotal = basePrice;
+    let line = name + " (RM" + basePrice.toFixed(2) + ")";
     let addonsText = [];
 
     block.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
@@ -139,62 +144,39 @@ function updateSummary() {
   document.getElementById("totalPrice").textContent = total.toFixed(2);
 }
 
-document.getElementById("orderForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.getElementById("custName").value;
-  const phone = document.getElementById("custPhone").value;
-  const notes = document.getElementById("notes").value;
-  const pickup = document.getElementById("pickup").value;
-  const payment = document.getElementById("payment").value;
-  const total = document.getElementById("totalPrice").textContent;
+// Submit
+  document.getElementById("orderForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name = document.getElementById("custName").value;
+    const phone = document.getElementById("custPhone").value;
+    const notes = document.getElementById("notes").value;
+    const total = document.getElementById("totalPrice").textContent;
 
-  let msg = `Snapbite Order\\nName: ${name}\\nPhone: ${phone}\\n\\nOrder:\\n`;
-  const orderItems = [];
+    let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
+    document.querySelectorAll(".menu-block").forEach(block => {
+      const select = block.querySelector("select");
+      const option = select.options[select.selectedIndex];
+      const itemName = option.getAttribute("data-name");
+      if (!itemName) return;
+      let line = "- " + itemName;
 
-  document.querySelectorAll(".menu-block").forEach(block => {
-    const menuIdx = block.querySelector("select").value;
-    if (menuIdx === "") return;
-    const menu = menus[menuIdx];
-    let line = "- " + menu.name;
-    let item = { name: menu.name, basePrice: menu.price, addons: [], sauce: "" };
+      block.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
+        const label = cb.getAttribute("data-label");
+        line += " + " + label;
+      });
 
-    block.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
-      const label = cb.getAttribute("data-label");
-      const price = parseFloat(cb.getAttribute("data-price"));
-      line += " + " + label;
-      item.addons.push({ label, price });
+      const sauce = block.querySelector("input[type=radio]:checked");
+      if (sauce) line += " with " + sauce.value;
+      msg += line + "\n";
     });
 
-    const sauce = block.querySelector("input[type=radio]:checked");
-    if (sauce) {
-      line += " with " + sauce.value;
-      item.sauce = sauce.value;
-    }
+    msg += `\nTotal: RM ${total}`;
+    if (notes) msg += `\nNotes: ${notes}`;
 
-    msg += line + "\\n";
-    orderItems.push(item);
+    // Open WhatsApp
+    window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg));
   });
 
-  msg += `\\nTotal: RM ${total}`;
-  if (notes) msg += `\\nNotes: ${notes}`;
-  if (pickup) msg += `\\nPickup: ${pickup}`;
-  if (payment) msg += `\\nPayment: ${payment}`;
-
-  const orderData = {
-    name, phone, notes, pickup, payment, total,
-    items: orderItems,
-    timestamp: new Date().toISOString()
-  };
-
-  const newOrderRef = firebase.database().ref("orders").push();
-  newOrderRef.set(orderData, (error) => {
-    if (!error) {
-      window.location.href = "order-summary.html?orderId=" + newOrderRef.key;
-    } else {
-      alert("Error saving order.");
-    }
-  });
-});
-</script>
-</body>
+fetchMenus();
+</script></body>
 </html>
