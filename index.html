@@ -53,11 +53,11 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
-    .addons ul {
+    .addons ul, .sauces ul {
       list-style: none;
       padding-left: 0;
     }
-    .addons li {
+    .addons li, .sauces li {
       margin-bottom: 6px;
     }
     .summary {
@@ -108,10 +108,9 @@
   </div>
   <form id="orderForm" style="display: none;">
     <label for="custName">Name</label>
-    <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
-<input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
-
-<div id="menuContainer"></div>
+    <input type="text" id="custName" required placeholder="Your name" />
+    <label for="custPhone">Phone</label>
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
 <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
 <label for="notes">Notes</label>
@@ -126,6 +125,7 @@
 <button type="submit" class="submit-btn">Submit Order</button>
 
   </form>  <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
       authDomain: "snapbite-admin.firebaseapp.com",
@@ -138,159 +138,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const menuData = {  /* MASUKKAN menuData DI SINI SEPERTI VERSI YANG DIBERI SEBELUM INI */ };
-    const addonsData = [
-      { id: "cheese", label: "Cheese", price: 2 },
-      { id: "egg", label: "Egg", price: 1 },
-      { id: "bacon", label: "Bacon", price: 3 }
-    ];
-    const saucesData = [
-      { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce" },
-      { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist" },
-      { id: "redriot", label: "Redriot", desc: "Crafted chili sauce. For brave and bold only" },
-      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }
-    ];
-
-    let menuCount = 0;
-
-    function addMenu() {
-      const container = document.getElementById("menuContainer");
-      const block = document.createElement("div");
-      block.className = "menu-block";
-      block.dataset.id = menuCount;
-
-      let html = `<button type="button" class="remove-btn" onclick="removeMenu(${menuCount})">Remove</button>`;
-      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
-      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);
-      html += `</select>`;
-      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
-      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
-      html += `<div class="addons"><label>Add-ons</label><ul>`;
-      addonsData.forEach(add => {
-        html += `<li><label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} (RM${add.price})</label></li>`;
-      });
-      html += `</ul></div>`;
-      html += `<fieldset class="sauces"><legend>Choose up to 2 Sauces</legend>`;
-      saucesData.forEach(s => {
-        html += `<div><label><input type="checkbox" class="sauce-check" onchange="limitSauceSelection(${menuCount})" value="${s.label}"> <strong>${s.label}</strong> — <span style="font-size: 0.9rem; font-style: italic;">${s.desc}</span></label></div>`;
-      });
-      html += `</fieldset>`;
-
-      block.innerHTML = html;
-      container.appendChild(block);
-      menuCount++;
-    }
-
-    function removeMenu(id) {
-      const block = document.querySelector(`.menu-block[data-id="${id}"]`);
-      if (block) block.remove();
-      updateSummary();
-    }
-
-    function onCategoryChange(select) {
-      const cat = select.value;
-      const block = select.closest(".menu-block");
-      const menuSelect = block.querySelector(".menu");
-      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-      menuSelect.disabled = !cat;
-      if (cat) {
-        menuData[cat].forEach(item => {
-          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price}) — ${item.desc}</option>`;
-        });
-      }
-      updateSummary();
-    }
-
-    function limitSauceSelection(id) {
-      const checks = document.querySelectorAll(`.menu-block[data-id="${id}"] .sauce-check:checked`);
-      if (checks.length > 2) {
-        alert("You can only pick up to 2 sauces.");
-        event.target.checked = false;
-      }
-      updateSummary();
-    }
-
-    function updateSummary() {
-      let total = 0;
-      const ul = document.getElementById("orderSummary");
-      ul.innerHTML = "";
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menu || !menu.value) return;
-
-        const itemName = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({ label: a.dataset.label, price: parseFloat(a.dataset.price) }));
-        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
-
-        let line = `${itemName} x${qty}`;
-        if (addons.length) line += " + " + addons.map(a => a.label).join(", ");
-        if (sauces.length) line += ` [${sauces.join(" & ")}]`;
-
-        let itemTotal = (itemPrice + addons.reduce((sum, a) => sum + a.price, 0)) * qty;
-        total += itemTotal;
-
-        let li = document.createElement("li");
-        li.textContent = `${line} = RM${itemTotal.toFixed(2)}`;
-        ul.appendChild(li);
-      });
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
-    }
-
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("custName").value.trim();
-      const phone = document.getElementById("custPhone").value.trim();
-      const notes = document.getElementById("notes").value.trim();
-      if (!name || !phone) return alert("Please enter your name and phone.");
-
-      const items = [];
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menu || !menu.value) return;
-
-        const itemName = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({ label: a.dataset.label, price: parseFloat(a.dataset.price) }));
-        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
-
-        items.push({ name: itemName, quantity: qty, price: itemPrice, addons, sauces });
-      });
-
-      let total = items.reduce((sum, i) => sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
-
-      let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
-      items.forEach(i => {
-        let line = `- ${i.name} x${i.quantity}`;
-        if (i.addons.length) line += ` + ${i.addons.map(a => a.label).join(", ")}`;
-        if (i.sauces.length) line += ` [${i.sauces.join(" & ")}]`;
-        msg += line + "\n";
-      });
-      msg += `\nTotal: RM${total.toFixed(2)}`;
-      if (notes) msg += `\nNotes: ${notes}`;
-
-      const order = { name, phone, notes, items, total, status: "pending", time: new Date().toISOString() };
-      db.ref("orders").push(order, err => {
-        if (!err) {
-          window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-          document.getElementById("orderForm").reset();
-          document.getElementById("menuContainer").innerHTML = "";
-          menuCount = 0;
-          addMenu();
-          updateSummary();
-        }
-      });
-    });
-
+    // Order availability check
     db.ref("settings/offday").on("value", snap => {
       const isOff = snap.val() === true;
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
-
-    addMenu();
   </script></body>
 </html>
