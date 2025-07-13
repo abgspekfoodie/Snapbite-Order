@@ -80,7 +80,7 @@
     const db = firebase.database();  
   
     // Menu  
-const menuData = {    
+    const menuData = {    
   "Beef": [    
     { id: "primebite", name: "Primebite™", price: 10, desc: "Crafted 140g beef patty — bold and juicy" },    
     { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "140g beef patty topped with melting cheese" },    
@@ -117,59 +117,61 @@ const menuData = {
   }    
 ]
   
-    const addonsData = [  
-    // Add-ons
-html += `
-  <div class="addons" style="margin-top: 1rem;">
-    <label style="font-weight: bold;">Add-ons</label>
-    <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">
-`;
+    const addonsData = [
+  { id: "cheese", label: "Cheese", price: 2 },
+  { id: "egg", label: "Egg", price: 1 },
+  { id: "bacon", label: "Bacon", price: 3 }
+];
 
-addonsData.forEach(add => {
-  html += `
-    <li style="margin-bottom: 6px;">
-      <label>
-        <input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()">
-        ${add.label} <span style="color: #aaa;">(RM${add.price})</span>
-      </label>
-    </li>
-  `;
-});
-
-html += `
-    </ul>
-  </div>
-`;
-
-// Sauces
-html += `
-  <fieldset class="sauces" style="border: none; margin-top: 1rem; padding: 0;">
-    <legend style="font-weight: bold; margin-bottom: 0.5rem;">Choose Sauce</legend>
-    <ul style="list-style: none; padding: 0;">
-`;
-
-saucesData.forEach(s => {
-  html += `
-    <li style="margin-bottom: 6px;">
-      <label>
-        <input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()">
-        <strong>${s.label}</strong>
-        <span style="display: block; font-size: 0.85rem; color: #ccc; margin-left: 1.2rem;">${s.desc}</span>
-      </label>
-    </li>
-  `;
-});
-
-html += `
-    </ul>
-  </fieldset>
-`;
+const saucesData = [
+  { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce — best with chicken" },
+  { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist — best for beef" },
+  { id: "redriot", label: "Redriot", desc: "Crafted chili-based sauce with a kick" },
+  { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }
+];
   
-      html += `<fieldset class="sauces" style="border: none; margin-top: 1rem;"><legend style="font-weight: bold; margin-bottom: 5px;">Choose Sauce</legend>`;
-saucesData.forEach(s => {
-  html += `<div style="margin-bottom: 6px;"><label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> <strong>${s.label}</strong> — <span style="font-size: 0.9rem; font-style: italic;">${s.desc}</span></label></div>`;
+    let menuCount = 0;  
+  
+    function addMenu() {  
+      const container = document.getElementById("menuContainer");  
+      const block = document.createElement("div");  
+      block.className = "menu-block";  
+      block.dataset.id = menuCount;  
+  
+      let html = `<button type="button" class="remove-btn" onclick="removeMenu(${menuCount})">Remove</button>`;  
+      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;  
+      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);  
+      html += `</select>`;  
+  
+      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;  
+      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;  
+  
+      html += `<div class="addons" style="margin-top: 1rem;">
+  <label style="font-weight: bold;">Add-ons</label>
+  <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">`;
+addonsData.forEach(add => {
+  html += `<li style="margin-bottom: 6px;">
+    <label>
+      <input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()">
+      ${add.label} <span style="color: #aaa;">(RM${add.price})</span>
+    </label>
+  </li>`;
 });
-html += `</fieldset>`;  
+html += `</ul></div>`;
+
+html += `<fieldset class="sauces" style="border: none; margin-top: 1rem; padding: 0;">
+  <legend style="font-weight: bold; margin-bottom: 0.5rem;">Choose Sauce</legend>
+  <ul style="list-style: none; padding: 0;">`;
+saucesData.forEach(s => {
+  html += `<li style="margin-bottom: 6px;">
+    <label>
+      <input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()">
+      <strong>${s.label}</strong><br>
+      <span style="font-size: 0.85rem; color: #ccc; margin-left: 1.2rem;">${s.desc}</span>
+    </label>
+  </li>`;
+});
+html += `</ul></fieldset>`; 
   
       block.innerHTML = html;  
       container.appendChild(block);  
@@ -182,20 +184,19 @@ html += `</fieldset>`;
       updateSummary();  
     }  
   
-    function onCategoryChange(select) {
-  const cat = select.value;
-  const block = select.closest(".menu-block");
-  const menuSelect = block.querySelector(".menu");
-  menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-  menuSelect.disabled = !cat;
-  if (cat) {
-    menuData[cat].forEach(item => {
-      const label = `${item.name} (RM${item.price}) - ${item.desc || ""}`;
-      menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
-    });
-  }
-  updateSummary();
-}
+    function onCategoryChange(select) {  
+      const cat = select.value;  
+      const block = select.closest(".menu-block");  
+      const menuSelect = block.querySelector(".menu");  
+      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;  
+      menuSelect.disabled = !cat;  
+      if (cat) {  
+        menuData[cat].forEach(item => {  
+          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;  
+        });  
+      }  
+      updateSummary();  
+    }  
   
     function updateSummary() {  
       let total = 0;  
