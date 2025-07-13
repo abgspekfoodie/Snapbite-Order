@@ -118,41 +118,52 @@ const menuData = {
 ]
   
     const addonsData = [  
-      { id: "cheese", label: "Cheese", price: 2 },  
-      { id: "egg", label: "Egg", price: 1 },  
-      { id: "bacon", label: "Bacon", price: 3 }  
-    ];  
-  
-    const saucesData = [  
-      { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce" },  
-      { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist" },  
-      { id: "redriot", label: "Redriot", desc: "Crafted chili-based sauce with a kick" },  
-      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }  
-    ];  
-  
-    let menuCount = 0;  
-  
-    function addMenu() {  
-      const container = document.getElementById("menuContainer");  
-      const block = document.createElement("div");  
-      block.className = "menu-block";  
-      block.dataset.id = menuCount;  
-  
-      let html = `<button type="button" class="remove-btn" onclick="removeMenu(${menuCount})">Remove</button>`;  
-      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;  
-      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);  
-      html += `</select>`;  
-  
-      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;  
-      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;  
-  
-      // Add-ons
-html += `<div class="addons"><label>Add-ons</label><ul style="padding-left: 1rem; margin-top: 5px;">`;
-addonsData.forEach(add => {
-  html += `<li style="margin-bottom: 4px;"><label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} (RM${add.price})</label></li>`;
-});
-html += `</ul></div>`;
+    // Add-ons
+html += `
+  <div class="addons" style="margin-top: 1rem;">
+    <label style="font-weight: bold;">Add-ons</label>
+    <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">
+`;
 
+addonsData.forEach(add => {
+  html += `
+    <li style="margin-bottom: 6px;">
+      <label>
+        <input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()">
+        ${add.label} <span style="color: #aaa;">(RM${add.price})</span>
+      </label>
+    </li>
+  `;
+});
+
+html += `
+    </ul>
+  </div>
+`;
+
+// Sauces
+html += `
+  <fieldset class="sauces" style="border: none; margin-top: 1rem; padding: 0;">
+    <legend style="font-weight: bold; margin-bottom: 0.5rem;">Choose Sauce</legend>
+    <ul style="list-style: none; padding: 0;">
+`;
+
+saucesData.forEach(s => {
+  html += `
+    <li style="margin-bottom: 6px;">
+      <label>
+        <input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()">
+        <strong>${s.label}</strong>
+        <span style="display: block; font-size: 0.85rem; color: #ccc; margin-left: 1.2rem;">${s.desc}</span>
+      </label>
+    </li>
+  `;
+});
+
+html += `
+    </ul>
+  </fieldset>
+`;
   
       html += `<fieldset class="sauces" style="border: none; margin-top: 1rem;"><legend style="font-weight: bold; margin-bottom: 5px;">Choose Sauce</legend>`;
 saucesData.forEach(s => {
