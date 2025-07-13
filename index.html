@@ -1,183 +1,199 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snapbite™ Ordering</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snapbite™ Order Form</title>
   <style>
-    body { font-family:'Poppins', sans-serif; margin:0; padding:2rem; background:#1a1a1a; color:#fff; }
-    h1 { color:#ff9500; text-align:center; }
-    form { max-width:700px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
-    label { display:block; margin-top:1rem; font-weight:600; }
-    input[type=text], input[type=tel], textarea, select {
-      width:100%; padding:10px; border:none; border-radius:5px; margin-top:5px; background:#444; color:#fff;
-    }
-    .item-config { display:none; margin-top:1rem; background:#333; padding:1rem; border-radius:8px; }
-    .add-on-list label, .sauce-list label { display:block; margin-top:5px; font-weight:normal; }
-    .cart { margin-top:2rem; background:#111; padding:1rem; border-radius:8px; }
-    .cart-item { border-bottom:1px solid #444; padding:0.5rem 0; }
-    .cart-total { font-weight:bold; font-size:1.2rem; margin-top:1rem; }
-    button { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
+    :root {
+      --main-bg: #0c0c0f;
+      --accent-purple: #a86efc;
+      --accent-gold: #ffd700;
+      --text-light: #f1f1f1;
+      --box-bg: #1a1a1f;
+      --border: #333;
+    }body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--main-bg);
+  color: var(--text-light);
+  margin: 0;
+  padding: 2rem;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+}
+
+form {
+  max-width: 800px;
+  margin: auto;
+  background: var(--box-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(168, 110, 252, 0.2);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+input[type="text"], input[type="tel"], select, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-top: 5px;
+  background: #222;
+  color: #fff;
+}
+
+.item-box {
+  border: 1px solid var(--border);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 1rem;
+  background: #151518;
+}
+
+.item-box h3 {
+  margin: 0;
+  color: var(--accent-purple);
+}
+
+.inline {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.inline label {
+  margin-top: 0.5rem;
+  font-weight: normal;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  background: var(--accent-gold);
+  color: #000;
+  padding: 12px 24px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#items-wrapper .item-box:not(:first-child) {
+  margin-top: 2rem;
+}
+
+#total {
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--accent-gold);
+}
+
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>
+  <h1>Snapbite™ Skyline Edition</h1>
   <form id="orderForm">
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Your name" required><label for="phone">Contact Number</label>
-<input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" required>
+    <div class="form-section">
+      <label for="customerName">Name</label>
+      <input type="text" id="customerName" name="customerName" required /><label for="contact">Contact Number</label>
+  <input type="tel" id="contact" name="contact" required />
 
-<label for="menuSelect">Select Menu Item</label>
-<select id="menuSelect" onchange="showItemConfig()">
-  <option value="">-- Choose an item --</option>
-  <option value="Primebite">Primebite™ (RM10)</option>
-  <option value="Beef N’ Cheese">Beef N’ Cheese™ (RM11)</option>
-  <option value="The Fun Guy">The Fun Guy™ (RM12)</option>
-  <option value="The Fixer">The Fixer™ (RM15)</option>
-  <option value="Chickbite">Chickbite™ (RM9)</option>
-  <option value="Goldcut">Goldcut™ (RM10)</option>
-  <option value="The Cap Cut">The Cap Cut™ (RM11)</option>
-  <option value="Stripstack">Stripstack™ (RM14)</option>
-  <option value="Smoke Beef Taco">Smoke Beef Taco™ (RM10)</option>
-  <option value="Smokey Chicken Taco">Smokey Chicken Taco™ (RM9)</option>
-  <option value="Mix Taco">Mix Taco™ (RM12)</option>
-  <option value="Smoke Beef Quesadilla">Smoke Beef Quesadilla™ (RM15)</option>
-  <option value="Smoke Chicken Quesadilla">Smoke Chicken Quesadilla™ (RM14)</option>
-  <option value="Mix Quesadilla">Mix Quesadilla™ (RM16)</option>
-  <option value="Classic Sausage">Classic Sausage™ (RM6)</option>
-  <option value="Loaded Sausage">Loaded Sausage™ (RM12)</option>
-  <option value="Popcorn Chicken">Popcorn Chicken (RM6)</option>
-</select>
+  <label for="payment">Payment Method</label>
+  <select id="payment" name="payment">
+    <option value="Cash">Cash</option>
+    <option value="Online Banking (QR or Transfer)">Online Banking (QR or Transfer)</option>
+  </select>
 
-<div class="item-config" id="itemConfig">
-  <div id="itemDescription"></div>
-  <div class="add-on-list" id="addonSection"></div>
-  <div class="sauce-list" id="sauceSection"></div>
-  <button type="button" onclick="addToCart()">Add Item</button>
+  <label for="pickup">Pickup Time (optional)</label>
+  <input type="text" id="pickup" name="pickup" placeholder="e.g. 6:45 PM" />
 </div>
 
-<div class="cart" id="cart"></div>
+<div id="items-wrapper">
+  <div class="item-box">
+    <h3>Menu Item</h3>
+    <label>Choose Menu</label>
+    <select name="menu[]">
+      <option value="Primebite™ - RM10">Primebite™ – RM10</option>
+      <option value="Beef N' Cheese™ - RM11">Beef N' Cheese™ – RM11</option>
+      <option value="The Fun Guy™ - RM12">The Fun Guy™ – RM12</option>
+      <option value="The Fixer™ - RM15">The Fixer™ – RM15</option>
+      <option value="Chickbite™ - RM9">Chickbite™ – RM9</option>
+      <option value="Goldcut™ - RM10">Goldcut™ – RM10</option>
+      <option value="The Cap Cut™ - RM11">The Cap Cut™ – RM11</option>
+      <option value="Stripstack™ - RM14">Stripstack™ – RM14</option>
+      <option value="Smoke Beef Taco™ - RM10">Smoke Beef Taco™ – RM10</option>
+      <option value="Smokey Chicken Taco™ - RM9">Smokey Chicken Taco™ – RM9</option>
+      <option value="Mix Taco™ - RM12">Mix Taco™ – RM12</option>
+      <option value="Smoke Beef Quesadilla™ - RM15">Smoke Beef Quesadilla™ – RM15</option>
+      <option value="Smoke Chicken Quesadilla™ - RM14">Smoke Chicken Quesadilla™ – RM14</option>
+      <option value="Mix Quesadilla™ - RM16">Mix Quesadilla™ – RM16</option>
+      <option value="Classic Sausage™ - RM6">Classic Sausage™ – RM6</option>
+      <option value="Loaded Sausage™ - RM12">Loaded Sausage™ – RM12</option>
+      <option value="Popcorn Chicken - RM6">Popcorn Chicken – RM6</option>
+    </select>
 
-<label for="notes">Special Request / Notes</label>
-<textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
+    <label>Add-ons</label>
+    <div class="inline">
+      <label><input type="checkbox" name="addon[]" value="Cheese (RM1.50)" /> Cheese (RM1.50)</label>
+      <label><input type="checkbox" name="addon[]" value="Egg (RM1.00)" /> Egg (RM1.00)</label>
+      <label><input type="checkbox" name="addon[]" value="Mushroom (RM2.50)" /> Mushroom (RM2.50)</label>
+      <label><input type="checkbox" name="addon[]" value="Bacon (RM3.50)" /> Bacon (RM3.50)</label>
+    </div>
 
-<label for="payment">Payment Method</label>
-<select id="payment" name="payment">
-  <option value="Cash">Cash</option>
-  <option value="Online Banking (QR or Transfer)">Online Banking (QR or Transfer)</option>
-</select>
+    <label>Sauce</label>
+    <div class="inline">
+      <label><input type="checkbox" name="sauce[]" value="Redriot (Spicy)" /> Redriot (Spicy)</label>
+      <label><input type="checkbox" name="sauce[]" value="Whiteblaze (White BBQ)" /> Whiteblaze (White BBQ)</label>
+      <label><input type="checkbox" name="sauce[]" value="Honey Mustard" /> Honey Mustard</label>
+    </div>
+  </div>
+</div>
 
-<label for="pickup">Pickup Time (Optional)</label>
-<input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
+<button type="button" class="button" onclick="addItem()">+ Add Item</button>
 
-<button type="submit">Submit Order via WhatsApp</button>
+<div id="total">Total: RM0.00</div>
+<button type="submit" class="button">Submit via WhatsApp</button>
 
-  </form><script>
-  const descriptions = {
-    "Primebite": "Classic build – juicy & bold.",
-    "Beef N’ Cheese": "Melted cheese stacked over pure beef.",
-    "The Fun Guy": "Topped with sautéed mushrooms – earthy & smooth.",
-    "The Fixer": "Stacked with beef, crispy bacon, egg & cheese.",
-    "Chickbite": "Classic deep-fried chicken burger.",
-    "Goldcut": "Fried chicken with melted cheese.",
-    "The Cap Cut": "Fried chicken topped with sautéed mushrooms.",
-    "Stripstack": "Fried chicken with chicken bacon & egg.",
-    "Smoke Beef Taco": "Slow-smoked beef wrapped in soft tortilla.",
-    "Smokey Chicken Taco": "Slow-smoked chicken wrapped in soft tortilla.",
-    "Mix Taco": "Beef & chicken combo in soft tortilla.",
-    "Smoke Beef Quesadilla": "Beef with melted mozzarella in grilled tortilla.",
-    "Smoke Chicken Quesadilla": "Chicken with melted mozzarella in grilled tortilla.",
-    "Mix Quesadilla": "Blend of beef & chicken with cheese in grilled tortilla.",
-    "Classic Sausage": "Grilled cheese-filled sausage in soft bun.",
-    "Loaded Sausage": "Sausage with bacon, mushrooms, cheese & salad.",
-    "Popcorn Chicken": "Crispy bite-sized chicken."
-  };
-
-  const prices = {
-    "Primebite": 10, "Beef N’ Cheese": 11, "The Fun Guy": 12, "The Fixer": 15,
-    "Chickbite": 9, "Goldcut": 10, "The Cap Cut": 11, "Stripstack": 14,
-    "Smoke Beef Taco": 10, "Smokey Chicken Taco": 9, "Mix Taco": 12,
-    "Smoke Beef Quesadilla": 15, "Smoke Chicken Quesadilla": 14, "Mix Quesadilla": 16,
-    "Classic Sausage": 6, "Loaded Sausage": 12, "Popcorn Chicken": 6
-  };
-
-  const addons = [
-    { name: "Cheese", price: 1.5 },
-    { name: "Egg", price: 1.0 },
-    { name: "Mushroom", price: 2.5 },
-    { name: "Bacon", price: 3.5 }
-  ];
-
-  const sauces = ["Redriot (spicy)", "Whiteblaze (white BBQ)", "Honey Mustard"];
-
-  const texmexItems = ["Smoke Beef Taco", "Smokey Chicken Taco", "Mix Taco", "Smoke Beef Quesadilla", "Smoke Chicken Quesadilla", "Mix Quesadilla"];
-  const noAddonItems = ["Popcorn Chicken"];
-  const sausageItems = ["Classic Sausage", "Loaded Sausage"];
-
-  let cart = [];
-
-  function showItemConfig() {
-    const item = document.getElementById('menuSelect').value;
-    if (!item) return document.getElementById('itemConfig').style.display = 'none';
-
-    document.getElementById('itemDescription').innerText = descriptions[item];
-    let addonHTML = '', sauceHTML = '';
-
-    if (!noAddonItems.includes(item)) {
-      addonHTML = '<label>Add-ons:</label>';
-      addons.forEach(a => {
-        addonHTML += `<label><input type='checkbox' value="${a.name}" data-price="${a.price}"> ${a.name} (RM${a.price.toFixed(2)})</label>`;
-      });
+  </form>  <script>
+    function addItem() {
+      const wrapper = document.getElementById('items-wrapper');
+      const clone = wrapper.firstElementChild.cloneNode(true);
+      wrapper.appendChild(clone);
+      calculateTotal();
     }
 
-    if (!texmexItems.includes(item) && !noAddonItems.includes(item)) {
-      sauceHTML = '<label>Sauce:</label>';
-      sauces.forEach(s => {
-        sauceHTML += `<label><input type='radio' name='sauce' value="${s}"> ${s}</label>`;
+    function calculateTotal() {
+      let total = 0;
+      const allItems = document.querySelectorAll('.item-box');
+      allItems.forEach(box => {
+        const menu = box.querySelector('select[name="menu[]"]').value;
+        const menuPrice = parseFloat(menu.match(/RM(\d+\.?\d*)/)[1]);
+        total += menuPrice;
+
+        const addons = box.querySelectorAll('input[name="addon[]"]:checked');
+        addons.forEach(add => {
+          const addonPrice = parseFloat(add.value.match(/RM(\d+\.?\d*)/)[1]);
+          total += addonPrice;
+        });
       });
+      document.getElementById('total').textContent = `Total: RM${total.toFixed(2)}`;
     }
 
-    document.getElementById('addonSection').innerHTML = addonHTML;
-    document.getElementById('sauceSection').innerHTML = sauceHTML;
-    document.getElementById('itemConfig').style.display = 'block';
-  }
-
-  function addToCart() {
-    const item = document.getElementById('menuSelect').value;
-    if (!item) return;
-    const selectedAddons = Array.from(document.querySelectorAll('#addonSection input:checked'));
-    const selectedSauce = document.querySelector('input[name="sauce"]:checked');
-
-    let itemTotal = prices[item];
-    let addonsList = selectedAddons.map(a => {
-      itemTotal += parseFloat(a.dataset.price);
-      return `${a.value} (RM${parseFloat(a.dataset.price).toFixed(2)})`;
-    });
-
-    const cartItem = {
-      name: item,
-      price: prices[item],
-      addons: addonsList,
-      sauce: selectedSauce ? selectedSauce.value : null,
-      total: itemTotal
-    };
-    cart.push(cartItem);
-    renderCart();
-    document.getElementById('itemConfig').style.display = 'none';
-    document.getElementById('menuSelect').value = "";
-  }
-
-  function renderCart() {
-    let html = '<h3>Order Summary:</h3>';
-    let total = 0;
-    cart.forEach((item, i) => {
-      html += `<div class='cart-item'><strong>${item.name}</strong> - RM${item.price.toFixed(2)}<br>`;
-      if (item.addons.length) html += `Add-ons: ${item.addons.join(', ')}<br>`;
-      if (item.sauce) html += `Sauce: ${item.sauce}<br>`;
-      html += `Item Total: RM${item.total.toFixed(2)}</div>`;
-      total += item.total;
-    });
-    html += `<div class='cart-total'>Total: RM${total.toFixed(2)}</div>`;
-    document.getElementById('cart').innerHTML = html;
-  }
-</script></body>
+    document.addEventListener('change', calculateTotal);
+  </script></body>
 </html>
