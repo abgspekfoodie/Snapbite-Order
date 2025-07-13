@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -63,6 +62,12 @@
       font-size: 0.9rem;
       font-weight: normal;
     }
+    .menu-desc {
+      margin-top: 5px;
+      font-size: 0.9rem;
+      font-style: italic;
+      color: #ccc;
+    }
     .summary {
       background: #222;
       padding: 15px;
@@ -109,123 +114,40 @@
     We're recharging the taste, giving dreams some play,<br />
     But don't you worry — we’re not far away.<br /><br />
     💬 Stay tuned, stay hype, we’ll be back your way!
-  </div>
-
-  <form id="orderForm" style="display: none;">
+  </div>  <form id="orderForm" style="display: none;">
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" />
     <label for="custPhone">Phone</label>
-    <input
-      type="tel"
-      id="custPhone"
-      required
-      placeholder="Your phone number"
-      pattern="[0-9+]+"
-    />
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
+<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
-    <div id="menuContainer"></div>
-    <button type="button" class="add-menu-btn" onclick="addMenu()">
-      + Add Menu Item
-    </button>
+<label for="notes">Notes</label>
+<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
 
-    <label for="notes">Notes</label>
-    <textarea
-      id="notes"
-      rows="3"
-      placeholder="Extra instructions (optional)"
-    ></textarea>
+<div class="summary">
+  <h3>Order Summary</h3>
+  <ul id="orderSummary"></ul>
+  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+</div>
 
-    <div class="summary">
-      <h3>Order Summary</h3>
-      <ul id="orderSummary"></ul>
-      <p>
-        <strong
-          >Total: RM <span id="totalPrice">0.00</span></strong
-        >
-      </p>
-    </div>
+<button type="submit" class="submit-btn">Submit Order</button>
 
-    <button type="submit" class="submit-btn">Submit Order</button>
-  </form>
-
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
-      authDomain: "snapbite-admin.firebaseapp.com",
-      databaseURL:
-        "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "snapbite-admin",
-      storageBucket: "snapbite-admin.appspot.com",
-      messagingSenderId: "146625734660",
-      appId: "1:146625734660:web:23ada593e4818ed7332d51",
-    };
+  </form>  <script>
+    const firebaseConfig = { /* your firebase config here */ };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Menu
     const menuData = {
       Beef: [
-        { id: "primebite", name: "Primebite™", price: 10 },
-        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11 },
-        { id: "thefunguy", name: "The Fun Guy™", price: 12 },
-        { id: "thefixer", name: "The Fixer™", price: 15 },
+        { id: "primebite", name: "Primebite™", price: 10, desc: "Classic Angus beef burger with bold flavors." },
+        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Angus beef stacked with melted cheese." }
       ],
       Chicken: [
-        { id: "chickbite", name: "Chickbite™", price: 9 },
-        { id: "goldcut", name: "Goldcut™", price: 10 },
-        { id: "thecapcut", name: "The Cap Cut™", price: 11 },
-        { id: "stripstack", name: "Stripstack™", price: 14 },
-      ],
-      "Tex-Mex": [
-        { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10 },
-        { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9 },
-        { id: "mixtaco", name: "Mix Taco™", price: 12 },
-        { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15 },
-        {
-          id: "smokechickenquesadilla",
-          name: "Smoke Chicken Quesadilla™",
-          price: 14,
-        },
-        { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16 },
-      ],
-      Sausage: [
-        { id: "classicsausage", name: "Classic Sausage™", price: 6 },
-        { id: "loadedsausage", name: "Loaded Sausage™", price: 12 },
-      ],
+        { id: "chickbite", name: "Chickbite™", price: 9, desc: "Crispy fried chicken burger, classic and juicy." }
+      ]
     };
 
-    const addonsData = [
-      { id: "cheese", label: "Cheese", price: 2 },
-      { id: "egg", label: "Egg", price: 1 },
-      { id: "bacon", label: "Bacon", price: 3 },
-    ];
-
-    const saucesData = [
-      {
-        id: "nancho",
-        label: "Nancho Cheese",
-        desc: "Rich, creamy cheddar-style cheese sauce",
-      },
-      {
-        id: "special",
-        label: "Snapbite Special",
-        desc: "Zesty layered sauce with tangy twist",
-      },
-      {
-        id: "redriot",
-        label: "Redriot",
-        desc: "Housemade chili-based sauce with a kick",
-      },
-      {
-        id: "garlicranch",
-        label: "Garlic Ranch",
-        desc: "Smooth, garlicky and herby ranch",
-      },
-    ];
-
     let menuCount = 0;
-
     function addMenu() {
       const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
@@ -234,27 +156,14 @@
 
       let html = `<button type="button" class="remove-btn" onclick="removeMenu(${menuCount})">Remove</button>`;
       html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
-      Object.keys(menuData).forEach(
-        (cat) => (html += `<option value="${cat}">${cat}</option>`)
-      );
+      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);
       html += `</select>`;
 
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
+      html += `<div class="menu-desc"></div>`;
       html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
 
-      html += `<div class="addons"><label>Add-ons</label><br/>`;
-      addonsData.forEach((add) => {
-        html += `<label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} RM${add.price}</label>`;
-      });
-      html += `</div>`;
-
-      html += `<div class="sauces"><label>Choose Sauce</label><br/>`;
-      saucesData.forEach((s) => {
-        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} (${s.desc})</label>`;
-      });
-      html += `</div>`;
-
-      block.innerHTML = html;
+      block.innerHTML += html;
       container.appendChild(block);
       menuCount++;
     }
@@ -269,119 +178,58 @@
       const cat = select.value;
       const block = select.closest(".menu-block");
       const menuSelect = block.querySelector(".menu");
+      const descBox = block.querySelector(".menu-desc");
+
       menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
       menuSelect.disabled = !cat;
+
       if (cat) {
-        menuData[cat].forEach((item) => {
-          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;
+        menuData[cat].forEach(item => {
+          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}" data-desc="${item.desc}">${item.name} (RM${item.price})</option>`;
         });
       }
+
+      menuSelect.onchange = function() {
+        const selected = this.options[this.selectedIndex];
+        descBox.textContent = selected.dataset.desc || "";
+        updateSummary();
+      };
+
       updateSummary();
     }
 
     function updateSummary() {
-      let total = 0;
       const ul = document.getElementById("orderSummary");
       ul.innerHTML = "";
+      let total = 0;
 
-      document.querySelectorAll(".menu-block").forEach((block) => {
+      document.querySelectorAll(".menu-block").forEach(block => {
         const menu = block.querySelector(".menu");
         const qty = parseInt(block.querySelector(".qty").value || 1);
         if (!menu || !menu.value) return;
-
         const itemName = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map((a) => ({
-          label: a.dataset.label,
-          price: parseFloat(a.dataset.price),
-        }));
-        const sauceInput = block.querySelector('input[type="radio"]:checked');
-        const sauce = sauceInput ? sauceInput.value : "";
-
-        let line = `${itemName} x${qty}`;
-        if (addons.length) line += " + " + addons.map((a) => a.label).join(", ");
-        if (sauce) line += ` [${sauce}]`;
-
-        let itemTotal = (itemPrice + addons.reduce((sum, a) => sum + a.price, 0)) * qty;
-        total += itemTotal;
-
-        let li = document.createElement("li");
-        li.textContent = `${line} = RM${itemTotal.toFixed(2)}`;
+        const price = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+        const lineTotal = qty * price;
+        total += lineTotal;
+        const li = document.createElement("li");
+        li.textContent = `${itemName} x${qty} = RM${lineTotal.toFixed(2)}`;
         ul.appendChild(li);
       });
 
       document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
 
-    document.getElementById("orderForm").addEventListener("submit", function (e) {
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const name = document.getElementById("custName").value.trim();
-      const phone = document.getElementById("custPhone").value.trim();
-      const notes = document.getElementById("notes").value.trim();
-      if (!name || !phone) return alert("Please enter your name and phone.");
-
-      const items = [];
-      document.querySelectorAll(".menu-block").forEach((block) => {
-        const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menu || !menu.value) return;
-
-        const itemName = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map((a) => ({
-          label: a.dataset.label,
-          price: parseFloat(a.dataset.price),
-        }));
-        const sauceInput = block.querySelector('input[type="radio"]:checked');
-        const sauce = sauceInput ? sauceInput.value : "";
-
-        items.push({ name: itemName, quantity: qty, price: itemPrice, addons, sauce });
-      });
-
-      let total = items.reduce(
-        (sum, i) => sum + (i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity,
-        0
-      );
-
-      let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
-      items.forEach((i) => {
-        let line = `- ${i.name} x${i.quantity}`;
-        if (i.addons.length) line += ` + ${i.addons.map((a) => a.label).join(", ")}`;
-        if (i.sauce) line += ` [${i.sauce}]`;
-        msg += line + "\n";
-      });
-      msg += `\nTotal: RM${total.toFixed(2)}`;
-      if (notes) msg += `\nNotes: ${notes}`;
-
-      // Popup Thank You message before sending WA
-      const thankYouMsg = `Terima kasih kerana memilih Snapbite™!\n\nSokongan anda bermakna dunia buat kami. ❤️\nSetiap hidangan ambil masa lebih kurang 5 minit untuk disiapkan.\nYang sabar pasti akan menikmati keenakan tiada tandingan. 😉`;
-
-      if (confirm(thankYouMsg + "\n\nTeruskan dengan pesanan anda?")) {
-        const order = { name, phone, notes, items, total, status: "pending", time: new Date().toISOString() };
-        db.ref("orders").push(order, (err) => {
-          if (!err) {
-            window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-            document.getElementById("orderForm").reset();
-            document.getElementById("menuContainer").innerHTML = "";
-            menuCount = 0;
-            addMenu();
-            updateSummary();
-          } else {
-            alert("Gagal menghantar pesanan. Sila cuba lagi.");
-          }
-        });
-      }
+      alert("Order submitted. Thank you!");
     });
 
-    // Check Off Day
-    db.ref("settings/offday").on("value", (snap) => {
+    db.ref("settings/offday").on("value", snap => {
       const isOff = snap.val() === true;
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
 
-    // Init
     addMenu();
-  </script>
-</body>
+  </script></body>
 </html>
