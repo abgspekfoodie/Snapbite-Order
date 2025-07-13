@@ -80,55 +80,45 @@
     const db = firebase.database();  
   
     // Menu  
-    const menuData = {    
-  "Beef": [    
-    { id: "primebite", name: "Primebite™", price: 10, desc: "Crafted 140g beef patty — bold and juicy" },    
-    { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "140g beef patty topped with melting cheese" },    
-    { id: "thefunguy", name: "The Fun Guy™", price: 12, desc: "Sautéed mushrooms meet smoky beef perfection" },    
-    { id: "thefixer", name: "The Fixer™", price: 15, desc: "Stacked with beef, bacon, egg, and cheese" }    
-  ],    
-  "Chicken": [    
-    { id: "chickbite", name: "Chickbite™", price: 9, desc: "Golden fried chicken thigh — pure crunch" },    
-    { id: "goldcut", name: "Goldcut™", price: 10, desc: "Fried chicken layered with gooey cheese" },    
-    { id: "thecapcut", name: "The Cap Cut™", price: 11, desc: "Golden fried chicken topped with mushrooms" },    
-    { id: "stripstack", name: "Stripstack™", price: 14, desc: "Chicken bacon and cheese, all in one bite" },
-    { id: "popcornchicken", name: "Popcorn Chicken™", price: 7, desc: "Crispy golden chicken pops — snack-ready" }  
-  ],    
-  "Tex-Mex": [    
-    { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10, desc: "Smoked beef, rich with Tex-Mex punch" },    
-    { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9, desc: "Tender smoked chicken with bold flavour" },    
-    { id: "mixtaco", name: "Mix Taco™", price: 12, desc: "Beef and chicken — split the best worlds" },    
-    { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15, desc: "Cheesy quesadilla with smoky beef" },    
-    { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14, desc: "Quesadilla packed with smoky chicken" },    
-    { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16, desc: "Cheesy, meaty — half beef, half chicken" }    
-  ],    
-  "Sausage": [    
-  { 
-    id: "classicsausage", 
-    name: "Classic Sausage™", 
-    price: 7, 
-    desc: "Grilled sausage in soft glazed bun — simple, timeless" 
-  },    
-  { 
-    id: "loadedsausage", 
-    name: "Loaded Sausage™", 
-    price: 9, 
-    desc: "One bite in, and you’ll know why we call it *loaded*" 
-  }    
-]
+    const menuData = {  
+      "Beef": [  
+        { id: "primebite", name: "Primebite™", price: 10 },  
+        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11 },  
+        { id: "thefunguy", name: "The Fun Guy™", price: 12 },  
+        { id: "thefixer", name: "The Fixer™", price: 15 }  
+      ],  
+      "Chicken": [  
+        { id: "chickbite", name: "Chickbite™", price: 9 },  
+        { id: "goldcut", name: "Goldcut™", price: 10 },  
+        { id: "thecapcut", name: "The Cap Cut™", price: 11 },  
+        { id: "stripstack", name: "Stripstack™", price: 14 }  
+      ],  
+      "Tex-Mex": [  
+        { id: "smokebeeftaco", name: "Smoke Beef Taco™", price: 10 },  
+        { id: "smokeychickentaco", name: "Smokey Chicken Taco™", price: 9 },  
+        { id: "mixtaco", name: "Mix Taco™", price: 12 },  
+        { id: "smokebeequesadilla", name: "Smoke Beef Quesadilla™", price: 15 },  
+        { id: "smokechickenquesadilla", name: "Smoke Chicken Quesadilla™", price: 14 },  
+        { id: "mixquesadilla", name: "Mix Quesadilla™", price: 16 }  
+      ],  
+      "Sausage": [  
+        { id: "classicsausage", name: "Classic Sausage™", price: 6 },  
+        { id: "loadedsausage", name: "Loaded Sausage™", price: 12 }  
+      ]  
+    };  
   
-    const addonsData = [
-  { id: "cheese", label: "Cheese", price: 2 },
-  { id: "egg", label: "Egg", price: 1 },
-  { id: "bacon", label: "Bacon", price: 3 }
-];
-
-const saucesData = [
-  { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce — best with chicken" },
-  { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist — best for beef" },
-  { id: "redriot", label: "Redriot", desc: "Crafted chili-based sauce with a kick" },
-  { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }
-];
+    const addonsData = [  
+      { id: "cheese", label: "Cheese", price: 2 },  
+      { id: "egg", label: "Egg", price: 1 },  
+      { id: "bacon", label: "Bacon", price: 3 }  
+    ];  
+  
+    const saucesData = [  
+      { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce" },  
+      { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist" },  
+      { id: "redriot", label: "Redriot", desc: "Housemade chili-based sauce with a kick" },  
+      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }  
+    ];  
   
     let menuCount = 0;  
   
@@ -146,32 +136,17 @@ const saucesData = [
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;  
       html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;  
   
-      html += `<div class="addons" style="margin-top: 1rem;">
-  <label style="font-weight: bold;">Add-ons</label>
-  <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">`;
-addonsData.forEach(add => {
-  html += `<li style="margin-bottom: 6px;">
-    <label>
-      <input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()">
-      ${add.label} <span style="color: #aaa;">(RM${add.price})</span>
-    </label>
-  </li>`;
-});
-html += `</ul></div>`;
-
-html += `<fieldset class="sauces" style="border: none; margin-top: 1rem; padding: 0;">
-  <legend style="font-weight: bold; margin-bottom: 0.5rem;">Choose Sauce</legend>
-  <ul style="list-style: none; padding: 0;">`;
-saucesData.forEach(s => {
-  html += `<li style="margin-bottom: 6px;">
-    <label>
-      <input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()">
-      <strong>${s.label}</strong><br>
-      <span style="font-size: 0.85rem; color: #ccc; margin-left: 1.2rem;">${s.desc}</span>
-    </label>
-  </li>`;
-});
-html += `</ul></fieldset>`; 
+      html += `<div class="addons"><label>Add-ons</label><br/>`;  
+      addonsData.forEach(add => {  
+        html += `<label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} RM${add.price}</label>`;  
+      });  
+      html += `</div>`;  
+  
+      html += `<div class="sauces"><label>Choose Sauce</label><br/>`;  
+      saucesData.forEach(s => {  
+        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} (${s.desc})</label>`;  
+      });  
+      html += `</div>`;  
   
       block.innerHTML = html;  
       container.appendChild(block);  
