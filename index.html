@@ -144,11 +144,11 @@ addonsData.forEach(add => {
 html += `</ul></div>`;
 
   
-      html += `<div class="sauces"><label>Choose Sauce</label><br/>`;  
-      saucesData.forEach(s => {  
-        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} (${s.desc})</label>`;  
-      });  
-      html += `</div>`;  
+      html += `<fieldset class="sauces" style="border: none; margin-top: 1rem;"><legend style="font-weight: bold; margin-bottom: 5px;">Choose Sauce</legend>`;
+saucesData.forEach(s => {
+  html += `<div style="margin-bottom: 6px;"><label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> <strong>${s.label}</strong> — <span style="font-size: 0.9rem; font-style: italic;">${s.desc}</span></label></div>`;
+});
+html += `</fieldset>`;  
   
       block.innerHTML = html;  
       container.appendChild(block);  
