@@ -1,208 +1,193 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snapbite™ Order</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snapbite™ Ordering – No Rules. Just Bite. Repeat</title>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #1a1a1a, #2a1a2f);
-      color: #fff;
-      margin: 0;
-      padding: 1rem;
+    body { font-family:'Poppins', sans-serif; margin:0; padding:2rem; background:#0e0e0e; color:#fff; }
+    h1 { color:#ff9500; text-align:center; font-size:2.5rem; margin-bottom:0.2rem; }
+    .tagline { text-align:center; font-size:1rem; color:#aaa; margin-bottom:2rem; }
+    form { max-width:750px; margin:auto; background:#1e1e1e; padding:20px; border-radius:10px; box-shadow:0 0 12px rgba(255,149,0,0.2); }
+    label { display:block; margin-top:1rem; font-weight:600; }
+    input[type=text], input[type=tel], select, textarea {
+      width:100%; padding:10px; border:none; border-radius:5px; margin-top:5px; background:#333; color:#fff;
     }
-    h1 {
-      text-align: center;
-      color: #ffcc00;
-    }
-    .slogan {
-      text-align: center;
-      font-style: italic;
-      margin-bottom: 2rem;
-      color: #ccc;
-    }
-    form {
-      max-width: 700px;
-      margin: auto;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      border-radius: 12px;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-    }
-    input[type="text"], input[type="tel"], select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      background: #333;
-      border: none;
-      color: #fff;
-      border-radius: 6px;
-    }
-    .category {
-      margin-top: 2rem;
-    }
-    .menu-select, .addons, .sauce-select {
-      margin-top: 0.5rem;
-    }
-    .addons, .sauce-select {
-      display: none;
-    }
-    .total {
-      font-weight: bold;
-      text-align: right;
-      margin-top: 2rem;
-      color: #ffcc00;
-    }
-    button {
-      width: 100%;
-      padding: 15px;
-      background: #ffcc00;
-      color: #000;
-      border: none;
-      font-weight: bold;
-      font-size: 1rem;
-      border-radius: 8px;
-      margin-top: 1.5rem;
-      cursor: pointer;
-    }
+    .menu-section { border-top:1px solid #444; padding-top:1rem; margin-top:2rem; }
+    .menu-group { margin-bottom:1.5rem; border:1px solid #333; border-radius:6px; padding:1rem; background:#191919; }
+    .menu-group h3 { margin:0 0 0.5rem 0; color:#ff9500; }
+    .addons, .sauces { margin:0.5rem 0 0 1rem; }
+    .addons label, .sauces label { display:block; font-weight:normal; margin-top:5px; }
+    .add-item-btn { margin-top:1rem; background:#ff9500; color:#000; font-weight:bold; padding:8px 14px; border:none; border-radius:5px; cursor:pointer; }
+    .summary { background:#111; padding:1rem; border-radius:6px; margin-top:2rem; }
+    .summary h4 { margin:0 0 0.5rem; color:#ff9500; }
+    .summary ul { padding-left:1.2rem; }
+    .summary li { font-size:0.9rem; margin-bottom:0.2rem; }
+    button[type=submit] { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
   </style>
 </head>
 <body>
   <h1>Snapbite™</h1>
-  <div class="slogan">No Rules. Just Bite. Repeat.</div>
+  <div class="tagline">No Rules. Just Bite. Repeat.</div>
   <form id="orderForm">
     <label for="name">Name</label>
-    <input type="text" id="name" name="name" required /><label for="contact">Contact Number</label>
-<input type="tel" id="contact" name="contact" required />
+    <input type="text" id="name" required placeholder="Your name"/><label for="phone">Contact Number</label>
+<input type="tel" id="phone" required placeholder="e.g. 0123456789"/>
 
-<div class="category">
-  <label for="menu">Select Menu Item</label>
-  <select id="menu" name="menu" class="menu-select" required>
-    <option value="">-- Choose --</option>
-    <option value="Primebite">Primebite™ (RM10)</option>
-    <option value="BeefNCheese">Beef N’ Cheese™ (RM11)</option>
-    <option value="TheFunGuy">The Fun Guy™ (RM13)</option>
-    <option value="TheFixer">The Fixer™ (RM15)</option>
-    <option value="Chickbite">Chickbite™ (RM5)</option>
-    <option value="Goldcut">Goldcut™ (RM6)</option>
-    <option value="CapCut">The Cap Cut™ (RM8)</option>
-    <option value="Stripstack">Stripstack™ (RM9)</option>
-    <option value="SmokeBeefTaco">Smoke Beef Taco™ (RM11)</option>
-    <option value="SmokeChickenTaco">Smokey Chop Taco™ (RM9)</option>
-    <option value="MixTaco">Mix Taco™ (RM12)</option>
-    <option value="SmokeBeefQuesa">Smoke Beef Quesadilla™ (RM16)</option>
-    <option value="SmokeChickenQuesa">Smoke Chicken Quesadilla™ (RM14)</option>
-    <option value="MixQuesa">Mix Quesadilla™ (RM17)</option>
-    <option value="ClassicSausage">Classic Sausage™ (RM6)</option>
-    <option value="Chickola">Chickola™ (RM8)</option>
-    <option value="Popcorn">Popcorn Chicken (RM6)</option>
-  </select>
+<div id="menuItems"></div>
+<button class="add-item-btn" type="button" onclick="addItem()">+ Add Menu Item</button>
 
-  <div id="description" style="margin-top: 0.5rem; font-style: italic; color: #ccc;"></div>
-
-  <div class="addons" id="addons">
-    <label>Add-ons</label>
-    <label><input type="checkbox" value="1.50" class="addon-check" data-name="Cheese"> Cheese (+RM1.50)</label><br/>
-    <label><input type="checkbox" value="1.00" class="addon-check" data-name="Egg"> Egg (+RM1.00)</label><br/>
-    <label><input type="checkbox" value="2.50" class="addon-check" data-name="Mushroom"> Mushroom (+RM2.50)</label><br/>
-    <label><input type="checkbox" value="3.50" class="addon-check" data-name="Bacon"> Bacon (+RM3.50)</label>
-  </div>
-
-  <div class="sauce-select" id="sauces">
-    <label for="sauce">Choose Sauce</label>
-    <select id="sauce">
-      <option value="">-- Choose Sauce --</option>
-      <option value="Redriot">Redriot (Spicy)</option>
-      <option value="Whiteblaze">Whiteblaze (White BBQ)</option>
-    </select>
-  </div>
-</div>
-
-<label for="notes">Notes / Requests</label>
-<textarea id="notes" name="notes" rows="2"></textarea>
+<label for="notes">Special Requests</label>
+<textarea id="notes" rows="3" placeholder="Write here..."></textarea>
 
 <label for="payment">Payment Method</label>
-<select id="payment" name="payment">
+<select id="payment">
   <option value="Cash">Cash</option>
   <option value="Online Banking">Online Banking (QR or Transfer)</option>
 </select>
 
-<label for="pickup">Pickup Time (Optional)</label>
-<input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
+<label for="pickup">Pickup Time (optional)</label>
+<input type="text" id="pickup" placeholder="e.g. 6:30 PM"/>
 
-<div class="total">Total: RM<span id="totalValue">0.00</span></div>
+<div class="summary">
+  <h4>Order Summary</h4>
+  <ul id="orderSummary"></ul>
+  <strong>Total: RM <span id="totalPrice">0.00</span></strong>
+</div>
 
-<button type="submit">Submit via WhatsApp</button>
+<button type="submit">Submit Order via WhatsApp</button>
 
   </form>  <script>
-    const menu = document.getElementById('menu');
-    const desc = document.getElementById('description');
-    const addons = document.getElementById('addons');
-    const sauces = document.getElementById('sauces');
-    const total = document.getElementById('totalValue');
+    const menuList = [
+      { name: 'Primebite™', price: 10, desc: 'Classic build – juicy & bold.', sauce: true },
+      { name: 'Beef N’ Cheese™', price: 11, desc: 'Melted cheese stacked over pure beef.', sauce: true },
+      { name: 'The Fun Guy™', price: 12, desc: 'Topped with sautéed mushrooms – earthy & smooth.', sauce: true },
+      { name: 'The Fixer™', price: 15, desc: 'Stacked with beef, bacon, egg & cheese.', sauce: true },
+      { name: 'Chickbite™', price: 9, desc: 'Classic deep-fried chicken burger.', sauce: true },
+      { name: 'Goldcut™', price: 10, desc: 'Fried chicken with melted cheese.', sauce: true },
+      { name: 'The Cap Cut™', price: 11, desc: 'Fried chicken topped with sautéed mushrooms.', sauce: true },
+      { name: 'Stripstack™', price: 14, desc: 'Fried chicken with chicken bacon & egg.', sauce: true },
+      { name: 'Smoke Beef Taco™', price: 10, desc: 'Slow-smoked beef wrapped in soft tortilla.', sauce: false },
+      { name: 'Smokey Chicken Taco™', price: 9, desc: 'Slow-smoked chicken wrapped in soft tortilla.', sauce: false },
+      { name: 'Mix Taco™', price: 12, desc: 'Beef & chicken combo in soft tortilla.', sauce: false },
+      { name: 'Smoke Beef Quesadilla™', price: 15, desc: 'Beef with melted mozzarella in grilled tortilla.', sauce: false },
+      { name: 'Smoke Chicken Quesadilla™', price: 14, desc: 'Chicken with cheese in grilled tortilla.', sauce: false },
+      { name: 'Mix Quesadilla™', price: 16, desc: 'Blend of beef & chicken with cheese.', sauce: false },
+      { name: 'Classic Sausage™', price: 6, desc: 'Grilled cheese-filled sausage in soft bun.', sauce: true },
+      { name: 'Loaded Sausage™', price: 12, desc: 'Sausage with bacon, mushrooms, cheese & salad.', sauce: true },
+      { name: 'Popcorn Chicken', price: 6, desc: 'Crispy bite-sized chicken.', sauce: false }
+    ];
 
-    const descriptions = {
-      Primebite: 'Classic build – juicy & bold.',
-      BeefNCheese: 'Melted cheese stacked over pure Angus.',
-      TheFunGuy: 'Topped with sautéed mushrooms – earthy & smooth.',
-      TheFixer: 'Stacked with beef, crispy bacon, egg & cheese.',
-      Chickbite: 'Classic deep-fried chicken burger.',
-      Goldcut: 'Fried chicken with melted cheese.',
-      CapCut: 'Fried chicken topped with sautéed mushrooms.',
-      Stripstack: 'Fried chicken with chicken bacon & cheese.',
-      SmokeBeefTaco: 'Slow-smoked beef in tortilla. No sauce option.',
-      SmokeChickenTaco: 'Slow-smoked chicken in tortilla. No sauce option.',
-      MixTaco: 'Beef & chicken in tortilla. No sauce option.',
-      SmokeBeefQuesa: 'Beef with cheese in grilled tortilla.',
-      SmokeChickenQuesa: 'Chicken with cheese in grilled tortilla.',
-      MixQuesa: 'Mix of beef & chicken with cheese.',
-      ClassicSausage: 'Grilled sausage in bun.',
-      Chickola: 'Chicken sausage with bolognese flavour.',
-      Popcorn: 'Crispy bite-sized chicken.'
-    };
+    const addons = [
+      { label: 'Cheese', price: 1.5 },
+      { label: 'Egg', price: 1.0 },
+      { label: 'Mushroom', price: 2.5 },
+      { label: 'Bacon', price: 3.5 },
+    ];
 
-    const basePrices = {
-      Primebite: 10, BeefNCheese: 11, TheFunGuy: 13, TheFixer: 15,
-      Chickbite: 5, Goldcut: 6, CapCut: 8, Stripstack: 9,
-      SmokeBeefTaco: 11, SmokeChickenTaco: 9, MixTaco: 12,
-      SmokeBeefQuesa: 16, SmokeChickenQuesa: 14, MixQuesa: 17,
-      ClassicSausage: 6, Chickola: 8, Popcorn: 6
-    };
+    const sauces = ['Redriot (Spicy)', 'Whiteblaze (White BBQ)'];
 
-    function updateDisplay() {
-      const selected = menu.value;
-      desc.innerText = descriptions[selected] || '';
-      const showAddons = !selected.includes('Taco') && !selected.includes('Quesa') && selected !== 'Popcorn';
-      const showSauces = !selected.includes('Taco') && !selected.includes('Quesa') && selected !== 'Popcorn';
-      addons.style.display = showAddons ? 'block' : 'none';
-      sauces.style.display = showSauces ? 'block' : 'none';
-      calculateTotal();
+    let orderCount = 0;
+    function addItem() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'menu-group';
+      wrapper.setAttribute('data-id', orderCount);
+      const id = orderCount++;
+
+      let menuHTML = `<label>Menu Item
+        <select onchange="updateAddons(${id})" id="menu-${id}">
+          <option value="">-- Select Menu --</option>`;
+      menuList.forEach((m, i) => {
+        menuHTML += `<option value="${i}">${m.name} – RM${m.price.toFixed(2)}</option>`;
+      });
+      menuHTML += `</select></label>
+        <div id="desc-${id}" style="font-size:0.9rem;color:#ccc;margin-top:4px;"></div>
+        <div class="addons" id="addon-${id}" style="display:none;"><label>Add-ons</label>`;
+      addons.forEach((a, i) => {
+        menuHTML += `<label><input type="checkbox" value="${a.label}" data-price="${a.price}" class="addon-item-${id}"> ${a.label} (RM${a.price.toFixed(2)})</label>`;
+      });
+      menuHTML += `</div>
+        <div class="sauces" id="sauce-${id}" style="display:none;"><label>Sauce</label>`;
+      sauces.forEach((s, i) => {
+        menuHTML += `<label><input type="radio" name="sauce-${id}" value="${s}"> ${s}</label>`;
+      });
+      menuHTML += `</div>`;
+
+      wrapper.innerHTML = `<h3>Item ${id + 1}</h3>` + menuHTML;
+      document.getElementById('menuItems').appendChild(wrapper);
     }
 
-    function calculateTotal() {
-      let price = basePrices[menu.value] || 0;
-      document.querySelectorAll('.addon-check:checked').forEach(c => price += parseFloat(c.value));
-      total.innerText = price.toFixed(2);
+    function updateAddons(id) {
+      const menuIndex = document.getElementById(`menu-${id}`).value;
+      const descDiv = document.getElementById(`desc-${id}`);
+      const addonDiv = document.getElementById(`addon-${id}`);
+      const sauceDiv = document.getElementById(`sauce-${id}`);
+      if (menuIndex === '') return;
+
+      const selected = menuList[menuIndex];
+      descDiv.innerText = selected.desc;
+      addonDiv.style.display = selected.name !== 'Popcorn Chicken' && selected.sauce ? 'block' : 'none';
+      sauceDiv.style.display = selected.sauce ? 'block' : 'none';
+
+      updateSummary();
     }
 
-    menu.addEventListener('change', updateDisplay);
-    document.querySelectorAll('.addon-check').forEach(cb => cb.addEventListener('change', calculateTotal));
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('change', updateSummary));
 
-    document.getElementById('orderForm').addEventListener('submit', function (e) {
+    function updateSummary() {
+      const summary = document.getElementById('orderSummary');
+      const total = document.getElementById('totalPrice');
+      summary.innerHTML = '';
+      let totalPrice = 0;
+
+      document.querySelectorAll('.menu-group').forEach(group => {
+        const id = group.dataset.id;
+        const menuIndex = document.getElementById(`menu-${id}`).value;
+        if (menuIndex === '') return;
+        const selected = menuList[menuIndex];
+        let text = `${selected.name} (RM${selected.price.toFixed(2)})`;
+        totalPrice += selected.price;
+
+        const addOns = document.querySelectorAll(`.addon-item-${id}:checked`);
+        let addOnText = [];
+        addOns.forEach(a => {
+          const label = a.value;
+          const price = parseFloat(a.dataset.price);
+          totalPrice += price;
+          addOnText.push(`${label} (RM${price.toFixed(2)})`);
+        });
+
+        const sauce = document.querySelector(`input[name="sauce-${id}"]:checked`);
+        if (sauce) addOnText.push(`Sauce: ${sauce.value}`);
+
+        if (addOnText.length > 0) text += ' + ' + addOnText.join(', ');
+        summary.innerHTML += `<li>${text}</li>`;
+      });
+
+      total.innerText = totalPrice.toFixed(2);
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const contact = document.getElementById('contact').value;
-      const menuItem = menu.value;
-      const sauce = document.getElementById('sauce').value;
-      const pickup = document.getElementById('pickup').value;
-      const notes = document.getElementById('notes').value;
-      const payment = document.getElementById('payment').value;
-      const addonsSelected = Array.from(document.querySelectorAll('.addon-check:checked')).map(i => i.dataset.name);
-      let msg = `Order from ${name}\nContact: ${contact}\nItem: ${menuItem}\nAdd-ons: ${addonsSelected.join(', ') || 'None'}\nSauce: ${sauce || 'None'}\nPickup: ${pickup || 'N/A'}\nNotes: ${notes || 'None'}\nPayment: ${payment}\nTotal: RM${total.innerText}`;
+      let msg = `Name: ${name.value}\nPhone: ${phone.value}\n\nOrder:`;
+      document.querySelectorAll('.menu-group').forEach(group => {
+        const id = group.dataset.id;
+        const menuIndex = document.getElementById(`menu-${id}`).value;
+        if (menuIndex === '') return;
+        const selected = menuList[menuIndex];
+        msg += `\n- ${selected.name}`;
+
+        const addOns = document.querySelectorAll(`.addon-item-${id}:checked`);
+        addOns.forEach(a => msg += ` + ${a.value}`);
+
+        const sauce = document.querySelector(`input[name="sauce-${id}"]:checked`);
+        if (sauce) msg += ` with ${sauce.value}`;
+      });
+
+      msg += `\n\nTotal: RM${totalPrice.innerText}`;
+      if (notes.value) msg += `\nNotes: ${notes.value}`;
+      msg += `\nPayment: ${payment.value}`;
+      if (pickup.value) msg += `\nPickup: ${pickup.value}`;
+
       window.open(`https://wa.me/60173209379?text=${encodeURIComponent(msg)}`);
     });
   </script></body>
