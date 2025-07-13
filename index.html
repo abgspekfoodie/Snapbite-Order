@@ -24,9 +24,7 @@
       margin-top: 1rem;
       font-weight: bold;
     }
-    select,
-    input,
-    textarea {
+    select, input, textarea {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
@@ -42,6 +40,11 @@
       margin-top: 20px;
       border-radius: 10px;
       position: relative;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .menu-block.swiped {
+      transform: translateX(-100%);
+      opacity: 0;
     }
     .menu-block .remove-btn {
       position: absolute;
@@ -55,8 +58,7 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
-    .addons label,
-    .sauces label {
+    .addons label, .sauces label {
       display: inline-block;
       margin-right: 12px;
       font-size: 0.9rem;
@@ -72,8 +74,7 @@
       margin-top: 0;
       color: #ff9500;
     }
-    button.submit-btn,
-    button.add-menu-btn {
+    button.submit-btn, button.add-menu-btn {
       width: 100%;
       padding: 15px;
       border-radius: 10px;
@@ -98,29 +99,22 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
-    .desc {
-      font-size: 0.85rem;
-      color: #aaa;
-      margin-bottom: 0.5rem;
-    }
   </style>
 </head>
 <body>
   <h1>Snapbite™ Live Order</h1>
   <div id="closedMsg" class="closed-msg" style="display: none;">
-    🔒 Snapbite™ is clocked out for the day.<br /><br />
-    No sizzle, no flip, no juicy display. 🍔🔥<br /><br />
-    We're recharging the taste, giving dreams some play,<br />
-    But don't you worry — we’re not far away.<br /><br />
+    🔒 Snapbite™ is clocked out for the day.<br><br>
+    No sizzle, no flip, no juicy display. 🍔🔥<br><br>
+    We're recharging the taste, giving dreams some play,<br>
+    But don't you worry — we’re not far away.<br><br>
     💬 Stay tuned, stay hype, we’ll be back your way!
   </div>  <form id="orderForm" style="display: none;">
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" />
     <label for="custPhone">Phone</label>
     <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
-<button type="button" class="add-menu-btn" onclick="addMenu()">
-  + Add Menu Item
-</button>
+<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
 <label for="notes">Notes</label>
 <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
@@ -134,30 +128,38 @@
 <button type="submit" class="submit-btn">Submit Order</button>
 
   </form>  <script>
-    const menuDescriptions = {
-      "Primebite™": "Crafted 140g beef patty — smoked for depth, grilled for perfection.",
-      "Beef N’ Cheese™": "Beef patty melted with rich cheese for that comfort in every bite.",
-      "The Fun Guy™": "Earthy mushrooms stacked over juicy smoked beef.",
-      "The Fixer™": "Beef, bacon, egg & cheese — your day fixer in one bite.",
-      "Chickbite™": "Crispy golden fried chicken, juicy and tender inside.",
-      "Goldcut™": "Fried chicken crowned with melted cheese.",
-      "The Cap Cut™": "Mushroom meets crispy chicken in harmony.",
-      "Stripstack™": "Fried chicken layered with turkey-style bacon & cheese.",
-      "Smoke Beef Taco™": "Tex-Mex taco with smoked beef & tangy Limewitch™ sauce.",
-      "Smokey Chicken Taco™": "Flavourful smoked chicken taco — zesty & bold.",
-      "Mix Taco™": "Beef + chicken taco combo with punchy freshness.",
-      "Smoke Beef Quesadilla™": "Melty cheese & smoked beef folded in tortilla heat.",
-      "Smoke Chicken Quesadilla™": "Golden smoked chicken oozing with cheesy melt.",
-      "Mix Quesadilla™": "Half chicken, half beef — double the joy.",
-      "Classic Sausage™": "Simple grilled sausage with hints of cheesy goodness.",
-      "Loaded Sausage™": "Juicy sausage stacked with toppings that hit the spot."
-    };
+    let xStart = null;
+    function handleTouchStart(e) {
+      xStart = e.touches[0].clientX;
+    }
+    function handleTouchMove(e) {
+      if (!xStart) return;
+      let xCurrent = e.touches[0].clientX;
+      let xDiff = xStart - xCurrent;
+      if (xDiff > 80) {
+        const block = e.currentTarget;
+        if (confirm("Remove this item from your order?")) {
+          block.classList.add("swiped");
+          setTimeout(() => {
+            block.remove();
+            updateSummary();
+          }, 300);
+        }
+        xStart = null;
+      }
+    }
+    function handleTouchEnd() {
+      xStart = null;
+    }
 
-    const sauceDescriptions = {
-      "Nancho Cheese": "Rich, creamy cheddar-style cheese sauce",
-      "Snapbite Special": "Zesty layered sauce with tangy twist",
-      "Redriot": "Housemade chili-based sauce with a kick",
-      "Garlic Ranch": "Smooth, garlicky and herby ranch"
-    };
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll(".menu-block").forEach(block => {
+        block.addEventListener("touchstart", handleTouchStart, false);
+        block.addEventListener("touchmove", handleTouchMove, false);
+        block.addEventListener("touchend", handleTouchEnd, false);
+      });
+    });
+
+    observer.observe(document.getElementById("menuContainer"), { childList: true });
   </script></body>
 </html>
