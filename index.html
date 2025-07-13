@@ -6,18 +6,19 @@
   <style>
     body { font-family:'Poppins', sans-serif; margin:0; padding:2rem; background:#1a1a1a; color:#fff; }
     h1 { color:#ff9500; text-align:center; }
-    form { max-width:700px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
+    form { max-width:800px; margin:auto; background:#2a2a2a; padding:20px; border-radius:10px; }
     label { display:block; margin-top:1rem; font-weight:600; }
     input[type=text], input[type=tel], textarea, select {
       width:100%; padding:10px; border:none; border-radius:5px; margin-top:5px; background:#444; color:#fff;
     }
     .menu-group { margin-top:2rem; border-top:1px solid #444; padding-top:1rem; }
-    .menu-item { margin-bottom:1.5rem; }
-    .menu-name { font-weight:bold; }
-    .add-on-list { margin-top:0.5rem; }
-    .add-on-list label { font-weight:normal; margin-right:15px; display:inline-block; }
-    button { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
-    .total-display { margin-top:1rem; font-size:1.2rem; font-weight:bold; text-align:right; color:#ff9500; }
+    .menu-item { margin-bottom:2rem; border-bottom:1px dashed #555; padding-bottom:1rem; }
+    .menu-name { font-weight:bold; font-size:1.1rem; display:block; margin-bottom:0.3rem; }
+    .menu-desc { font-size:0.9rem; color:#ccc; margin-bottom:0.5rem; }
+    .menu-price { font-weight:bold; color:#ff9500; float:right; }
+    .add-on-list label, .sauce-list label { font-weight:normal; display:inline-block; margin-right:15px; }
+    .total-section { margin-top:2rem; font-size:1.2rem; text-align:right; }
+    button { margin-top:1.5rem; padding:12px 24px; background:#ff9500; color:#000; border:none; border-radius:5px; cursor:pointer; font-weight:bold; width:100%; }
   </style>
 </head>
 <body>
@@ -27,74 +28,134 @@
     <input type="text" id="name" name="name" placeholder="Your name" required><label for="phone">Contact Number</label>
 <input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" required>
 
-<div class="menu-group">
-  <div class="menu-item">
-    <label class="menu-name">Primebite™ (RM10)</label>
-    <label><input type="checkbox" class="item" value="Primebite™ (RM10)" data-price="10"> Add this item</label>
-    <div class="add-on-list">
-      <label><input type="checkbox" class="addon" value="Cheese (RM1.50)" data-price="1.50"> Cheese (RM1.50)</label>
-      <label><input type="checkbox" class="addon" value="Egg (RM1.00)" data-price="1.00"> Egg (RM1.00)</label>
-      <label><input type="checkbox" class="addon" value="Mushroom (RM2.50)" data-price="2.50"> Mushroom (RM2.50)</label>
-      <label><input type="checkbox" class="addon" value="Bacon (RM3.50)" data-price="3.50"> Bacon (RM3.50)</label>
-    </div>
-  </div>
-  <!-- You can add more menu-item blocks here -->
+<div class="menu-group" id="menuGroup">
+  <!-- Menu items will be inserted by script -->
 </div>
 
 <label for="notes">Special Request / Notes</label>
 <textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
 
+<label for="sauce">Choose Sauce</label>
+<div class="sauce-list">
+  <label><input type="radio" name="sauce" value="Honey Mustard"> Honey Mustard</label>
+  <label><input type="radio" name="sauce" value="Redriot"> Redriot (Spicy)</label>
+  <label><input type="radio" name="sauce" value="Whiteblaze"> Whiteblaze (White BBQ)</label>
+</div>
+
 <label for="payment">Payment Method</label>
 <select id="payment" name="payment">
   <option value="Cash">Cash</option>
-  <option value="Online Banking (QR or Transfer)">Online Banking (QR or Transfer)</option>
+  <option value="Online Transfer">Online Bank-in (QR or Transfer)</option>
 </select>
 
 <label for="pickup">Pickup Time (Optional)</label>
 <input type="text" id="pickup" name="pickup" placeholder="e.g. 6:30 PM">
 
-<div class="total-display">Total: RM<span id="totalAmount">0.00</span></div>
+<div class="total-section">
+  Total: <span id="totalAmount">RM0.00</span>
+</div>
 
 <button type="submit">Submit Order via WhatsApp</button>
 
   </form>  <script>
-    const form = document.getElementById('orderForm');
-    const totalDisplay = document.getElementById('totalAmount');
-    const checkboxes = form.querySelectorAll('input[type=checkbox]');
+    const menuData = [
+      { name: "Primebite™", desc: "Classic build – juicy & bold.", price: 10 },
+      { name: "Beef N’ Cheese™", desc: "Melted cheese stacked over pure beef.", price: 11 },
+      { name: "The Fun Guy™", desc: "Topped with sautéed mushrooms – earthy & smooth.", price: 12 },
+      { name: "The Fixer™", desc: "Stacked with beef, crispy bacon, egg & cheese.", price: 15 },
+      { name: "Chickbite™", desc: "Classic deep-fried chicken burger.", price: 9 },
+      { name: "Goldcut™", desc: "Fried chicken with melted cheese.", price: 10 },
+      { name: "The Cap Cut™", desc: "Fried chicken topped with sautéed mushrooms.", price: 11 },
+      { name: "Stripstack™", desc: "Fried chicken with chicken bacon & egg.", price: 14 },
+      { name: "Smoke Beef Taco™", desc: "Slow-smoked beef wrapped in soft tortilla.", price: 10 },
+      { name: "Smokey Chicken Taco™", desc: "Slow-smoked chicken wrapped in soft tortilla.", price: 9 },
+      { name: "Mix Taco™", desc: "Beef & chicken combo in soft tortilla.", price: 12 },
+      { name: "Smoke Beef Quesadilla™", desc: "Beef with melted mozzarella in grilled tortilla.", price: 15 },
+      { name: "Smoke Chicken Quesadilla™", desc: "Chicken with melted mozzarella in grilled tortilla.", price: 14 },
+      { name: "Mix Quesadilla™", desc: "Blend of beef & chicken with cheese in grilled tortilla.", price: 16 },
+      { name: "Classic Sausage™", desc: "Grilled cheese-filled sausage in soft bun.", price: 6 },
+      { name: "Loaded Sausage™", desc: "Sausage with bacon, mushrooms, cheese & salad.", price: 12 },
+      { name: "Popcorn Chicken", desc: "Crispy bite-sized chicken.", price: 6 },
+    ];
 
-    function calculateTotal() {
-      let total = 0;
-      checkboxes.forEach(cb => {
-        if (cb.checked && cb.dataset.price) {
-          total += parseFloat(cb.dataset.price);
-        }
+    const addOns = [
+      { name: "Cheese", price: 1.5 },
+      { name: "Egg", price: 1.0 },
+      { name: "Mushroom", price: 2.5 },
+      { name: "Bacon", price: 3.5 },
+    ];
+
+    const menuGroup = document.getElementById("menuGroup");
+    const totalAmount = document.getElementById("totalAmount");
+
+    let total = 0;
+
+    menuData.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "menu-item";
+      div.innerHTML = `
+        <label>
+          <span class="menu-name">${item.name}</span>
+          <span class="menu-price">RM${item.price.toFixed(2)}</span>
+        </label>
+        <div class="menu-desc">${item.desc}</div>
+        <label><input type="checkbox" class="menu-check" data-index="${index}" data-price="${item.price}" /> Add this item</label>
+        <div class="add-on-list">
+          ${addOns.map(a => `
+            <label><input type="checkbox" class="addon-check" data-index="${index}" data-price="${a.price}" data-name="${a.name}"> ${a.name} (RM${a.price.toFixed(2)})</label>
+          `).join("")}
+        </div>
+      `;
+      menuGroup.appendChild(div);
+    });
+
+    function updateTotal() {
+      total = 0;
+      const checkedItems = document.querySelectorAll(".menu-check:checked");
+      checkedItems.forEach(item => {
+        total += parseFloat(item.dataset.price);
+        const index = item.dataset.index;
+        const relatedAddons = document.querySelectorAll(`.addon-check[data-index='${index}']:checked`);
+        relatedAddons.forEach(add => {
+          total += parseFloat(add.dataset.price);
+        });
       });
-      totalDisplay.textContent = total.toFixed(2);
+      totalAmount.textContent = `RM${total.toFixed(2)}`;
     }
 
-    checkboxes.forEach(cb => cb.addEventListener('change', calculateTotal));
+    document.addEventListener("change", updateTotal);
 
-    form.addEventListener('submit', function(e) {
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const notes = document.getElementById('notes').value;
-      const payment = document.getElementById('payment').value;
-      const pickup = document.getElementById('pickup').value;
+      let message = `*Snapbite™ Order*\n\n`;
+      message += `Name: ${document.getElementById("name").value}\n`;
+      message += `Contact: ${document.getElementById("phone").value}\n\n`;
 
-      let orderList = [];
-      document.querySelectorAll('.item:checked').forEach(item => {
-        orderList.push(`- ${item.value}`);
+      message += `*Order List:*\n`;
+      const checkedItems = document.querySelectorAll(".menu-check:checked");
+      checkedItems.forEach(item => {
+        const index = item.dataset.index;
+        const itemName = menuData[index].name;
+        message += `- ${itemName}`;
+        const relatedAddons = document.querySelectorAll(`.addon-check[data-index='${index}']:checked`);
+        if (relatedAddons.length > 0) {
+          message += ` (Add-on: `;
+          relatedAddons.forEach((add, i) => {
+            message += add.dataset.name;
+            if (i < relatedAddons.length - 1) message += ", ";
+          });
+          message += ")";
+        }
+        message += "\n";
       });
-      document.querySelectorAll('.addon:checked').forEach(addon => {
-        orderList.push(`  • Add-on: ${addon.value}`);
-      });
 
-      const total = totalDisplay.textContent;
+      message += `\nSauce: ${document.querySelector("input[name='sauce']:checked")?.value || "None"}`;
+      message += `\nPayment: ${document.getElementById("payment").value}`;
+      message += `\nPickup Time: ${document.getElementById("pickup").value || "-"}`;
+      message += `\nNotes: ${document.getElementById("notes").value || "-"}`;
+      message += `\n\n*Total: RM${total.toFixed(2)}*`;
 
-      const message = `Hi! I would like to place an order:\n\nName: ${name}\nContact: ${phone}\n\nOrder:\n${orderList.join("\n")}\n\nPayment Method: ${payment}\nPickup Time: ${pickup || '-'}\nNotes: ${notes || '-'}\n\nTotal: RM${total}`;
-
-      const url = `https://wa.me/60173209379?text=${encodeURIComponent(message)}`;
+      const url = `https://api.whatsapp.com/send?phone=6017209379&text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     });
   </script></body>
