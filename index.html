@@ -2,103 +2,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Snapbite™ Order</title>
+  <title>Snapbite™ Live Order</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
+      background: #121212;
       color: #fff;
-      padding: 1rem;
-      max-width: 800px;
+      padding: 1.5rem;
+      max-width: 720px;
       margin: auto;
     }
     h1 {
       text-align: center;
       color: #ff9500;
-      margin-bottom: 2rem;
-    }
-    .menu-block {
-      background: #1e1e1e;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      transition: all 0.3s ease-in-out;
-      position: relative;
-    }
-    .remove-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff3b3b;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-bottom: 1rem;
     }
     label {
-      font-weight: 600;
       display: block;
       margin-top: 1rem;
+      font-weight: bold;
     }
     select, input, textarea {
       width: 100%;
-      padding: 0.6rem;
+      padding: 10px;
+      margin-top: 5px;
       border-radius: 8px;
       border: none;
-      background: #2b2b2b;
+      background: #1f1f1f;
       color: #fff;
-      margin-top: 5px;
+    }
+    .menu-block {
+      background: #1f1f1f;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      position: relative;
+    }
+    .menu-block .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4d;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
     }
     .desc {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #ccc;
-      margin-top: 5px;
-    }
-    .addons, .sauces {
-      margin-top: 0.5rem;
+      margin-top: 0.2rem;
     }
     .addons label, .sauces label {
       display: inline-block;
-      margin-right: 1rem;
+      margin-right: 12px;
       font-weight: normal;
-      font-size: 0.9rem;
     }
     .summary {
-      background: #222;
-      padding: 1rem;
+      background: #1a1a1a;
+      padding: 15px;
       border-radius: 10px;
-      margin-top: 2rem;
+      margin-top: 25px;
     }
     .summary h3 {
       margin-top: 0;
       color: #ff9500;
     }
-    .add-menu-btn, .submit-btn {
+    .summary ul {
+      list-style: none;
+      padding: 0;
+    }
+    .summary li {
+      padding: 6px 0;
+      border-bottom: 1px solid #333;
+    }
+    button.submit-btn, button.add-menu-btn {
       width: 100%;
-      padding: 1rem;
+      padding: 15px;
+      margin-top: 20px;
       border-radius: 10px;
       border: none;
       font-size: 1rem;
-      margin-top: 1rem;
-      font-weight: bold;
     }
-    .add-menu-btn {
-      background: #007aff;
-      color: #fff;
-    }
-    .submit-btn {
+    button.submit-btn {
       background: #ff9500;
       color: #000;
+      font-weight: bold;
+    }
+    button.add-menu-btn {
+      background: #0a84ff;
+      color: #fff;
+    }
+    .closed-msg {
+      text-align: center;
+      background: #330000;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      color: #ff6b6b;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Order Form</h1>  <!-- Order form UI will be inserted here -->  <script>
-    // Firebase & logic will go here in the final version
-  </script></body>
+  <h1>Snapbite™ Live Order</h1>
+  <div id="closedMsg" class="closed-msg" style="display:none">
+    🔒 Snapbite™ is clocked out for the day.<br/><br/>
+    We're recharging the flavor — be back soon! 🍔🔥
+  </div>
+  <form id="orderForm" style="display:none">
+    <label for="custName">Name</label>
+    <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
+<input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+
+<div id="menuContainer"></div>
+<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
+
+<label for="notes">Notes</label>
+<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+
+<div class="summary">
+  <h3>Order Summary</h3>
+  <ul id="orderSummary"></ul>
+  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+</div>
+
+<button type="submit" class="submit-btn">Submit Order</button>
+
+  </form>  <!-- JavaScript coming next --></body>
 </html>
