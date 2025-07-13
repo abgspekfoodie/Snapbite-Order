@@ -2,146 +2,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snapbite™ Order</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Snapbite™ Live Order</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #111;
+      background: #111;
       color: #fff;
-      padding: 1.5rem;
-      max-width: 650px;
-      margin: auto;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; padding: 2rem;
     }
     h1 {
       text-align: center;
       color: #ff9500;
-      margin-bottom: 1rem;
-    }
-    .menu-section {
-      display: grid;
-      gap: 1rem;
       margin-bottom: 2rem;
     }
-    .card {
+    .menu-item {
       background: #1e1e1e;
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
     }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    .menu-item:hover {
+      transform: scale(1.02);
     }
-    .title {
-      font-weight: 600;
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-header h3 {
+      margin: 0;
+      color: #fff;
       font-size: 1.1rem;
-      margin-bottom: 0.3rem;
     }
-    .desc {
-      font-size: 0.92rem;
-      opacity: 0.8;
+    .menu-header .price {
+      color: #ffcc00;
     }
-    .order-btn {
+    .actions {
       margin-top: 1rem;
-      background: #ff9500;
+      display: flex;
+      gap: 1rem;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
       border: none;
-      padding: 10px 16px;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
-      color: #000;
+      transition: background 0.2s;
     }
-    .order-btn:hover {
-      background: #ffa733;
+    .add-btn {
+      background: #0a84ff;
+      color: #fff;
     }
-    #summary {
+    .remove-btn {
+      background: #ff3b3b;
+      color: #fff;
+    }
+    #cart {
+      margin-top: 2rem;
       background: #222;
-      padding: 1.2rem;
+      padding: 1rem;
       border-radius: 10px;
     }
-    #summary h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-    #summary ul {
-      list-style: none;
-      margin-bottom: 1rem;
-    }
-    #summary ul li {
-      padding: 4px 0;
-      font-size: 0.95rem;
-    }
-    #summary strong {
+    #cart h3 {
+      margin-top: 0;
       color: #ff9500;
     }
-    .fade {
-      animation: fadeIn 0.4s ease-in-out;
+    #cart ul {
+      list-style: none;
+      padding-left: 1rem;
     }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(5px);}
-      to {opacity: 1; transform: translateY(0);}
+    #cart ul li {
+      margin-bottom: 0.5rem;
+    }
+    #total {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #0f0;
     }
   </style>
 </head>
-<body>
-  <h1>Snapbite™ Order</h1>
-  <div class="menu-section" id="menuSection"></div>  <div id="summary">
-    <h2>Order Summary</h2>
-    <ul id="orderList"></ul>
-    <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+<body>  <h1>Snapbite™ Live Order</h1>  <div class="menu-item">
+    <div class="menu-header">
+      <h3>Primebite™</h3>
+      <span class="price">RM10</span>
+    </div>
+    <p>Crafted 140g premium beef patty, slow-smoked and perfectly seared.</p>
+    <div class="actions">
+      <button class="add-btn" onclick="addToCart('Primebite™', 10)">+ Add</button>
+      <button class="remove-btn" onclick="removeFromCart('Primebite™')">- Remove</button>
+    </div>
+  </div>  <div class="menu-item">
+    <div class="menu-header">
+      <h3>Chickbite™</h3>
+      <span class="price">RM9</span>
+    </div>
+    <p>Crispy golden chicken thigh, tender and juicy in every bite.</p>
+    <div class="actions">
+      <button class="add-btn" onclick="addToCart('Chickbite™', 9)">+ Add</button>
+      <button class="remove-btn" onclick="removeFromCart('Chickbite™')">- Remove</button>
+    </div>
+  </div>  <div id="cart">
+    <h3>Order Summary</h3>
+    <ul id="cartItems"></ul>
+    <p id="total">Total: RM 0.00</p>
   </div>  <script>
-    const menu = [
-      { id: 'primebite', name: 'Primebite™', desc: 'Crafted 140g premium patty, slow-smoked to perfection.', price: 10 },
-      { id: 'chickbite', name: 'Chickbite™', desc: 'Golden, juicy fried chicken fillet. Classic and comforting.', price: 8 },
-      { id: 'smokebeeftaco', name: 'Smoke Beef Taco™', desc: 'Soft tortilla with tender smoked beef and signature sauce.', price: 11 },
-      { id: 'classicsausage', name: 'Classic Sausage™', desc: 'Grilled sausage with a surprise — subtle and satisfying.', price: 6 }
-    ];
+    const cart = {};
 
-    const menuSection = document.getElementById('menuSection');
-    const orderList = document.getElementById('orderList');
-    const totalPrice = document.getElementById('totalPrice');
-    const orderItems = [];
-
-    function renderMenu() {
-      menu.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card fade';
-        card.innerHTML = `
-          <div class="title">${item.name}</div>
-          <div class="desc">${item.desc}</div>
-          <button class="order-btn" onclick="addToOrder('${item.id}')">Add to Order</button>
-        `;
-        menuSection.appendChild(card);
-      });
+    function addToCart(item, price) {
+      if (!cart[item]) cart[item] = { quantity: 0, price };
+      cart[item].quantity++;
+      renderCart();
     }
 
-    function addToOrder(id) {
-      const item = menu.find(m => m.id === id);
-      orderItems.push(item);
-      updateSummary();
+    function removeFromCart(item) {
+      if (cart[item]) {
+        cart[item].quantity--;
+        if (cart[item].quantity <= 0) delete cart[item];
+        renderCart();
+      }
     }
 
-    function updateSummary() {
-      orderList.innerHTML = '';
+    function renderCart() {
+      const cartList = document.getElementById('cartItems');
+      const totalText = document.getElementById('total');
+      cartList.innerHTML = '';
+
       let total = 0;
-      orderItems.forEach((item, i) => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} - RM${item.price.toFixed(2)}`;
-        orderList.appendChild(li);
-        total += item.price;
+      Object.keys(cart).forEach(key => {
+        const { quantity, price } = cart[key];
+        const line = document.createElement('li');
+        line.textContent = `${key} x${quantity} = RM${(price * quantity).toFixed(2)}`;
+        cartList.appendChild(line);
+        total += price * quantity;
       });
-      totalPrice.textContent = total.toFixed(2);
-    }
 
-    renderMenu();
+      totalText.textContent = `Total: RM ${total.toFixed(2)}`;
+    }
   </script></body>
 </html>
