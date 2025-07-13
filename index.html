@@ -53,16 +53,19 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
+    .addons, .sauces {
+      margin-top: 1rem;
+    }
     .addons label, .sauces label {
-      display: inline-block;
-      margin-right: 12px;
+      display: block;
+      margin: 5px 0;
       font-size: 0.9rem;
       font-weight: normal;
     }
-    .desc-text {
+    .sauce-desc {
       font-size: 0.85rem;
-      color: #bbb;
-      margin-top: 5px;
+      color: #aaa;
+      margin-left: 1.2rem;
     }
     .summary {
       background: #222;
@@ -99,6 +102,11 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
+    .desc-text {
+      font-size: 0.85rem;
+      margin-top: 5px;
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -114,75 +122,17 @@
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" />
     <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
-<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
-
-<label for="notes">Notes</label>
-<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
-
-<div class="summary">
-  <h3>Order Summary</h3>
-  <ul id="orderSummary"></ul>
-  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
-</div>
-
-<button type="submit" class="submit-btn">Submit Order</button>
-
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+    <div id="menuContainer"></div>
+    <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+    <div class="summary">
+      <h3>Order Summary</h3>
+      <ul id="orderSummary"></ul>
+      <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+    </div>
+    <button type="submit" class="submit-btn">Submit Order</button>
   </form>
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
-      authDomain: "snapbite-admin.firebaseapp.com",
-      databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "snapbite-admin",
-      storageBucket: "snapbite-admin.appspot.com",
-      messagingSenderId: "146625734660",
-      appId: "1:146625734660:web:23ada593e4818ed7332d51"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();const menuData = {
-  "Beef": [
-    { id: "primebite", name: "Primebite™", price: 10, desc: "Classic build – juicy & bold." },
-    { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Melted cheese stacked over pure Angus." },
-    { id: "thefunguy", name: "The Fun Guy™", price: 12, desc: "Topped with sautéed mushrooms – earthy & smooth." },
-    { id: "thefixer", name: "The Fixer™", price: 15, desc: "Stacked with beef, crispy bacon, egg & cheese." }
-  ],
-  "Chicken": [
-    { id: "chickbite", name: "Chickbite™", price: 9, desc: "Classic deep-fried chicken burger." },
-    { id: "goldcut", name: "Goldcut™", price: 10, desc: "Fried chicken with melted cheese." },
-    { id: "thecapcut", name: "The Cap Cut™", price: 11, desc: "Fried chicken topped with sautéed mushrooms." },
-    { id: "stripstack", name: "Stripstack™", price: 14, desc: "Fried chicken with chicken bacon & cheese." }
-  ]
-};
-
-function onCategoryChange(select) {
-  const cat = select.value;
-  const block = select.closest(".menu-block");
-  const menuSelect = block.querySelector(".menu");
-  const descBox = block.querySelector(".desc-text") || document.createElement("div");
-  descBox.className = "desc-text";
-  menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-  menuSelect.disabled = !cat;
-  descBox.innerHTML = "";
-  if (cat) {
-    menuData[cat].forEach(item => {
-      menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}" data-desc="${item.desc}">${item.name} (RM${item.price})</option>`;
-    });
-    if (!block.querySelector(".desc-text")) block.appendChild(descBox);
-  }
-}
-
-function updateSummary() {
-  document.querySelectorAll(".menu-block").forEach(block => {
-    const menu = block.querySelector(".menu");
-    const descBox = block.querySelector(".desc-text");
-    if (menu && menu.value && descBox) {
-      descBox.textContent = menu.options[menu.selectedIndex].dataset.desc || "";
-    }
-  });
-}
-
-  </script>
 </body>
 </html>
