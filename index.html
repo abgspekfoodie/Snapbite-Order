@@ -6,108 +6,38 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 1.5rem;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
-      color: #ff9500;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; background: #111; color: #fff; padding: 1.5rem; max-width: 600px; margin: auto; }
+    h1 { color: #ff9500; text-align: center; margin-bottom: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
     select, input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: none;
-      background: #222;
-      color: #fff;
-      font-size: 1rem;
+      width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: none;
+      background: #222; color: #fff; font-size: 1rem;
     }
     .menu-block {
-      background: #1e1e1e;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 10px;
-      position: relative;
-      animation: fadeIn 0.4s ease-in-out;
+      background: #1e1e1e; padding: 15px; margin-top: 20px; border-radius: 10px; position: relative;
     }
-    .menu-block.removing {
-      animation: fadeOut 0.3s ease forwards;
+    .menu-block .remove-btn {
+      position: absolute; top: 10px; right: 10px; background: #ff3b3b; border: none; color: #fff;
+      padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
     }
-    .remove-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff3b3b;
-      border: none;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .addons, .sauces {
-      margin-top: 1rem;
-    }
+    .addons, .sauces { margin-top: 10px; }
     .addons label, .sauces label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-      font-weight: normal;
+      display: block; font-size: 0.9rem; font-weight: normal; margin-bottom: 6px;
     }
+    .sauce-desc { font-size: 0.85rem; color: #ccc; margin-left: 1.5em; }
+    .menu-desc { font-size: 0.9rem; margin-top: 5px; color: #bbb; font-style: italic; }
     .summary {
-      background: #222;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 25px;
+      background: #222; padding: 15px; border-radius: 10px; margin-top: 25px;
     }
-    .summary h3 {
-      margin-top: 0;
-      color: #ff9500;
-    }
+    .summary h3 { margin-top: 0; color: #ff9500; }
     button.submit-btn, button.add-menu-btn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      margin-top: 20px;
+      width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 1rem; margin-top: 20px;
     }
-    button.submit-btn {
-      background: #ff9500;
-      color: #000;
-      font-weight: bold;
-    }
-    button.add-menu-btn {
-      background: #0a84ff;
-      color: #fff;
-    }
+    button.submit-btn { background: #ff9500; color: #000; font-weight: bold; }
+    button.add-menu-btn { background: #0a84ff; color: #fff; }
     .closed-msg {
-      text-align: center;
-      background: #330000;
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 10px;
-      color: #ff6b6b;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(20px); }
+      text-align: center; background: #330000; padding: 20px; margin-top: 30px;
+      border-radius: 10px; color: #ff6b6b;
     }
   </style>
 </head>
@@ -119,12 +49,12 @@
     We're recharging the taste, giving dreams some play,<br>
     But don't you worry — we’re not far away.<br><br>
     💬 Stay tuned, stay hype, we’ll be back your way!
-  </div>
-  <form id="orderForm" style="display: none;">
+  </div>  <form id="orderForm" style="display: none;">
     <label for="custName">Name</label>
-    <input type="text" id="custName" required placeholder="Your name" />
-    <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
+    <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
+<input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+
+<div id="menuContainer"></div>
 <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
 <label for="notes">Notes</label>
@@ -139,97 +69,140 @@
 <button type="submit" class="submit-btn">Submit Order</button>
 
   </form>  <script>
-    const addonsData = [
-      { id: "cheese", label: "Cheese", price: 2 },
-      { id: "egg", label: "Egg", price: 1 },
-      { id: "bacon", label: "Bacon", price: 3 }
-    ];
+    const firebaseConfig = { /* your config */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const menuData = {
+      "Beef": [
+        { id: "primebite", name: "Primebite™", price: 10, desc: "Signature juicy beef burger" },
+        { id: "beefncheese", name: "Beef N’ Cheese™", price: 11, desc: "Layered beef and melty cheddar" },
+        { id: "thefunguy", name: "The Fun Guy™", price: 12, desc: "Beef with sauteed mushrooms" },
+        { id: "thefixer", name: "The Fixer™", price: 15, desc: "Beef, egg, bacon & cheese" }
+      ],
+      "Chicken": [
+        { id: "chickbite", name: "Chickbite™", price: 9, desc: "Golden crispy chicken thigh" },
+        { id: "goldcut", name: "Goldcut™", price: 10, desc: "Fried chicken with cheese" },
+        { id: "thecapcut", name: "The Cap Cut™", price: 11, desc: "Chicken with mushrooms" },
+        { id: "stripstack", name: "Stripstack™", price: 14, desc: "Chicken with turkey strip & cheese" }
+      ]
+    };
 
     const saucesData = [
-      { id: "nancho", label: "Nancho Cheese", desc: "Creamy cheddar-style cheese" },
-      { id: "special", label: "Snapbite Special", desc: "Zesty layered tangy sauce" },
-      { id: "redriot", label: "Redriot", desc: "Fiery housemade chili blend" },
-      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth garlic-herb ranch" }
+      { id: "nancho", label: "Nancho Cheese", desc: "Rich cheddar-style sauce" },
+      { id: "special", label: "Snapbite Special", desc: "Zesty with a tangy twist" },
+      { id: "redriot", label: "Redriot", desc: "Housemade chili sauce with a kick" },
+      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth and garlicky" }
     ];
 
-    let menuCount = 0;
-
     function addMenu() {
+      const id = document.querySelectorAll('.menu-block').length;
       const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
       block.className = "menu-block";
-      block.dataset.id = menuCount;
+      block.dataset.id = id;
 
-      let html = `<button type="button" class="remove-btn" onclick="confirmRemove(${menuCount})">Remove</button>`;
-      html += `<label>Category</label><select class="category" required><option value="">-- Select Category --</option></select>`;
-      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
-      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
+      block.innerHTML = `
+        <button type="button" class="remove-btn" onclick="this.parentNode.remove(); updateSummary();">Remove</button>
+        <label>Category</label>
+        <select onchange="onCategoryChange(this)" class="category">
+          <option value="">-- Select Category --</option>
+          ${Object.keys(menuData).map(c => `<option value="${c}">${c}</option>`).join('')}
+        </select>
 
-      html += `<div class="addons"><label>Add-ons</label>`;
-      addonsData.forEach(a => {
-        html += `<label><input type="checkbox" class="addon" data-label="${a.label}" data-price="${a.price}" onchange="updateSummary()"> ${a.label} RM${a.price}</label>`;
-      });
-      html += `</div>`;
+        <label>Menu Item</label>
+        <select class="menu" disabled onchange="showMenuDesc(this)">
+          <option value="">-- Select Item --</option>
+        </select>
+        <div class="menu-desc"></div>
 
-      html += `<div class="sauces"><label>Choose Sauce</label>`;
-      saucesData.forEach(s => {
-        html += `<label><input type="radio" name="sauce-${menuCount}" value="${s.label}" onchange="updateSummary()"> ${s.label} <small>(${s.desc})</small></label>`;
-      });
-      html += `</div>`;
+        <label>Quantity</label>
+        <input type="number" class="qty" value="1" min="1" onchange="updateSummary()" />
 
-      block.innerHTML = html;
+        <div class="addons">
+          <label>Add-ons</label>
+          ${["Cheese", "Egg", "Bacon"].map((a, i) => `<label><input type="checkbox" class="addon" data-label="${a}" data-price="${i + 1}" onchange="updateSummary()"/> ${a} RM${i + 1}</label>`).join('')}
+        </div>
+
+        <div class="sauces">
+          <label>Sauces (Max 2)</label>
+          ${saucesData.map(s => `
+            <label><input type="checkbox" name="sauce-${id}" value="${s.label}" onchange="limitSauces(this)" /> ${s.label}<br><span class="sauce-desc">${s.desc}</span></label>
+          `).join('')}
+        </div>
+      `;
+
       container.appendChild(block);
-      menuCount++;
+      updateSummary();
     }
 
-    function confirmRemove(id) {
-      if (confirm("Are you sure you want to remove this item?")) {
-        const block = document.querySelector(`.menu-block[data-id='${id}']`);
-        if (block) {
-          block.classList.add("removing");
-          setTimeout(() => {
-            block.remove();
-            updateSummary();
-          }, 300);
-        }
+    function onCategoryChange(sel) {
+      const cat = sel.value;
+      const block = sel.closest(".menu-block");
+      const menuSel = block.querySelector(".menu");
+      const descDiv = block.querySelector(".menu-desc");
+      menuSel.innerHTML = '<option value="">-- Select Item --</option>';
+      descDiv.innerHTML = "";
+      menuSel.disabled = !cat;
+      if (cat) {
+        menuData[cat].forEach(i => {
+          const opt = document.createElement("option");
+          opt.value = i.name;
+          opt.textContent = `${i.name} (RM${i.price})`;
+          opt.dataset.desc = i.desc;
+          opt.dataset.price = i.price;
+          menuSel.appendChild(opt);
+        });
       }
     }
 
+    function showMenuDesc(sel) {
+      const desc = sel.options[sel.selectedIndex].dataset.desc || "";
+      sel.closest(".menu-block").querySelector(".menu-desc").textContent = desc;
+      updateSummary();
+    }
+
+    function limitSauces(checkbox) {
+      const group = checkbox.name;
+      const block = checkbox.closest(".menu-block");
+      const checked = block.querySelectorAll(`input[name='${group}']:checked`);
+      if (checked.length > 2) checkbox.checked = false;
+      updateSummary();
+    }
+
     function updateSummary() {
-      let total = 0;
       const ul = document.getElementById("orderSummary");
       ul.innerHTML = "";
+      let total = 0;
 
       document.querySelectorAll(".menu-block").forEach(block => {
         const menu = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
+        const qty = +block.querySelector(".qty").value || 1;
         if (!menu || !menu.value) return;
 
-        const itemName = menu.value;
-        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+        const name = menu.value;
+        const price = parseFloat(menu.options[menu.selectedIndex].dataset.price || 0);
         const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
           label: a.dataset.label,
-          price: parseFloat(a.dataset.price)
+          price: +a.dataset.price
         }));
-        const sauceInput = block.querySelector("input[type='radio']:checked");
-        const sauce = sauceInput ? sauceInput.value : "";
+        const sauces = [...block.querySelectorAll("input[type='checkbox'][name^='sauce']:checked")].map(s => s.value);
 
-        let line = `${itemName} x${qty}`;
+        let line = `${name} x${qty}`;
         if (addons.length) line += " + " + addons.map(a => a.label).join(", ");
-        if (sauce) line += ` [${sauce}]`;
+        if (sauces.length) line += ` [${sauces.join(" / ")}]`;
 
-        let itemTotal = (itemPrice + addons.reduce((sum, a) => sum + a.price, 0)) * qty;
-        total += itemTotal;
+        const subtotal = (price + addons.reduce((s, a) => s + a.price, 0)) * qty;
+        total += subtotal;
 
-        let li = document.createElement("li");
-        li.textContent = `${line} = RM${itemTotal.toFixed(2)}`;
+        const li = document.createElement("li");
+        li.textContent = `${line} = RM${subtotal.toFixed(2)}`;
         ul.appendChild(li);
       });
 
       document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
 
-    // Init
     addMenu();
   </script></body>
 </html>
