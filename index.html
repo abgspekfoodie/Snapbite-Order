@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -6,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #111; color: #fff; padding: 1.5rem; max-width: 600px; margin: auto; }
+    body { font-family: Arial, sans-serif; background: #111; color: #fff; padding: 1.5rem; max-width: 600px; margin: auto; position: relative; }
     h1 { color: #ff9500; text-align: center; margin-bottom: 1rem; }
     label { display: block; margin-top: 1rem; font-weight: bold; }
     select, input, textarea {
@@ -39,6 +40,30 @@
       text-align: center; background: #330000; padding: 20px; margin-top: 30px;
       border-radius: 10px; color: #ff6b6b;
     }
+    /* Loading overlay */
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    /* Spatula spinner */
+    #loadingOverlay .spinner {
+      width: 80px;
+      height: 80px;
+      animation: spin 1.5s linear infinite;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046813.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 0 3px #ff9500);
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -54,21 +79,28 @@
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" />
     <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" /><div id="menuContainer"></div>
-<button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+    <div id="menuContainer"></div>
+    <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
-<label for="notes">Notes</label>
-<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
 
-<div class="summary">
-  <h3>Order Summary</h3>
-  <ul id="orderSummary"></ul>
-  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
-</div>
+    <div class="summary">
+      <h3>Order Summary</h3>
+      <ul id="orderSummary"></ul>
+      <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+    </div>
 
-<button type="submit" class="submit-btn">Submit Order</button>
+    <button type="submit" class="submit-btn">Submit Order</button>
+  </form>
 
-  </form>  <script>
+  <!-- Loading overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner" title="Loading..."></div>
+  </div>
+
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
       authDomain: "snapbite-admin.firebaseapp.com",
@@ -221,10 +253,15 @@
 
     document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
+
       const name = document.getElementById("custName").value.trim();
       const phone = document.getElementById("custPhone").value.trim();
       const notes = document.getElementById("notes").value.trim();
-      if (!name || !phone) return alert("Please enter your name and phone.");
+
+      if (!name || !phone) {
+        alert("Please enter your name and phone.");
+        return;
+      }
 
       const items = [];
       document.querySelectorAll(".menu-block").forEach(block => {
@@ -243,6 +280,11 @@
         items.push({ name: itemName, quantity: qty, price: itemPrice, addons, sauces });
       });
 
+      if (items.length === 0) {
+        alert("Please add at least one menu item.");
+        return;
+      }
+
       let total = items.reduce((sum, i) =>
         sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
 
@@ -257,14 +299,20 @@
       if (notes) msg += `\nNotes: ${notes}`;
 
       const order = { name, phone, notes, items, total, status: "pending", time: new Date().toISOString() };
+
+      // Show loading spinner overlay
+      document.getElementById("loadingOverlay").style.display = "flex";
+
       db.ref("orders").push(order, err => {
-        if (!err) {
-          window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-          document.getElementById("orderForm").reset();
-          document.getElementById("menuContainer").innerHTML = "";
-          menuCount = 0;
-          addMenu(); updateSummary();
+        if (err) {
+          alert("Failed to submit order. Please try again.");
+          document.getElementById("loadingOverlay").style.display = "none";
+          return;
         }
+        // After 2 seconds loading, redirect to thank you page
+        setTimeout(() => {
+          window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
+        }, 2000);
       });
     });
 
@@ -274,6 +322,8 @@
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
 
+    // Start with one menu item block
     addMenu();
-  </script></body>
+  </script>
+</body>
 </html>
