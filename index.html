@@ -114,7 +114,7 @@
       font-size: 1.2rem;
     }
     /* Spatula animation */
-    #loadingOverlay svg {
+    #loadingOverlay img {
       width: 80px;
       height: 80px;
       animation: spin 1.5s linear infinite;
@@ -163,10 +163,7 @@
 
   <!-- Loading overlay with spatula animation -->
   <div id="loadingOverlay">
-    <svg viewBox="0 0 64 64" fill="#ff9500" xmlns="http://www.w3.org/2000/svg" >
-      <rect x="28" y="5" width="8" height="40" rx="3" ry="3" />
-      <rect x="22" y="45" width="20" height="14" rx="3" ry="3" />
-    </svg>
+    <img src="https://i.imgur.com/odJLb2V.png" alt="Spatula loading spinner" />
     Preparing your order...
   </div>
 
@@ -252,7 +249,7 @@
 
     html += `<fieldset class="sauces"><legend><strong>Choose up to 2 Sauces</strong></legend><ul>`;
     saucesData.forEach(s => {
-      html += `<li><label><input type="checkbox" class="sauce-check" name="sauce-${menuCount}" value="${s.label}" onchange="limitSauceSelection(${menuCount}, event)"> ${s.label} — <em>${s.desc}</em></label></li>`;
+      html += `<li><label><input type="checkbox" class="sauce-check" name="sauce-${menuCount}" value="${s.label}" onchange="limitSauceSelection(${menuCount})"> ${s.label} — <em>${s.desc}</em></label></li>`;
     });
     html += `</ul></fieldset>`;
 
@@ -261,7 +258,7 @@
     menuCount++;
   }
 
-  function limitSauceSelection(id, event) {
+  function limitSauceSelection(id) {
     const checks = document.querySelectorAll(`.menu-block[data-id="${id}"] .sauce-check:checked`);
     if (checks.length > 2) {
       alert("You can only pick up to 2 sauces.");
@@ -388,3 +385,16 @@
     const isOff = snap.val() === true;
     document.getElementById("orderForm").style.display = isOff ? "none" : "block";
     document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
+  });
+
+  // Initialize with one menu block
+  addMenu();
+
+  // Update summary on any input change
+  document.body.addEventListener('change', updateSummary);
+
+  // Initial summary update
+  updateSummary();
+</script>
+</body>
+</html>
