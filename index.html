@@ -1,309 +1,172 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Snapbite™ Live Order</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: Arial, sans-serif;
       background: #111;
       color: #fff;
-      margin: 0;
-      padding: 1rem;
-      max-width: 640px;
+      padding: 1.5rem;
+      max-width: 600px;
       margin: auto;
+      position: relative;
+      min-height: 100vh;
     }
     h1 {
-      text-align: center;
       color: #ff9500;
+      text-align: center;
       margin-bottom: 1rem;
     }
     label {
       display: block;
       margin-top: 1rem;
-      font-weight: 600;
+      font-weight: bold;
     }
-    input, select, textarea {
+    select, input, textarea {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       margin-top: 5px;
-      background: #222;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-    }
-    .menu-block {
-      background: #1e1e1e;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-top: 1rem;
-      position: relative;
-    }
-    .menu-block button.remove {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #e33;
-      color: #fff;
-      border: none;
       border-radius: 6px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-    .addons ul, .sauces ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    .addons li, .sauces li {
-      margin-bottom: 6px;
-    }
-    .summary {
-      margin-top: 2rem;
+      border: none;
       background: #222;
-      padding: 1rem;
-      border-radius: 10px;
-    }
-    .summary h3 {
-      margin: 0 0 1rem;
-      color: #ff9500;
+      color: #fff;
+      font-size: 1rem;
     }
     button {
       width: 100%;
-      padding: 12px;
-      font-weight: bold;
-      margin-top: 1.5rem;
+      padding: 15px;
       border-radius: 10px;
       border: none;
+      font-size: 1rem;
+      margin-top: 20px;
       cursor: pointer;
     }
-    .add-btn { background: #0af; color: #fff; }
-    .submit-btn { background: #ff9500; color: #000; }#loadingOverlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  z-index: 999;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-#loadingOverlay img {
-  width: 80px;
-  height: 80px;
-  animation: spin 1.5s linear infinite;
-  margin-bottom: 1rem;
-}
-@keyframes spin {
-  0% { transform: rotate(0); }
-  100% { transform: rotate(360deg); }
-}
-.closed-msg {
-  text-align: center;
-  background: #330000;
-  padding: 20px;
-  margin-top: 30px;
-  border-radius: 10px;
-  color: #ff6b6b;
-}
-
+    .submit-btn {
+      background: #ff9500;
+      color: #000;
+      font-weight: bold;
+    }
+    .closed-msg {
+      text-align: center;
+      background: #330000;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      color: #ff6b6b;
+    }
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #ff9500;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    #loadingOverlay img {
+      width: 80px;
+      height: 80px;
+      animation: spin 1.5s linear infinite;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 5px #ff9500);
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Live Order</h1>  <div id="closedMsg" class="closed-msg" style="display:none">
+  <h1>Snapbite™ Live Order</h1>
+  <div id="closedMsg" class="closed-msg" style="display: none;">
     🔒 Snapbite™ is clocked out for the day.<br><br>
     No sizzle, no flip, no juicy display. 🍔🔥<br><br>
     We're recharging the taste, giving dreams some play,<br>
     But don't you worry — we’re not far away.<br><br>
     💬 Stay tuned, stay hype, we’ll be back your way!
-  </div>  <form id="orderForm" style="display:none">
-    <label>Name</label>
-    <input type="text" id="custName" required />
-    <label>Phone</label>
-    <input type="tel" id="custPhone" required /><div id="menuContainer"></div>
-<button type="button" class="add-btn" onclick="addMenu()">+ Add Menu Item</button>
+  </div>  <form id="orderForm" style="display: none;">
+    <label for="custName">Name</label>
+    <input type="text" id="custName" required /><label for="custPhone">Phone</label>
+<input type="tel" id="custPhone" required />
 
-<label>Notes</label>
-<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+<label for="menu">Select Menu</label>
+<select id="menu"></select>
 
-<div class="summary">
-  <h3>Order Summary</h3>
-  <ul id="orderSummary"></ul>
-  <p>Total: RM <span id="totalPrice">0.00</span></p>
-</div>
+<label for="qty">Quantity</label>
+<input type="number" id="qty" min="1" value="1" />
 
 <button type="submit" class="submit-btn">Submit Order</button>
 
   </form>  <div id="loadingOverlay">
-    <img src="https://i.imgur.com/odJLb2V.png" alt="Loading..." />
-    <p style="color:#ff9500;font-weight:bold">Preparing your order...</p>
-  </div>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
-      authDomain: "snapbite-admin.firebaseapp.com",
-      databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "snapbite-admin",
-      storageBucket: "snapbite-admin.appspot.com",
-      messagingSenderId: "146625734660",
-      appId: "1:146625734660:web:23ada593e4818ed7332d51"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <img src="https://i.imgur.com/odJLb2V.png" alt="Spatula loading spinner" />
+    Preparing your order...
+  </div><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
+    authDomain: "snapbite-admin.firebaseapp.com",
+    databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "snapbite-admin",
+    storageBucket: "snapbite-admin.appspot.com",
+    messagingSenderId: "146625734660",
+    appId: "1:146625734660:web:23ada593e4818ed7332d51"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    let menuData = {};
+  const menuSelect = document.getElementById("menu");
+  const orderForm = document.getElementById("orderForm");
+  const closedMsg = document.getElementById("closedMsg");
 
-    db.ref("settings/offday").on("value", snap => {
-      const isOff = snap.val();
-      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
-      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
-    });
+  db.ref("settings/offday").on("value", snap => {
+    const isOff = snap.val() === true;
+    closedMsg.style.display = isOff ? "block" : "none";
+    orderForm.style.display = isOff ? "none" : "block";
+  });
 
-    db.ref("menu").once("value", snap => {
-      const raw = snap.val();
-      menuData = {};
-      raw.forEach(item => {
-        if (item.available) {
-          if (!menuData[item.category]) menuData[item.category] = [];
-          menuData[item.category].push(item);
-        }
-      });
-      addMenu();
-    });
-
-    function addMenu() {
-      const container = document.getElementById("menuContainer");
-      const block = document.createElement("div");
-      const id = Date.now();
-      block.className = "menu-block";
-      block.innerHTML = `
-        <button class="remove" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
-        <label>Category</label>
-        <select onchange="populateItem(this)" data-block="${id}">
-          <option value="">-- Select Category --</option>
-          ${Object.keys(menuData).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-        </select>
-        <label>Item</label>
-        <select class="menu" data-block="${id}" onchange="updateSummary()">
-          <option value="">-- Select Menu --</option>
-        </select>
-        <label>Quantity</label>
-        <input type="number" class="qty" value="1" min="1" onchange="updateSummary()" />
-        <div class="addons">
-          <label>Add-ons</label>
-          <ul>
-            <li><label><input type="checkbox" class="addon" data-label="Cheese" data-price="1.5" onchange="updateSummary()"> Cheese (RM1.5)</label></li>
-            <li><label><input type="checkbox" class="addon" data-label="Egg" data-price="1" onchange="updateSummary()"> Egg (RM1)</label></li>
-            <li><label><input type="checkbox" class="addon" data-label="Mushroom" data-price="2.5" onchange="updateSummary()"> Mushroom (RM2.5)</label></li>
-            <li><label><input type="checkbox" class="addon" data-label="Bacon" data-price="3.5" onchange="updateSummary()"> Bacon (RM3.5)</label></li>
-          </ul>
-        </div>
-        <fieldset class="sauces">
-          <legend><strong>Pick max 2 sauces</strong></legend>
-          <ul>
-            <li><label><input type="checkbox" class="sauce-check" onchange="limitSauce(this, ${id})" value="Nancho Cheese"> Nancho Cheese</label></li>
-            <li><label><input type="checkbox" class="sauce-check" onchange="limitSauce(this, ${id})" value="Snapbite Special"> Snapbite Special</label></li>
-            <li><label><input type="checkbox" class="sauce-check" onchange="limitSauce(this, ${id})" value="Redriot"> Redriot</label></li>
-            <li><label><input type="checkbox" class="sauce-check" onchange="limitSauce(this, ${id})" value="Garlic Ranch"> Garlic Ranch</label></li>
-          </ul>
-        </fieldset>
-      `;
-      container.appendChild(block);
-    }
-
-    function populateItem(sel) {
-      const block = sel.dataset.block;
-      const menuSel = document.querySelector(`select.menu[data-block='${block}']`);
-      const cat = sel.value;
-      menuSel.innerHTML = `<option value="">-- Select Menu --</option>`;
-      if (menuData[cat]) {
-        menuData[cat].forEach(item => {
-          menuSel.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;
-        });
+  db.ref("menu").on("value", snap => {
+    const menu = snap.val();
+    menuSelect.innerHTML = "";
+    for (let item of menu) {
+      if (item.available) {
+        const opt = document.createElement("option");
+        opt.value = item.name;
+        opt.textContent = `${item.name} (RM${item.price})`;
+        opt.dataset.price = item.price;
+        menuSelect.appendChild(opt);
       }
-      updateSummary();
     }
+  });
 
-    function limitSauce(chk, id) {
-      const checks = document.querySelectorAll(`.menu-block input.sauce-check`);
-      const block = chk.closest(".menu-block");
-      const selected = block.querySelectorAll(".sauce-check:checked");
-      if (selected.length > 2) {
-        alert("Max 2 sauces only");
-        chk.checked = false;
+  orderForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    const menuName = menuSelect.value;
+    const qty = parseInt(document.getElementById("qty").value);
+    const price = parseFloat(menuSelect.options[menuSelect.selectedIndex].dataset.price);
+    const total = price * qty;
+
+    const msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\nOrder: ${menuName} x${qty} = RM${total.toFixed(2)}`;
+    document.getElementById("loadingOverlay").style.display = "flex";
+
+    const order = { name, phone, item: menuName, qty, total, time: new Date().toISOString() };
+    db.ref("orders").push(order, err => {
+      if (!err) {
+        setTimeout(() => {
+          window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
+          window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
+        }, 2000);
+      } else {
+        alert("Error submitting order.");
+        document.getElementById("loadingOverlay").style.display = "none";
       }
-      updateSummary();
-    }
-
-    function updateSummary() {
-      const ul = document.getElementById("orderSummary");
-      let total = 0;
-      ul.innerHTML = "";
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!itemSel || !itemSel.value) return;
-        const itemName = itemSel.value;
-        const price = parseFloat(itemSel.options[itemSel.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
-          label: a.dataset.label,
-          price: parseFloat(a.dataset.price)
-        }));
-        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
-
-        const line = `${itemName} x${qty}${addons.length ? ' + ' + addons.map(a => a.label).join(', ') : ''}${sauces.length ? ' [' + sauces.join(', ') + ']' : ''}`;
-        const subtotal = qty * (price + addons.reduce((sum, x) => sum + x.price, 0));
-        total += subtotal;
-        const li = document.createElement("li");
-        li.textContent = `${line} = RM${subtotal.toFixed(2)}`;
-        ul.appendChild(li);
-      });
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
-    }
-
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("custName").value.trim();
-      const phone = document.getElementById("custPhone").value.trim();
-      const notes = document.getElementById("notes").value.trim();
-
-      const items = [];
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const menuSel = block.querySelector(".menu");
-        const qty = parseInt(block.querySelector(".qty").value || 1);
-        if (!menuSel || !menuSel.value) return;
-        const itemName = menuSel.value;
-        const price = parseFloat(menuSel.options[menuSel.selectedIndex].dataset.price);
-        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
-          label: a.dataset.label,
-          price: parseFloat(a.dataset.price)
-        }));
-        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
-        items.push({ itemName, qty, price, addons, sauces });
-      });
-      const total = items.reduce((t, i) => t + ((i.price + i.addons.reduce((s, a) => s + a.price, 0)) * i.qty), 0);
-
-      let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\n\nOrder:\n`;
-      items.forEach(i => {
-        msg += `- ${i.itemName} x${i.qty}`;
-        if (i.addons.length) msg += ` + ${i.addons.map(a => a.label).join(', ')}`;
-        if (i.sauces.length) msg += ` [${i.sauces.join(', ')}]`;
-        msg += `\n`;
-      });
-      msg += `\nTotal: RM${total.toFixed(2)}`;
-      if (notes) msg += `\nNotes: ${notes}`;
-
-      document.getElementById("loadingOverlay").style.display = "flex";
-      db.ref("orders").push({ name, phone, notes, items, total, time: new Date().toISOString(), status: "pending" }, err => {
-        if (!err) {
-          setTimeout(() => {
-            window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-            window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
-          }, 2000);
-        } else {
-          alert("Failed to submit. Try again.");
-          document.getElementById("loadingOverlay").style.display = "none";
-        }
-      });
     });
-  </script></body>
+  });
+</script></body>
 </html>
