@@ -285,6 +285,15 @@
         menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
       });
     }
+
+    // Hide addons if category Snack, else show
+    const addonsDiv = block.querySelector(".addons");
+    if (cat === "Snack") {
+      addonsDiv.style.display = "none";
+    } else {
+      addonsDiv.style.display = "block";
+    }
+
     updateSummary();
   }
 
@@ -387,10 +396,7 @@
     document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
   });
 
-  // Initialize with one menu block
-  addMenu();
-
-  // Update summary on any input change
+    // Update summary on any input change
   document.body.addEventListener('change', updateSummary);
 
   // Initial summary update
@@ -398,7 +404,3 @@
 </script>
 </body>
 </html>
-
-
-
-Code order
