@@ -128,6 +128,14 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
+    .addons ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 5px;
+    }
+    .addons li {
+      margin-bottom: 6px;
+    }
   </style>
 </head>
 <body>
@@ -172,13 +180,19 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const menuData = {};
+    let menuData = {};
+    const addonsData = [
+      { id: "cheese", label: "Cheese", price: 2 },
+      { id: "egg", label: "Egg", price: 1 },
+      { id: "bacon", label: "Bacon", price: 3 }
+    ];
 
-    db.ref("menuStatus").once("value", snap => {
+    db.ref("menuStatus").once("value").then(snap => {
       const val = snap.val();
       if (!val) return;
       Object.keys(val).forEach(cat => {
-        menuData[cat] = val[cat].filter(item => item.enabled);
+        const availableItems = val[cat].filter(item => item.enabled);
+        if (availableItems.length) menuData[cat] = availableItems;
       });
     });
 
@@ -197,6 +211,12 @@
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
       html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
 
+      html += `<div class="addons"><label>Add-ons</label><ul>`;
+      addonsData.forEach(add => {
+        html += `<li><label><input type="checkbox" class="addon" data-label="${add.label}" data-price="${add.price}" onchange="updateSummary()"> ${add.label} (RM${add.price})</label></li>`;
+      });
+      html += `</ul></div>`;
+
       block.innerHTML = html;
       container.appendChild(block);
     }
@@ -207,7 +227,7 @@
       const menuSelect = block.querySelector(".menu");
       menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
       menuSelect.disabled = !cat;
-      if (cat) {
+      if (cat && menuData[cat]) {
         menuData[cat].forEach(item => {
           const label = `${item.name} (RM${item.price})`;
           menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
@@ -228,12 +248,19 @@
 
         const itemName = menu.value;
         const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
+          label: a.dataset.label,
+          price: parseFloat(a.dataset.price)
+        }));
 
-        let itemTotal = itemPrice * qty;
+        let line = `${itemName} x${qty}`;
+        if (addons.length) line += " + " + addons.map(a => a.label).join(", ");
+
+        let itemTotal = (itemPrice + addons.reduce((sum, a) => sum + a.price, 0)) * qty;
         total += itemTotal;
 
         let li = document.createElement("li");
-        li.textContent = `${itemName} x${qty} = RM${itemTotal.toFixed(2)}`;
+        li.textContent = `${line} = RM${itemTotal.toFixed(2)}`;
         ul.appendChild(li);
       });
 
@@ -255,16 +282,22 @@
         if (!menu || !menu.value) return;
         const itemName = menu.value;
         const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
-        items.push({ name: itemName, quantity: qty, price: itemPrice });
+        const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
+          label: a.dataset.label,
+          price: parseFloat(a.dataset.price)
+        }));
+        items.push({ name: itemName, quantity: qty, price: itemPrice, addons });
       });
 
-      let total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      let total = items.reduce((sum, i) => sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
 
       let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}`;
       if (pickupTime) msg += `\nPickup Time: ${pickupTime}`;
       msg += `\n\nOrder:`;
       items.forEach(i => {
-        msg += `\n- ${i.name} x${i.quantity}`;
+        let line = `- ${i.name} x${i.quantity}`;
+        if (i.addons.length) line += ` + ${i.addons.map(a => a.label).join(", ")}`;
+        msg += `\n${line}`;
       });
       msg += `\n\nTotal: RM${total.toFixed(2)}`;
       if (notes) msg += `\nNotes: ${notes}`;
