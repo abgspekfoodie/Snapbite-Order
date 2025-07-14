@@ -109,29 +109,38 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .menu-block {
+      background: #1e1e1e;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .menu-block .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff3b3b;
+      border: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Snapbite™ Live Order</h1>
-  <div id="closedMsg" class="closed-msg">
+  <h1>Snapbite™ Live Order</h1>  <div id="closedMsg" class="closed-msg">
     <h2>We’re Closed</h2>
-    <p>
-      Snapbite™ is currently off the grill. We’re prepping for the next juicy comeback.<br /><br />
-      Thanks for stopping by — we’ll be back flipping soon! 🍔🔥
-    </p>
-  </div>  <form id="orderForm">
+    <p>Snapbite™ is currently off the grill. We’re prepping for the next juicy comeback.<br><br>Thanks for stopping by — we’ll be back flipping soon! 🍔🔥</p>
+  </div>  <form id="orderForm" style="display: none;">
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
 <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
 
-<label for="pickupTime">Pickup Time</label>
-<select id="pickupTime" required>
-  <option value="">-- Select Time Slot --</option>
-  <option value="12:00 PM - 12:30 PM">12:00 PM - 12:30 PM</option>
-  <option value="12:30 PM - 1:00 PM">12:30 PM - 1:00 PM</option>
-  <option value="1:00 PM - 1:30 PM">1:00 PM - 1:30 PM</option>
-  <option value="1:30 PM - 2:00 PM">1:30 PM - 2:00 PM</option>
-</select>
+<label for="pickupTime">Pickup Time (Optional)</label>
+<input type="text" id="pickupTime" placeholder="e.g. 1:30 PM" />
 
 <div id="menuContainer"></div>
 <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
@@ -163,84 +172,71 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    db.ref("settings/offday").on("value", snap => {
-      const isOff = snap.val() === true;
-      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
-      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
-    });
+    const menuData = {};
 
-    // Menu auto-hide based on Firebase menuStatus
-    const menuStatusRef = db.ref("menuStatus");
-    let menuData = {};
-
-    menuStatusRef.once("value").then(snapshot => {
-      const statusData = snapshot.val();
-      const fullMenu = {
-        "Burger": [
-          { id: "primebite", name: "Primebite™", price: 10, desc: "Smoked beef patty", enabled: statusData?.primebite },
-          { id: "goldcut", name: "Goldcut™", price: 10, desc: "Cheesy chicken cutlet", enabled: statusData?.goldcut }
-        ],
-        "Tex-Mex": [
-          { id: "smoketaco", name: "Smoke Beef Taco™", price: 11, desc: "Slow-smoked brisket taco", enabled: statusData?.smoketaco }
-        ]
-      };
-      for (let cat in fullMenu) {
-        menuData[cat] = fullMenu[cat].filter(item => item.enabled);
-      }
+    db.ref("menuStatus").once("value", snap => {
+      const val = snap.val();
+      if (!val) return;
+      Object.keys(val).forEach(cat => {
+        menuData[cat] = val[cat].filter(item => item.enabled);
+      });
     });
 
     function addMenu() {
       const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
       block.className = "menu-block";
-      const catSelect = document.createElement("select");
-      catSelect.innerHTML = `<option value="">-- Select Category --</option>`;
-      for (let cat in menuData) {
-        catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-      }
-      catSelect.onchange = function () {
-        const menuSelect = block.querySelector(".menu-select");
-        menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-        const selectedCat = catSelect.value;
-        if (menuData[selectedCat]) {
-          menuData[selectedCat].forEach(item => {
-            menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;
-          });
-        }
-      };
 
-      const menuSelect = document.createElement("select");
-      menuSelect.className = "menu-select";
-      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
-      menuSelect.onchange = updateSummary;
+      let html = `<button type="button" class="remove-btn" onclick="this.parentNode.remove();updateSummary();">Remove</button>`;
+      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
+      Object.keys(menuData).forEach(cat => {
+        html += `<option value="${cat}">${cat}</option>`;
+      });
+      html += `</select>`;
 
-      const qty = document.createElement("input");
-      qty.type = "number";
-      qty.min = 1;
-      qty.value = 1;
-      qty.onchange = updateSummary;
+      html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
+      html += `<label>Quantity</label><input type="number" class="qty" value="1" min="1" onchange="updateSummary()">`;
 
-      block.appendChild(catSelect);
-      block.appendChild(menuSelect);
-      block.appendChild(qty);
+      block.innerHTML = html;
       container.appendChild(block);
     }
 
+    function onCategoryChange(select) {
+      const cat = select.value;
+      const block = select.closest(".menu-block");
+      const menuSelect = block.querySelector(".menu");
+      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
+      menuSelect.disabled = !cat;
+      if (cat) {
+        menuData[cat].forEach(item => {
+          const label = `${item.name} (RM${item.price})`;
+          menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
+        });
+      }
+      updateSummary();
+    }
+
     function updateSummary() {
-      const summary = document.getElementById("orderSummary");
-      const blocks = document.querySelectorAll(".menu-block");
       let total = 0;
-      summary.innerHTML = "";
-      blocks.forEach(block => {
-        const menu = block.querySelector(".menu-select");
-        const qty = parseInt(block.querySelector("input").value || 1);
-        const price = parseFloat(menu?.selectedOptions[0]?.dataset?.price || 0);
-        if (menu?.value) {
-          const itemTotal = qty * price;
-          total += itemTotal;
-          summary.innerHTML += `<li>${menu.value} x${qty} = RM${itemTotal.toFixed(2)}</li>`;
-        }
+      const ul = document.getElementById("orderSummary");
+      ul.innerHTML = "";
+
+      document.querySelectorAll(".menu-block").forEach(block => {
+        const menu = block.querySelector(".menu");
+        const qty = parseInt(block.querySelector(".qty").value || 1);
+        if (!menu || !menu.value) return;
+
+        const itemName = menu.value;
+        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+
+        let itemTotal = itemPrice * qty;
+        total += itemTotal;
+
+        let li = document.createElement("li");
+        li.textContent = `${itemName} x${qty} = RM${itemTotal.toFixed(2)}`;
+        ul.appendChild(li);
       });
+
       document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
 
@@ -250,31 +246,49 @@
       const phone = document.getElementById("custPhone").value.trim();
       const pickupTime = document.getElementById("pickupTime").value.trim();
       const notes = document.getElementById("notes").value.trim();
+      if (!name || !phone) return alert("Please enter your name and phone.");
+
       const items = [];
       document.querySelectorAll(".menu-block").forEach(block => {
-        const menu = block.querySelector(".menu-select");
-        const qty = parseInt(block.querySelector("input").value || 1);
-        const price = parseFloat(menu?.selectedOptions[0]?.dataset?.price || 0);
-        if (menu?.value) items.push({ name: menu.value, quantity: qty, price });
+        const menu = block.querySelector(".menu");
+        const qty = parseInt(block.querySelector(".qty").value || 1);
+        if (!menu || !menu.value) return;
+        const itemName = menu.value;
+        const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
+        items.push({ name: itemName, quantity: qty, price: itemPrice });
       });
-      const total = items.reduce((a, b) => a + b.quantity * b.price, 0);
-      const order = { name, phone, pickupTime, notes, items, total, time: new Date().toISOString(), status: "pending" };
+
+      let total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+      let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}`;
+      if (pickupTime) msg += `\nPickup Time: ${pickupTime}`;
+      msg += `\n\nOrder:`;
+      items.forEach(i => {
+        msg += `\n- ${i.name} x${i.quantity}`;
+      });
+      msg += `\n\nTotal: RM${total.toFixed(2)}`;
+      if (notes) msg += `\nNotes: ${notes}`;
 
       document.getElementById("loadingOverlay").style.display = "flex";
+
+      const order = { name, phone, pickupTime, notes, items, total, status: "pending", time: new Date().toISOString() };
       db.ref("orders").push(order, err => {
         if (!err) {
           setTimeout(() => {
-            const msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\nPickup: ${pickupTime}\n\nOrder:\n` +
-              items.map(i => `- ${i.name} x${i.quantity}`).join("\n") +
-              `\n\nTotal: RM${total.toFixed(2)}${notes ? `\nNotes: ${notes}` : ""}`;
             window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
             window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
-          }, 1500);
+          }, 2000);
         } else {
-          alert("Failed to place order.");
+          alert("Failed to place order. Please try again.");
           document.getElementById("loadingOverlay").style.display = "none";
         }
       });
+    });
+
+    db.ref("settings/offday").on("value", snap => {
+      const isOff = snap.val() === true;
+      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
+      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
   </script></body>
 </html>
