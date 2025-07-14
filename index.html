@@ -109,40 +109,13 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .menu-block {
-      background: #1e1e1e;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 10px;
-      position: relative;
-    }
-    .menu-block .remove-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff3b3b;
-      border: none;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .addons ul {
-      list-style: none;
-      padding-left: 0;
-      margin-top: 5px;
-    }
-    .addons li {
-      margin-bottom: 6px;
-    }
   </style>
 </head>
 <body>
   <h1>Snapbite™ Live Order</h1>  <div id="closedMsg" class="closed-msg">
     <h2>We’re Closed</h2>
     <p>Snapbite™ is currently off the grill. We’re prepping for the next juicy comeback.<br><br>Thanks for stopping by — we’ll be back flipping soon! 🍔🔥</p>
-  </div>  <form id="orderForm" style="display: none;">
+  </div>  <form id="orderForm" style="display:none">
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
 <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
@@ -181,31 +154,37 @@
     const db = firebase.database();
 
     let menuData = {};
+
+    db.ref("menuStatus").once("value", snap => {
+      const val = snap.val();
+      if (!val) return;
+      Object.keys(val).forEach(cat => {
+        menuData[cat] = val[cat].filter(item => item.enabled);
+      });
+      addMenu();
+      document.getElementById("orderForm").style.display = "block";
+    });
+
     const addonsData = [
       { id: "cheese", label: "Cheese", price: 2 },
       { id: "egg", label: "Egg", price: 1 },
       { id: "bacon", label: "Bacon", price: 3 }
     ];
 
-    db.ref("menuStatus").once("value").then(snap => {
-      const val = snap.val();
-      if (!val) return;
-      Object.keys(val).forEach(cat => {
-        const availableItems = val[cat].filter(item => item.enabled);
-        if (availableItems.length) menuData[cat] = availableItems;
-      });
-    });
+    const saucesData = [
+      { id: "nancho", label: "Nancho Cheese", desc: "Rich, creamy cheddar-style cheese sauce" },
+      { id: "special", label: "Snapbite Special", desc: "Zesty layered sauce with tangy twist" },
+      { id: "redriot", label: "Redriot", desc: "Crafted chili sauce. For brave and bold only" },
+      { id: "garlicranch", label: "Garlic Ranch", desc: "Smooth, garlicky and herby ranch" }
+    ];
 
     function addMenu() {
       const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
       block.className = "menu-block";
 
-      let html = `<button type="button" class="remove-btn" onclick="this.parentNode.remove();updateSummary();">Remove</button>`;
-      html += `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
-      Object.keys(menuData).forEach(cat => {
-        html += `<option value="${cat}">${cat}</option>`;
-      });
+      let html = `<label>Category</label><select class="category" onchange="onCategoryChange(this)" required><option value="">-- Select Category --</option>`;
+      Object.keys(menuData).forEach(cat => html += `<option value="${cat}">${cat}</option>`);
       html += `</select>`;
 
       html += `<label>Menu Item</label><select class="menu" disabled required><option value="">-- Select Item --</option></select>`;
@@ -217,6 +196,12 @@
       });
       html += `</ul></div>`;
 
+      html += `<fieldset class="sauces"><legend><strong>Choose up to 2 Sauces</strong></legend><ul>`;
+      saucesData.forEach(s => {
+        html += `<li><label><input type="checkbox" class="sauce-check" name="sauce-group" value="${s.label}" onchange="limitSauceSelection(this)"> ${s.label} — <em>${s.desc}</em></label></li>`;
+      });
+      html += `</ul></fieldset>`;
+
       block.innerHTML = html;
       container.appendChild(block);
     }
@@ -227,13 +212,21 @@
       const menuSelect = block.querySelector(".menu");
       menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
       menuSelect.disabled = !cat;
-      if (cat && menuData[cat]) {
+      if (cat) {
         menuData[cat].forEach(item => {
           const label = `${item.name} (RM${item.price})`;
           menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${label}</option>`;
         });
       }
-      updateSummary();
+    }
+
+    function limitSauceSelection(elem) {
+      const group = elem.name;
+      const checks = document.querySelectorAll(`input[name="${group}"]:checked`);
+      if (checks.length > 2) {
+        elem.checked = false;
+        alert("Choose up to 2 sauces only.");
+      }
     }
 
     function updateSummary() {
@@ -252,9 +245,11 @@
           label: a.dataset.label,
           price: parseFloat(a.dataset.price)
         }));
+        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
 
         let line = `${itemName} x${qty}`;
         if (addons.length) line += " + " + addons.map(a => a.label).join(", ");
+        if (sauces.length) line += ` [${sauces.join(", ")}]`;
 
         let itemTotal = (itemPrice + addons.reduce((sum, a) => sum + a.price, 0)) * qty;
         total += itemTotal;
@@ -271,7 +266,7 @@
       e.preventDefault();
       const name = document.getElementById("custName").value.trim();
       const phone = document.getElementById("custPhone").value.trim();
-      const pickupTime = document.getElementById("pickupTime").value.trim();
+      const time = document.getElementById("pickupTime").value.trim();
       const notes = document.getElementById("notes").value.trim();
       if (!name || !phone) return alert("Please enter your name and phone.");
 
@@ -280,31 +275,35 @@
         const menu = block.querySelector(".menu");
         const qty = parseInt(block.querySelector(".qty").value || 1);
         if (!menu || !menu.value) return;
+
         const itemName = menu.value;
         const itemPrice = parseFloat(menu.options[menu.selectedIndex].dataset.price);
         const addons = [...block.querySelectorAll(".addon:checked")].map(a => ({
           label: a.dataset.label,
           price: parseFloat(a.dataset.price)
         }));
-        items.push({ name: itemName, quantity: qty, price: itemPrice, addons });
+        const sauces = [...block.querySelectorAll(".sauce-check:checked")].map(s => s.value);
+
+        items.push({ name: itemName, quantity: qty, price: itemPrice, addons, sauces });
       });
 
       let total = items.reduce((sum, i) => sum + ((i.price + i.addons.reduce((a, x) => a + x.price, 0)) * i.quantity), 0);
 
       let msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}`;
-      if (pickupTime) msg += `\nPickup Time: ${pickupTime}`;
-      msg += `\n\nOrder:`;
+      if (time) msg += `\nPickup Time: ${time}`;
+      msg += `\n\nOrder:\n`;
       items.forEach(i => {
         let line = `- ${i.name} x${i.quantity}`;
         if (i.addons.length) line += ` + ${i.addons.map(a => a.label).join(", ")}`;
-        msg += `\n${line}`;
+        if (i.sauces.length) line += ` [${i.sauces.join(", ")}]`;
+        msg += line + "\n";
       });
-      msg += `\n\nTotal: RM${total.toFixed(2)}`;
+      msg += `\nTotal: RM${total.toFixed(2)}`;
       if (notes) msg += `\nNotes: ${notes}`;
 
       document.getElementById("loadingOverlay").style.display = "flex";
 
-      const order = { name, phone, pickupTime, notes, items, total, status: "pending", time: new Date().toISOString() };
+      const order = { name, phone, time, notes, items, total, status: "pending", timePlaced: new Date().toISOString() };
       db.ref("orders").push(order, err => {
         if (!err) {
           setTimeout(() => {
@@ -323,5 +322,7 @@
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
+
+    document.body.addEventListener('change', updateSummary);
   </script></body>
 </html>
