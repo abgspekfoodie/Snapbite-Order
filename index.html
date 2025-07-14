@@ -36,25 +36,6 @@
       color: #fff;
       font-size: 1rem;
     }
-    .menu-block {
-      background: #1e1e1e;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 12px;
-      position: relative;
-    }
-    .menu-block .remove-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff3b3b;
-      border: none;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
     .summary {
       background: #222;
       padding: 15px;
@@ -84,14 +65,24 @@
       color: #fff;
     }
     .closed-msg {
-      text-align: center;
-      background: #1e1e1e;
-      padding: 30px;
+      display: none;
+      background: #1c1c1c;
       border-radius: 12px;
-      color: #ff6b6b;
+      padding: 40px 25px;
       margin-top: 60px;
-      font-size: 1.1rem;
-      line-height: 1.7;
+      text-align: center;
+      color: #bbb;
+      box-shadow: 0 0 10px rgba(255, 149, 0, 0.15);
+    }
+    .closed-msg h2 {
+      font-size: 1.6rem;
+      color: #ff6b6b;
+      margin-bottom: 10px;
+    }
+    .closed-msg p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.6;
     }
     #loadingOverlay {
       display: none;
@@ -122,11 +113,13 @@
 </head>
 <body>
   <h1>Snapbite™ Live Order</h1>
-  <div id="closedMsg" class="closed-msg" style="display: none;">
-    <strong>We're taking a break.</strong><br><br>
-    Snapbite™ is currently closed for the day. We're recharging for more juicy bites tomorrow.<br><br>
-    Thanks for your love and hunger. See you soon! 🍔🔥
-  </div>  <form id="orderForm" style="display: none;">
+  <div id="closedMsg" class="closed-msg">
+    <h2>We’re Closed</h2>
+    <p>
+      Snapbite™ is currently off the grill. We’re prepping for the next juicy comeback.<br /><br />
+      Thanks for stopping by — we’ll be back flipping soon! 🍔🔥
+    </p>
+  </div>  <form id="orderForm">
     <label for="custName">Name</label>
     <input type="text" id="custName" required placeholder="Your name" /><label for="custPhone">Phone</label>
 <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
@@ -141,7 +134,6 @@
 </select>
 
 <div id="menuContainer"></div>
-
 <button type="button" class="add-menu-btn" onclick="addMenu()">+ Add Menu Item</button>
 
 <label for="notes">Notes</label>
@@ -175,6 +167,114 @@
       const isOff = snap.val() === true;
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
+    });
+
+    // Menu auto-hide based on Firebase menuStatus
+    const menuStatusRef = db.ref("menuStatus");
+    let menuData = {};
+
+    menuStatusRef.once("value").then(snapshot => {
+      const statusData = snapshot.val();
+      const fullMenu = {
+        "Burger": [
+          { id: "primebite", name: "Primebite™", price: 10, desc: "Smoked beef patty", enabled: statusData?.primebite },
+          { id: "goldcut", name: "Goldcut™", price: 10, desc: "Cheesy chicken cutlet", enabled: statusData?.goldcut }
+        ],
+        "Tex-Mex": [
+          { id: "smoketaco", name: "Smoke Beef Taco™", price: 11, desc: "Slow-smoked brisket taco", enabled: statusData?.smoketaco }
+        ]
+      };
+      for (let cat in fullMenu) {
+        menuData[cat] = fullMenu[cat].filter(item => item.enabled);
+      }
+    });
+
+    function addMenu() {
+      const container = document.getElementById("menuContainer");
+      const block = document.createElement("div");
+      block.className = "menu-block";
+      const catSelect = document.createElement("select");
+      catSelect.innerHTML = `<option value="">-- Select Category --</option>`;
+      for (let cat in menuData) {
+        catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+      }
+      catSelect.onchange = function () {
+        const menuSelect = block.querySelector(".menu-select");
+        menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
+        const selectedCat = catSelect.value;
+        if (menuData[selectedCat]) {
+          menuData[selectedCat].forEach(item => {
+            menuSelect.innerHTML += `<option value="${item.name}" data-price="${item.price}">${item.name} (RM${item.price})</option>`;
+          });
+        }
+      };
+
+      const menuSelect = document.createElement("select");
+      menuSelect.className = "menu-select";
+      menuSelect.innerHTML = `<option value="">-- Select Item --</option>`;
+      menuSelect.onchange = updateSummary;
+
+      const qty = document.createElement("input");
+      qty.type = "number";
+      qty.min = 1;
+      qty.value = 1;
+      qty.onchange = updateSummary;
+
+      block.appendChild(catSelect);
+      block.appendChild(menuSelect);
+      block.appendChild(qty);
+      container.appendChild(block);
+    }
+
+    function updateSummary() {
+      const summary = document.getElementById("orderSummary");
+      const blocks = document.querySelectorAll(".menu-block");
+      let total = 0;
+      summary.innerHTML = "";
+      blocks.forEach(block => {
+        const menu = block.querySelector(".menu-select");
+        const qty = parseInt(block.querySelector("input").value || 1);
+        const price = parseFloat(menu?.selectedOptions[0]?.dataset?.price || 0);
+        if (menu?.value) {
+          const itemTotal = qty * price;
+          total += itemTotal;
+          summary.innerHTML += `<li>${menu.value} x${qty} = RM${itemTotal.toFixed(2)}</li>`;
+        }
+      });
+      document.getElementById("totalPrice").textContent = total.toFixed(2);
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("custName").value.trim();
+      const phone = document.getElementById("custPhone").value.trim();
+      const pickupTime = document.getElementById("pickupTime").value.trim();
+      const notes = document.getElementById("notes").value.trim();
+      const items = [];
+      document.querySelectorAll(".menu-block").forEach(block => {
+        const menu = block.querySelector(".menu-select");
+        const qty = parseInt(block.querySelector("input").value || 1);
+        const price = parseFloat(menu?.selectedOptions[0]?.dataset?.price || 0);
+        if (menu?.value) items.push({ name: menu.value, quantity: qty, price });
+      });
+      const total = items.reduce((a, b) => a + b.quantity * b.price, 0);
+      const order = { name, phone, pickupTime, notes, items, total, time: new Date().toISOString(), status: "pending" };
+
+      document.getElementById("loadingOverlay").style.display = "flex";
+      db.ref("orders").push(order, err => {
+        if (!err) {
+          setTimeout(() => {
+            const msg = `Snapbite Order\nName: ${name}\nPhone: ${phone}\nPickup: ${pickupTime}\n\nOrder:\n` +
+              items.map(i => `- ${i.name} x${i.quantity}`).join("\n") +
+              `\n\nTotal: RM${total.toFixed(2)}${notes ? `\nNotes: ${notes}` : ""}`;
+            window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
+            window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
+          }, 1500);
+        } else {
+          alert("Failed to place order.");
+          document.getElementById("loadingOverlay").style.display = "none";
+        }
+      });
     });
   </script></body>
 </html>
