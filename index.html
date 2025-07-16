@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -118,31 +119,38 @@
   <form id="orderForm">
     <label for="custName">Name</label>
     <input type="text" id="custName" required />
+
     <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+    <input type="tel" id="custPhone" required pattern="[0-9+]+" placeholder="e.g. 0123456789" />
+
     <label for="pickupTime">Pickup Time (optional)</label>
     <input type="text" id="pickupTime" placeholder="e.g. 13:30" />
+
     <label for="paymentType">Payment Type</label>
     <select id="paymentType" required>
       <option value="">-- Select Payment --</option>
       <option value="Cash">Cash</option>
       <option value="Online QR">Online QR</option>
     </select>
+
     <div id="menuContainer"></div>
     <button type="button" class="add-menu-btn" onclick="addMenuItem()">+ Add Menu Item</button>
+
     <label for="notes">Notes</label>
     <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+
     <div class="summary">
       <h3>Order Summary</h3>
       <ul id="orderSummary"></ul>
       <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
     </div>
+
     <button type="submit" class="submit-btn">Submit Order</button>
   </form>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script>
-    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
       authDomain: "snapbite-admin.firebaseapp.com",
@@ -153,170 +161,163 @@
       appId: "1:146625734660:web:23ada593e4818ed7332d51"
     };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();let menuData = {};
-let addonPrices = {};
-let addonEligible = [];
+    const db = firebase.database();
 
-db.ref("settings/offday").on("value", snap => {
-  const isOff = snap.val();
-  document.getElementById("orderForm").style.display = isOff ? "none" : "block";
-  document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
-});
+    let menuData = {};
+    let addonPrices = {};
+    let addonEligible = [];
 
-db.ref("menu").once("value").then(snap => {
-  menuData = snap.val() || {};
-});
+    db.ref("settings/offday").on("value", snap => {
+      const isOff = snap.val();
+      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
+      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
+    });
 
-db.ref("addons/prices").once("value").then(snap => {
-  addonPrices = snap.val() || {};
-});
+    db.ref("menu").once("value").then(snap => menuData = snap.val() || {});
+    db.ref("addons/prices").once("value").then(snap => addonPrices = snap.val() || {});
+    db.ref("addons/eligible").once("value").then(snap => addonEligible = snap.val() || []);
 
-db.ref("addons/eligible").once("value").then(snap => {
-  addonEligible = snap.val() || [];
-});
-
-function addMenuItem() {
-  const index = document.querySelectorAll(".menu-block").length;
-  const block = document.createElement("div");
-  block.className = "menu-block";
-  block.innerHTML = `
-    <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
-    <label>Category</label>
-    <select class="category" onchange="populateItems(this)">
-      <option value="">-- Select Category --</option>
-      ${Object.keys(menuData).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-    </select>
-    <label>Item</label>
-    <select class="item" onchange="updateSummary()"></select>
-    <label>Quantity</label>
-    <div class="qty-control">
-      <button type="button" onclick="this.nextElementSibling.stepDown(); updateSummary()">-</button>
-      <input type="number" value="1" class="qty" min="1" onchange="updateSummary()">
-      <button type="button" onclick="this.previousElementSibling.stepUp(); updateSummary()">+</button>
-    </div>
-    <div class="shell-options" style="display:none">
-      <label><input type="radio" name="shell-${index}" value="Soft" onchange="updateSummary()"> Soft</label>
-      <label><input type="radio" name="shell-${index}" value="Hard" onchange="updateSummary()"> Hard</label>
-    </div>
-    <div class="addons"></div>
-  `;
-  document.getElementById("menuContainer").appendChild(block);
-}
-
-function populateItems(select) {
-  const block = select.closest(".menu-block");
-  const cat = select.value;
-  const itemSel = block.querySelector(".item");
-  const shellDiv = block.querySelector(".shell-options");
-  const addonDiv = block.querySelector(".addons");
-
-  itemSel.innerHTML = `<option value="">-- Select --</option>`;
-  shellDiv.style.display = "none";
-  addonDiv.innerHTML = "";
-
-  if (!menuData[cat]) return;
-  menuData[cat].forEach(item => {
-    const opt = document.createElement("option");
-    opt.value = item.name;
-    opt.textContent = `${item.name} - RM${item.price}`;
-    opt.dataset.price = item.price;
-    opt.dataset.shell = item.shell ? 1 : 0;
-    itemSel.appendChild(opt);
-  });
-
-  if (addonEligible.includes(cat)) {
-    addonDiv.innerHTML = `<label>Add-ons:</label>` +
-      Object.entries(addonPrices).map(([name, price]) => `
-        <label><input type="checkbox" value="${name}" onchange="updateSummary()"> ${name} (+RM${price})</label>
-      `).join("");
-  }
-
-  itemSel.onchange = function () {
-    const selected = itemSel.selectedOptions[0];
-    if (selected?.dataset.shell === "1") shellDiv.style.display = "block";
-    else shellDiv.style.display = "none";
-    updateSummary();
-  };
-}
-
-function updateSummary() {
-  const summary = document.getElementById("orderSummary");
-  summary.innerHTML = "";
-  let total = 0;
-
-  document.querySelectorAll(".menu-block").forEach(block => {
-    const itemSel = block.querySelector(".item");
-    const qty = parseInt(block.querySelector(".qty").value) || 1;
-    if (!itemSel.value) return;
-
-    const name = itemSel.value;
-    const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
-    const shell = block.querySelector(".shell-options input:checked")?.value;
-    const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
-    const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
-
-    let line = `${name} x${qty}`;
-    if (shell) line += ` [${shell} shell]`;
-    if (addons.length) line += ` + ${addons.join(", ")}`;
-
-    const lineTotal = (price + addonCost) * qty;
-    total += lineTotal;
-
-    const li = document.createElement("li");
-    li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
-    summary.appendChild(li);
-  });
-
-  document.getElementById("totalPrice").textContent = total.toFixed(2);
-}
-
-document.getElementById("orderForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.getElementById("custName").value;
-  const phone = document.getElementById("custPhone").value;
-  const pickup = document.getElementById("pickupTime").value;
-  const payment = document.getElementById("paymentType").value;
-  const notes = document.getElementById("notes").value;
-  const items = [];
-  let total = 0;
-
-  document.querySelectorAll(".menu-block").forEach(block => {
-    const itemSel = block.querySelector(".item");
-    if (!itemSel.value) return;
-    const qty = parseInt(block.querySelector(".qty").value) || 1;
-    const name = itemSel.value;
-    const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
-    const shell = block.querySelector(".shell-options input:checked")?.value;
-    const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
-    const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
-
-    total += (price + addonCost) * qty;
-
-    let line = `${name} x${qty}`;
-    if (shell) line += ` [${shell} shell]`;
-    if (addons.length) line += ` + ${addons.join(", ")}`;
-    items.push(line);
-  });
-
-  const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}` +
-    (pickup ? `\nPickup Time: ${pickup}` : "") +
-    `\nPayment: ${payment}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}` +
-    (notes ? `\nNotes: ${notes}` : "");
-
-  const orderObj = {
-    name, phone, pickup, notes, items, total,
-    payment, status: "pending", time: new Date().toISOString()
-  };
-
-  db.ref("orders").push(orderObj, (err) => {
-    if (!err) {
-      window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-    } else {
-      alert("Failed to submit order.");
+    function addMenuItem() {
+      const index = document.querySelectorAll(".menu-block").length;
+      const block = document.createElement("div");
+      block.className = "menu-block";
+      block.innerHTML = `
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
+        <label>Category</label>
+        <select class="category" onchange="populateItems(this)">
+          <option value="">-- Select Category --</option>
+          ${Object.keys(menuData).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+        </select>
+        <label>Item</label>
+        <select class="item" onchange="updateSummary()"></select>
+        <label>Quantity</label>
+        <div class="qty-control">
+          <button type="button" onclick="this.nextElementSibling.stepDown(); updateSummary()">-</button>
+          <input type="number" value="1" class="qty" min="1" onchange="updateSummary()">
+          <button type="button" onclick="this.previousElementSibling.stepUp(); updateSummary()">+</button>
+        </div>
+        <div class="shell-options" style="display:none">
+          <label><input type="radio" name="shell-${index}" value="Soft" onchange="updateSummary()"> Soft</label>
+          <label><input type="radio" name="shell-${index}" value="Hard" onchange="updateSummary()"> Hard</label>
+        </div>
+        <div class="addons"></div>
+      `;
+      document.getElementById("menuContainer").appendChild(block);
     }
-  });
-});
 
+    function populateItems(select) {
+      const block = select.closest(".menu-block");
+      const itemSel = block.querySelector(".item");
+      const cat = select.value;
+      const shellDiv = block.querySelector(".shell-options");
+      const addonDiv = block.querySelector(".addons");
+
+      itemSel.innerHTML = `<option value="">-- Select --</option>`;
+      shellDiv.style.display = "none";
+      addonDiv.innerHTML = "";
+
+      if (!menuData[cat]) return;
+      menuData[cat].forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.name;
+        opt.textContent = `${item.name} - RM${item.price}`;
+        opt.dataset.price = item.price;
+        opt.dataset.shell = item.shell ? 1 : 0;
+        itemSel.appendChild(opt);
+      });
+
+      if (addonEligible.includes(cat)) {
+        addonDiv.innerHTML = `<label>Add-ons:</label>` +
+          Object.entries(addonPrices).map(([name, price]) => `
+            <label><input type="checkbox" value="${name}" onchange="updateSummary()"> ${name} (+RM${price})</label>
+          `).join("");
+      }
+
+      itemSel.onchange = function () {
+        const selected = itemSel.selectedOptions[0];
+        if (selected?.dataset.shell === "1") shellDiv.style.display = "block";
+        else shellDiv.style.display = "none";
+        updateSummary();
+      };
+    }
+
+    function updateSummary() {
+      const summary = document.getElementById("orderSummary");
+      summary.innerHTML = "";
+      let total = 0;
+
+      document.querySelectorAll(".menu-block").forEach(block => {
+        const itemSel = block.querySelector(".item");
+        const qty = parseInt(block.querySelector(".qty").value) || 1;
+        if (!itemSel.value) return;
+
+        const name = itemSel.value;
+        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
+        const shell = block.querySelector(".shell-options input:checked")?.value;
+        const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+        const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
+
+        let line = `${name} x${qty}`;
+        if (shell) line += ` [${shell} shell]`;
+        if (addons.length) line += ` + ${addons.join(", ")}`;
+
+        const lineTotal = (price + addonCost) * qty;
+        total += lineTotal;
+
+        const li = document.createElement("li");
+        li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
+        summary.appendChild(li);
+      });
+
+      document.getElementById("totalPrice").textContent = total.toFixed(2);
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("custName").value;
+      const phone = document.getElementById("custPhone").value;
+      const pickup = document.getElementById("pickupTime").value;
+      const payment = document.getElementById("paymentType").value;
+      const notes = document.getElementById("notes").value;
+      const items = [];
+      let total = 0;
+
+      document.querySelectorAll(".menu-block").forEach(block => {
+        const itemSel = block.querySelector(".item");
+        if (!itemSel.value) return;
+        const qty = parseInt(block.querySelector(".qty").value) || 1;
+        const name = itemSel.value;
+        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
+        const shell = block.querySelector(".shell-options input:checked")?.value;
+        const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+        const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
+
+        total += (price + addonCost) * qty;
+
+        let line = `${name} x${qty}`;
+        if (shell) line += ` [${shell} shell]`;
+        if (addons.length) line += ` + ${addons.join(", ")}`;
+        items.push(line);
+      });
+
+      const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}` +
+        (pickup ? `\nPickup Time: ${pickup}` : "") +
+        `\nPayment: ${payment}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}` +
+        (notes ? `\nNotes: ${notes}` : "");
+
+      const orderObj = {
+        name, phone, pickup, notes, items, total,
+        payment, status: "pending", time: new Date().toISOString()
+      };
+
+      db.ref("orders").push(orderObj, (err) => {
+        if (!err) {
+          window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
+        } else {
+          alert("Failed to submit order.");
+        }
+      });
+    });
   </script>
 </body>
 </html>
