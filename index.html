@@ -106,7 +106,6 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
-
     @keyframes dance {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
@@ -119,9 +118,17 @@
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.7);
-      z-index: 9999;
+      background: rgba(0,0,0,0.4);
+      z-index: 9998;
       display: none;
+    }
+    #animContainer {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      text-align: center;
     }
   </style>
 </head>
@@ -144,7 +151,6 @@
     <button type="button" class="add-menu-btn" id="addMenuBtn">+ Add Menu Item</button>
     <label for="notes">Notes</label>
     <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
-
     <label for="paymentType">Payment Type</label>
     <select id="paymentType" required>
       <option value="">-- Select Payment Type --</option>
@@ -152,7 +158,6 @@
       <option value="ONLINE TRANSFER">ONLINE TRANSFER</option>
       <option value="QR">QR</option>
     </select>
-
     <div class="summary">
       <h3>Order Summary</h3>
       <ul id="orderSummary"></ul>
@@ -161,7 +166,7 @@
     <button type="submit" class="submit-btn">Submit Order</button>
   </form>
 
-  <div id="animContainer" style="display:none; text-align:center; margin-top:20px;">
+  <div id="animContainer">
     <div id="dancers" style="font-size: 2rem;">
       <span>🍔</span> <span>🌮</span> <span>🌭</span>
     </div>
@@ -169,8 +174,11 @@
   </div>
   <div id="screenDim"></div>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- JS Order Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
@@ -225,7 +233,7 @@
     const addonPrices = { "Cheese": 2, "Bacon": 4, "Egg": 1 };
     const addonEligible = ["Beef", "Chicken", "Sausage"];
 
-    db.ref("settings/offday").on("value", (snap) => {
+    db.ref("settings/offday").on("value", snap => {
       const isOff = snap.val() === true || snap.val() === "true";
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
@@ -235,7 +243,7 @@
       const summary = document.getElementById("orderSummary");
       summary.innerHTML = "";
       let total = 0;
-      document.querySelectorAll(".menu-block").forEach((block) => {
+      document.querySelectorAll(".menu-block").forEach(block => {
         const cat = block.querySelector("select.category").value;
         const itemSel = block.querySelector("select.item");
         const itemName = itemSel.value;
@@ -312,8 +320,7 @@
       } else addonsDiv.innerHTML = "";
       itemSelect.onchange = function() {
         const selected = itemSelect.selectedOptions[0];
-        if (selected?.dataset.shell === "1") shellDiv.style.display = "block";
-        else shellDiv.style.display = "none";
+        shellDiv.style.display = selected?.dataset.shell === "1" ? "block" : "none";
         updateSummary();
       }
       updateSummary();
@@ -331,12 +338,23 @@
       if (!paymentType) return alert("Please select a payment type.");
       const items = [];
       let total = 0;
+      let valid = true;
+
       document.querySelectorAll(".menu-block").forEach((block) => {
         const item = block.querySelector(".item").value;
         if (!item) return;
         const qty = parseInt(block.querySelector(".qty").value || 1);
         const price = parseFloat(block.querySelector(".item").selectedOptions[0].dataset.price);
-        const shell = block.querySelector(".shell-options input:checked")?.value;
+        const shellRequired = block.querySelector(".shell-options").style.display === "block";
+        const shellChecked = block.querySelector(".shell-options input:checked");
+
+        if (shellRequired && !shellChecked) {
+          alert("Please select a taco shell for all tacos.");
+          valid = false;
+          return;
+        }
+
+        const shell = shellChecked?.value;
         const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
         const addonCost = addons.reduce((s, a) => s + addonPrices[a], 0);
         const lineTotal = (price + addonCost) * qty;
@@ -346,16 +364,21 @@
         if (addons.length) line += ` + ${addons.join(", ")}`;
         items.push(line);
       });
+
+      if (!valid) return;
       if (!items.length) return alert("Please add at least one menu item.");
+
       const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}${pickup ? `\nPickup Time: ${pickup}` : ""}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}\nPayment: ${paymentType}${notes ? `\nNotes: ${notes}` : ""}`;
       const orderObj = { name, phone, pickup, notes, paymentType, items, total, time: new Date().toISOString(), status: "pending" };
+
       db.ref("orders").push(orderObj, (err) => {
         if (!err) {
           document.getElementById("orderForm").style.display = "none";
           document.getElementById("animContainer").style.display = "block";
           document.getElementById("screenDim").style.display = "block";
           setTimeout(() => {
-            window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
+            window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
+            window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
           }, 2000);
         } else {
           alert("Failed to submit order.");
