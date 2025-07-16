@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -105,6 +106,23 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
+
+    @keyframes dance {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    #dancers span {
+      display: inline-block;
+      animation: dance 0.4s ease-in-out infinite;
+    }
+    #screenDim {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -142,6 +160,14 @@
     </div>
     <button type="submit" class="submit-btn">Submit Order</button>
   </form>
+
+  <div id="animContainer" style="display:none; text-align:center; margin-top:20px;">
+    <div id="dancers" style="font-size: 2rem;">
+      <span>🍔</span> <span>🌮</span> <span>🌭</span>
+    </div>
+    <p style="color:#ff9500; margin-top:10px;">Sending to WhatsApp...</p>
+  </div>
+  <div id="screenDim"></div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -325,7 +351,12 @@
       const orderObj = { name, phone, pickup, notes, paymentType, items, total, time: new Date().toISOString(), status: "pending" };
       db.ref("orders").push(orderObj, (err) => {
         if (!err) {
-          window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
+          document.getElementById("orderForm").style.display = "none";
+          document.getElementById("animContainer").style.display = "block";
+          document.getElementById("screenDim").style.display = "block";
+          setTimeout(() => {
+            window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
+          }, 2000);
         } else {
           alert("Failed to submit order.");
         }
