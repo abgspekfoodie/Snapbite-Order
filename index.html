@@ -65,7 +65,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    .addons {
+    .addons, .shell-options {
       margin-top: 10px;
     }
     .summary {
@@ -156,145 +156,42 @@
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
 
-    const menuData = [
-      { name: "Smoke Beef", price: 10 },
-      { name: "Smoke Chicken", price: 9 },
-      { name: "Mix Taco", price: 12 },
-      { name: "Classic Sausage", price: 7 },
-      { name: "Beef Quesadilla", price: 16 }
-    ];
-
-    const addonPrices = {
-      "Cheese": 2,
-      "Egg": 1,
-      "Bacon": 4
+    const menuData = {
+      "Beef": [
+        { name: "Smoke Beef", price: 10 },
+        { name: "Smoke Beef & Cheese", price: 11 },
+        { name: "Smoke Beef & Mushroom", price: 13 },
+        { name: "Loaded Beef Burger", price: 15 }
+      ],
+      "Chicken": [
+        { name: "Original Crispy", price: 8 },
+        { name: "Cheesy Crispy", price: 9 },
+        { name: "Crispy Mushroom Chicken", price: 11 },
+        { name: "Loaded Crispy Chicken", price: 13 }
+      ],
+      "TexMex": [
+        { name: "Beef Taco", price: 10, shell: true },
+        { name: "Chicken Taco", price: 9, shell: true },
+        { name: "Mix Taco", price: 12, shell: true },
+        { name: "Beef Quesadilla", price: 16 },
+        { name: "Chicken Quesadilla", price: 15 },
+        { name: "Mix Quesadilla", price: 17 }
+      ],
+      "Sausage": [
+        { name: "Classic Sausage", price: 7 },
+        { name: "Coney Sausage", price: 9 }
+      ],
+      "Pasta": [
+        { name: "Mac & Cheese", price: 8 },
+        { name: "Creamy Truffle Pasta", price: 8 },
+        { name: "Beef Bolognese", price: 8 },
+        { name: "Creamy Chicken Pasta", price: 8 }
+      ],
+      "Snack": [
+        { name: "Cheesy Fries", price: 5 },
+        { name: "Popcorn Chicken", price: 6 },
+        { name: "Loaded Fries", price: 8 }
+      ]
     };
-
-    window.addMenuItem = function () {
-      const container = document.getElementById("menuContainer");
-      const index = container.children.length;
-
-      const block = document.createElement("div");
-      block.className = "menu-block";
-      block.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
-        <label>Item</label>
-        <select class="item-select" onchange="updateSummary()">
-          <option value="">-- Select --</option>
-          ${menuData.map(item => `<option data-price="${item.price}" value="${item.name}">${item.name} – RM${item.price}</option>`).join('')}
-        </select>
-        <label>Quantity</label>
-        <div class="qty-control">
-          <button onclick="changeQty(this, -1)" type="button">-</button>
-          <input type="number" class="qty" value="1" min="1" onchange="updateSummary()" />
-          <button onclick="changeQty(this, 1)" type="button">+</button>
-        </div>
-        <div class="addons">
-          <label>Add-ons</label>
-          ${Object.keys(addonPrices).map(addon => `
-            <label style="display:block; margin-top:5px; cursor:pointer;">
-              <input type="checkbox" class="addon-checkbox" value="${addon}" onchange="updateSummary()" />
-              ${addon} (+RM${addonPrices[addon]})
-            </label>
-          `).join('')}
-        </div>
-      `;
-      container.appendChild(block);
-    };
-
-    function changeQty(btn, diff) {
-      const input = btn.parentElement.querySelector("input");
-      let val = parseInt(input.value) + diff;
-      if (val < 1) val = 1;
-      input.value = val;
-      updateSummary();
-    }
-
-    function updateSummary() {
-      const summary = document.getElementById("orderSummary");
-      summary.innerHTML = "";
-      let total = 0;
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".item-select");
-        const qty = parseInt(block.querySelector(".qty").value) || 1;
-        if (!itemSel.value) return;
-
-        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
-        const itemName = itemSel.value;
-
-        const addonCheckboxes = block.querySelectorAll(".addon-checkbox");
-        const addons = [...addonCheckboxes].filter(c => c.checked).map(c => c.value);
-        const addonCost = addons.reduce((sum, name) => sum + (addonPrices[name] || 0), 0);
-
-        let line = `${itemName} x${qty}`;
-        if (addons.length) line += ` + ${addons.join(", ")}`;
-
-        const lineTotal = (price + addonCost) * qty;
-        total += lineTotal;
-
-        const li = document.createElement("li");
-        li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
-        summary.appendChild(li);
-      });
-
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
-    }
-
-    document.getElementById("addMenuBtn").addEventListener("click", addMenuItem);
-
-    document.getElementById("orderForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById("custName").value;
-      const phone = document.getElementById("custPhone").value;
-      const pickup = document.getElementById("pickupTime").value;
-      const notes = document.getElementById("notes").value;
-
-      const orderItems = [];
-      let total = 0;
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".item-select");
-        const qty = parseInt(block.querySelector(".qty").value) || 1;
-        if (!itemSel.value) return;
-
-        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
-        const itemName = itemSel.value;
-
-        const addonCheckboxes = block.querySelectorAll(".addon-checkbox");
-        const addons = [...addonCheckboxes].filter(c => c.checked).map(c => c.value);
-        const addonCost = addons.reduce((sum, name) => sum + (addonPrices[name] || 0), 0);
-
-        let line = `${itemName} x${qty}`;
-        if (addons.length) line += ` + ${addons.join(", ")}`;
-
-        const lineTotal = (price + addonCost) * qty;
-        total += lineTotal;
-        orderItems.push(line);
-      });
-
-      if (!orderItems.length) return alert("Please add at least one item.");
-
-      let msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}`;
-      if (pickup) msg += `\nPickup Time: ${pickup}`;
-      msg += `\n\nOrder:\n${orderItems.join("\n")}\n\nTotal: RM${total.toFixed(2)}`;
-      if (notes) msg += `\nNotes: ${notes}`;
-
-      const orderObj = {
-        name, phone, pickup, notes,
-        items: orderItems, total,
-        status: "pending",
-        time: new Date().toISOString()
-      };
-
-      db.ref("orders").push(orderObj, (err) => {
-        if (!err) {
-          window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
-        } else {
-          alert("Failed to submit order.");
-        }
-      });
-    });
   </script></body>
 </html>
