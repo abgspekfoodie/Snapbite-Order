@@ -243,25 +243,55 @@
     }
 
     function updateSummary() {
-      let total = 0;
-      const list = document.getElementById("orderSummary");
-      list.innerHTML = "";
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".item-select");
-        if (!itemSel || !itemSel.value) return;
-        const itemName = itemSel.value;
-        const itemPrice = parseFloat(itemSel.options[itemSel.selectedIndex].dataset.price);
-        const qty = parseInt(block.querySelector(".qty").value);
-        const addonList = [...block.querySelectorAll(".addons select option:checked")].map(o => o.value);
-        const shell = block.querySelector(".shell-option").style.display !== 'none' ? block.querySelector(".shell").value : null;
-        let line = `${itemName} x${qty}`;
-        if (shell) line += ` [${shell} shell]`;
-        if (addonList.length) line += ` + ${addonList.join(", ")}`;
-        const lineTotal = (itemPrice + addonList.length) * qty;
-        total += lineTotal;
-        list.innerHTML += `<li>${line} = RM${lineTotal.toFixed(2)}</li>`;
+  let total = 0;
+  const list = document.getElementById("orderSummary");
+  list.innerHTML = "";
+
+  document.querySelectorAll(".menu-block").forEach(block => {
+    const item = block.querySelector(".item-select")?.value;
+    const qty = parseInt(block.querySelector(".qty")?.value);
+    const addonsSelect = block.querySelector(".addons select");
+    const category = block.querySelector("select").value;
+
+    if (!item || qty < 1) return;
+
+    // Cari harga item berdasarkan menu
+    let itemPrice = 0;
+    const priceMap = {
+      "Smoke Beef™": 10, "Smoke Beef & Cheese™": 11, "Smoke Beef & Mushroom™": 13, "Loaded Beef Burger™": 15,
+      "Original Crispy™": 8, "Cheesy Crispy™": 9, "Crispy Mushroom Chicken™": 11, "Loaded Crispy Chicken™": 13,
+      "Beef Taco™": 10, "Chicken Taco™": 9, "Mix Taco™": 12,
+      "Beef Quesadilla™": 16, "Chicken Quesadilla™": 15, "Mix Quesadilla™": 17,
+      "Classic Sausage™": 7, "Coney Sausage™": 9,
+      "Mac & Cheese™": 8, "Creamy Truffle Pasta™": 8, "Beef Bolognese™": 8, "Creamy Chicken Pasta™": 8,
+      "Cheesy Fries™": 5, "Popcorn Chicken™": 6, "Loaded Fries™": 8
+    };
+    itemPrice = priceMap[item] ?? 0;
+
+    // Kira add-ons
+    let addons = [];
+    let addonPrice = 0;
+    if (addonsSelect) {
+      [...addonsSelect.selectedOptions].forEach(opt => {
+        addons.push(opt.value);
+        if (opt.value === "Cheese") addonPrice += 2;
+        else if (opt.value === "Egg") addonPrice += 1;
+        else if (opt.value === "Bacon") addonPrice += 4;
       });
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
+
+    let line = `${item} x${qty}`;
+    if (addons.length) line += ` + ${addons.join(", ")}`;
+
+    const itemTotal = (itemPrice + addonPrice) * qty;
+    total += itemTotal;
+
+    const li = document.createElement("li");
+    li.textContent = `${line} = RM${itemTotal.toFixed(2)}`;
+    list.appendChild(li);
+  });
+
+  document.getElementById("totalPrice").textContent = total.toFixed(2);
+}
   </script></body>
 </html>
