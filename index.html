@@ -255,7 +255,6 @@
 
     if (!item || qty < 1) return;
 
-    // Cari harga item berdasarkan menu
     let itemPrice = 0;
     const priceMap = {
       "Smoke Beef™": 10, "Smoke Beef & Cheese™": 11, "Smoke Beef & Mushroom™": 13, "Loaded Beef Burger™": 15,
@@ -268,7 +267,6 @@
     };
     itemPrice = priceMap[item] ?? 0;
 
-    // Kira add-ons
     let addons = [];
     let addonPrice = 0;
     if (addonsSelect) {
