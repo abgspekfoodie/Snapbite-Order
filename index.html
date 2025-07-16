@@ -70,6 +70,9 @@
     .addons select {
       background: #444;
     }
+    .shell-options {
+      margin-top: 10px;
+    }
     .summary {
       background: #222;
       padding: 15px;
@@ -164,6 +167,8 @@
       "Sausage": ["Cheese"]
     };
 
+    const tacoShellItems = ["Beef Taco", "Chicken Taco", "Mix Taco"];
+
     const menuItems = {
       Beef: ["Smoke Beef Burger", "Beef N' Cheese", "The Fun Guy", "Loaded Beef Burger"],
       Chicken: ["Chickbite", "Goldcut", "The Cap Cut", "Loaded Chicken"],
@@ -180,12 +185,19 @@
       block.innerHTML = `
         <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
         <label>Category</label>
-        <select onchange="populateItems(this, ${index})">
+        <select onchange="populateItems(this)">
           <option value="">-- Select --</option>
           ${Object.keys(menuItems).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
         </select>
         <label>Item</label>
-        <select class="item-select" onchange="updateSummary()"></select>
+        <select class="item-select" onchange="toggleShell(this); updateSummary()"></select>
+        <div class="shell-options" style="display:none">
+          <label>Choose Shell</label>
+          <select class="shell-select">
+            <option value="Soft">Soft</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
         <label>Quantity</label>
         <div class="qty-control">
           <button onclick="changeQty(this, -1)" type="button">-</button>
@@ -197,7 +209,7 @@
       document.getElementById("menuContainer").appendChild(block);
     }
 
-    function populateItems(sel, index) {
+    function populateItems(sel) {
       const cat = sel.value;
       const block = sel.closest(".menu-block");
       const itemSel = block.querySelector(".item-select");
@@ -209,7 +221,13 @@
           ${addonsOptions[cat].map(opt => `<option value="${opt}">${opt}</option>`).join('')}
         </select>`;
       } else addonDiv.innerHTML = '';
-      updateSummary();
+    }
+
+    function toggleShell(sel) {
+      const val = sel.value;
+      const shellDiv = sel.closest(".menu-block").querySelector(".shell-options");
+      if (tacoShellItems.includes(val)) shellDiv.style.display = "block";
+      else shellDiv.style.display = "none";
     }
 
     function changeQty(btn, diff) {
@@ -229,9 +247,11 @@
         const item = block.querySelector(".item-select")?.value;
         const qty = parseInt(block.querySelector(".qty")?.value);
         const addons = [...block.querySelectorAll(".addons select option:checked")].map(o => o.value);
+        const shell = block.querySelector(".shell-options").style.display !== "none" ? block.querySelector(".shell-select").value : "";
 
         if (!item || qty < 1) return;
         let line = `${item} x${qty}`;
+        if (shell) line += ` [${shell}]`;
         if (addons.length) line += ` + ${addons.join(", ")}`;
         const li = document.createElement("li");
         li.textContent = line;
