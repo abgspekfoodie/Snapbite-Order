@@ -117,27 +117,25 @@
   </div>
   <form id="orderForm">
     <label for="custName">Name</label>
-    <input type="text" id="custName" required /><label for="custPhone">Phone</label>
-<input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
-
-<label for="pickupTime">Pickup Time (optional)</label>
-<input type="text" id="pickupTime" placeholder="e.g. 13:30" />
-
-<div id="menuContainer"></div>
-<button type="button" class="add-menu-btn" id="addMenuBtn">+ Add Menu Item</button>
-
-<label for="notes">Notes</label>
-<textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
-
-<div class="summary">
-  <h3>Order Summary</h3>
-  <ul id="orderSummary"></ul>
-  <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
-</div>
-
-<button type="submit" class="submit-btn">Submit Order</button>
-
-  </form>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>  <script>
+    <input type="text" id="custName" required />
+    <label for="custPhone">Phone</label>
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
+    <label for="pickupTime">Pickup Time (optional)</label>
+    <input type="text" id="pickupTime" placeholder="e.g. 13:30" />
+    <div id="menuContainer"></div>
+    <button type="button" class="add-menu-btn" id="addMenuBtn">+ Add Menu Item</button>
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
+    <div class="summary">
+      <h3>Order Summary</h3>
+      <ul id="orderSummary"></ul>
+      <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
+    </div>
+    <button type="submit" class="submit-btn">Submit Order</button>
+  </form>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
       authDomain: "snapbite-admin.firebaseapp.com",
@@ -148,50 +146,178 @@
       appId: "1:146625734660:web:23ada593e4818ed7332d51"
     };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const db = firebase.database();const menuData = {
+  "Beef": [
+    { name: "Smoke Beef", price: 10 },
+    { name: "Smoke Beef & Cheese", price: 11 },
+    { name: "Smoke Beef & Mushroom", price: 13 },
+    { name: "Loaded Beef Burger", price: 15 }
+  ],
+  "Chicken": [
+    { name: "Original Crispy", price: 8 },
+    { name: "Cheesy Crispy", price: 9 },
+    { name: "Crispy Mushroom Chicken", price: 11 },
+    { name: "Loaded Crispy Chicken", price: 13 }
+  ],
+  "TexMex": [
+    { name: "Beef Taco", price: 10, shell: true },
+    { name: "Chicken Taco", price: 9, shell: true },
+    { name: "Mix Taco", price: 12, shell: true },
+    { name: "Beef Quesadilla", price: 16 },
+    { name: "Chicken Quesadilla", price: 15 },
+    { name: "Mix Quesadilla", price: 17 }
+  ],
+  "Sausage": [
+    { name: "Classic Sausage", price: 7 },
+    { name: "Coney Sausage", price: 9 }
+  ],
+  "Pasta": [
+    { name: "Mac & Cheese", price: 8 },
+    { name: "Creamy Truffle Pasta", price: 8 },
+    { name: "Beef Bolognese", price: 8 },
+    { name: "Creamy Chicken Pasta", price: 8 }
+  ],
+  "Snack": [
+    { name: "Cheesy Fries", price: 5 },
+    { name: "Popcorn Chicken", price: 6 },
+    { name: "Loaded Fries", price: 8 }
+  ]
+};
 
-    db.ref("settings/offday").on("value", (snap) => {
-      const isOff = snap.val() === true || snap.val() === "true";
-      document.getElementById("orderForm").style.display = isOff ? "none" : "block";
-      document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
+const addonPrices = { "Cheese": 2, "Bacon": 4 };
+const addonEligible = ["Beef", "Chicken", "Sausage"];
+
+db.ref("settings/offday").on("value", (snap) => {
+  const isOff = snap.val() === true || snap.val() === "true";
+  document.getElementById("orderForm").style.display = isOff ? "none" : "block";
+  document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
+});
+
+function updateSummary() {
+  const summary = document.getElementById("orderSummary");
+  summary.innerHTML = "";
+  let total = 0;
+  document.querySelectorAll(".menu-block").forEach((block) => {
+    const cat = block.querySelector("select.category").value;
+    const itemSel = block.querySelector("select.item");
+    const itemName = itemSel.value;
+    if (!itemName) return;
+    const qty = parseInt(block.querySelector("input.qty").value || 1);
+    const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
+    let line = `${itemName} x${qty}`;
+    const shell = block.querySelector(".shell-options input:checked");
+    if (shell) line += ` [${shell.value} shell]`;
+    let addonTotal = 0;
+    const addons = [...block.querySelectorAll(".addons input:checked")].map(i => {
+      addonTotal += addonPrices[i.value] || 0;
+      return i.value;
     });
+    if (addons.length) line += ` + ${addons.join(", ")}`;
+    const lineTotal = (price + addonTotal) * qty;
+    total += lineTotal;
+    const li = document.createElement("li");
+    li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
+    summary.appendChild(li);
+  });
+  document.getElementById("totalPrice").textContent = total.toFixed(2);
+}
 
-    const menuData = {
-      "Beef": [
-        { name: "Smoke Beef", price: 10 },
-        { name: "Smoke Beef & Cheese", price: 11 },
-        { name: "Smoke Beef & Mushroom", price: 13 },
-        { name: "Loaded Beef Burger", price: 15 }
-      ],
-      "Chicken": [
-        { name: "Original Crispy", price: 8 },
-        { name: "Cheesy Crispy", price: 9 },
-        { name: "Crispy Mushroom Chicken", price: 11 },
-        { name: "Loaded Crispy Chicken", price: 13 }
-      ],
-      "TexMex": [
-        { name: "Beef Taco", price: 10, shell: true },
-        { name: "Chicken Taco", price: 9, shell: true },
-        { name: "Mix Taco", price: 12, shell: true },
-        { name: "Beef Quesadilla", price: 16 },
-        { name: "Chicken Quesadilla", price: 15 },
-        { name: "Mix Quesadilla", price: 17 }
-      ],
-      "Sausage": [
-        { name: "Classic Sausage", price: 7 },
-        { name: "Coney Sausage", price: 9 }
-      ],
-      "Pasta": [
-        { name: "Mac & Cheese", price: 8 },
-        { name: "Creamy Truffle Pasta", price: 8 },
-        { name: "Beef Bolognese", price: 8 },
-        { name: "Creamy Chicken Pasta", price: 8 }
-      ],
-      "Snack": [
-        { name: "Cheesy Fries", price: 5 },
-        { name: "Popcorn Chicken", price: 6 },
-        { name: "Loaded Fries", price: 8 }
-      ]
-    };
-  </script></body>
+function addMenuItem() {
+  const index = document.querySelectorAll(".menu-block").length;
+  const block = document.createElement("div");
+  block.className = "menu-block";
+  block.innerHTML = `
+    <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
+    <label>Category</label>
+    <select class="category" onchange="populateItems(this)">
+      <option value="">-- Select Category --</option>
+      ${Object.keys(menuData).map(k => `<option value="${k}">${k}</option>`).join("")}
+    </select>
+    <label>Item</label>
+    <select class="item" onchange="updateSummary()"></select>
+    <label>Quantity</label>
+    <div class="qty-control">
+      <button type="button" onclick="this.nextElementSibling.stepDown(); updateSummary()">-</button>
+      <input type="number" value="1" class="qty" min="1" onchange="updateSummary()">
+      <button type="button" onclick="this.previousElementSibling.stepUp(); updateSummary()">+</button>
+    </div>
+    <div class="shell-options" style="display:none">
+      <label><input type="radio" name="shell-${index}" value="Soft" onchange="updateSummary()"> Soft</label>
+      <label><input type="radio" name="shell-${index}" value="Hard" onchange="updateSummary()"> Hard</label>
+    </div>
+    <div class="addons"></div>
+  `;
+  document.getElementById("menuContainer").appendChild(block);
+}
+
+function populateItems(select) {
+  const block = select.closest(".menu-block");
+  const itemSelect = block.querySelector("select.item");
+  const category = select.value;
+  const shellDiv = block.querySelector(".shell-options");
+  const addonsDiv = block.querySelector(".addons");
+  itemSelect.innerHTML = "<option value=''>-- Select Item --</option>";
+  if (!menuData[category]) return;
+  menuData[category].forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.name;
+    opt.textContent = `${item.name} – RM${item.price}`;
+    opt.dataset.price = item.price;
+    opt.dataset.shell = item.shell ? "1" : "0";
+    itemSelect.appendChild(opt);
+  });
+  if (addonEligible.includes(category)) {
+    addonsDiv.innerHTML = `<label>Add-ons:</label>` +
+      Object.entries(addonPrices).map(([k,v]) => `
+        <label><input type="checkbox" value="${k}" onchange="updateSummary()"> ${k} (+RM${v})</label>
+      `).join("");
+  } else addonsDiv.innerHTML = "";
+  itemSelect.onchange = function() {
+    const selected = itemSelect.selectedOptions[0];
+    if (selected?.dataset.shell === "1") shellDiv.style.display = "block";
+    else shellDiv.style.display = "none";
+    updateSummary();
+  }
+  updateSummary();
+}
+
+document.getElementById("addMenuBtn").addEventListener("click", addMenuItem);
+
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const pickup = document.getElementById("pickupTime").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+  const items = [];
+  let total = 0;
+  document.querySelectorAll(".menu-block").forEach((block) => {
+    const item = block.querySelector(".item").value;
+    if (!item) return;
+    const qty = parseInt(block.querySelector(".qty").value || 1);
+    const price = parseFloat(block.querySelector(".item").selectedOptions[0].dataset.price);
+    const shell = block.querySelector(".shell-options input:checked")?.value;
+    const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+    const addonCost = addons.reduce((s, a) => s + addonPrices[a], 0);
+    const lineTotal = (price + addonCost) * qty;
+    total += lineTotal;
+    let line = `${item} x${qty}`;
+    if (shell) line += ` [${shell} shell]`;
+    if (addons.length) line += ` + ${addons.join(", ")}`;
+    items.push(line);
+  });
+  if (!items.length) return alert("Please add at least one menu item.");
+  const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}${pickup ? `\nPickup Time: ${pickup}` : ""}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}${notes ? `\nNotes: ${notes}` : ""}`;
+  const orderObj = { name, phone, pickup, notes, items, total, time: new Date().toISOString(), status: "pending" };
+  db.ref("orders").push(orderObj, (err) => {
+    if (!err) {
+      window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
+    } else {
+      alert("Failed to submit order.");
+    }
+  });
+});
+
+  </script>
+</body>
 </html>
