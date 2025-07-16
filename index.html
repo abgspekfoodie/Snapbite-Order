@@ -106,6 +106,7 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
+
     @keyframes dance {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
@@ -118,17 +119,21 @@
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.4); /* dim sikit je */
       z-index: 9998;
       display: none;
     }
     #animContainer {
       display: none;
       position: fixed;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       z-index: 9999;
       text-align: center;
+    }
+    #dancers {
+      font-size: 3rem;
     }
   </style>
 </head>
@@ -167,18 +172,15 @@
   </form>
 
   <div id="animContainer">
-    <div id="dancers" style="font-size: 2rem;">
+    <div id="dancers">
       <span>🍔</span> <span>🌮</span> <span>🌭</span>
     </div>
     <p style="color:#ff9500; margin-top:10px;">Sending to WhatsApp...</p>
   </div>
   <div id="screenDim"></div>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <!-- JS Order Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
@@ -244,7 +246,6 @@
       summary.innerHTML = "";
       let total = 0;
       document.querySelectorAll(".menu-block").forEach(block => {
-        const cat = block.querySelector("select.category").value;
         const itemSel = block.querySelector("select.item");
         const itemName = itemSel.value;
         if (!itemName) return;
@@ -378,7 +379,9 @@
           document.getElementById("screenDim").style.display = "block";
           setTimeout(() => {
             window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
-            window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
+            setTimeout(() => {
+              window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
+            }, 500);
           }, 2000);
         } else {
           alert("Failed to submit order.");
