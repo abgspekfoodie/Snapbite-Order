@@ -107,19 +107,21 @@
       color: #ff6b6b;
     }
 
-    @keyframes dance {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(0.95); }
+      75% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
     #dancers span {
       display: inline-block;
-      animation: dance 0.4s ease-in-out infinite;
     }
     #screenDim {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.4); /* dim sikit je */
+      background: rgba(0,0,0,0.4);
       z-index: 9998;
       display: none;
     }
@@ -134,6 +136,7 @@
     }
     #dancers {
       font-size: 3rem;
+      animation: bounce 0.5s ease;
     }
   </style>
 </head>
@@ -377,12 +380,13 @@
           document.getElementById("orderForm").style.display = "none";
           document.getElementById("animContainer").style.display = "block";
           document.getElementById("screenDim").style.display = "block";
+
           setTimeout(() => {
             window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
             setTimeout(() => {
               window.location.href = "https://abgspekfoodie.github.io/Terimakasih/";
-            }, 500);
-          }, 2000);
+            }, 2000);
+          }, 500);
         } else {
           alert("Failed to submit order.");
         }
