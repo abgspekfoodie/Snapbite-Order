@@ -184,7 +184,11 @@
   ]
 };
 
-const addonPrices = { "Cheese": 2, "Bacon": 4 };
+const addonPrices = {
+  "Cheese": 2,
+  "Bacon": 4,
+  "Egg": 1
+};
 const addonEligible = ["Beef", "Chicken", "Sausage"];
 
 db.ref("settings/offday").on("value", (snap) => {
