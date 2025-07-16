@@ -70,9 +70,6 @@
     .addons select {
       background: #444;
     }
-    .shell-options {
-      margin-top: 10px;
-    }
     .summary {
       background: #222;
       padding: 15px;
@@ -110,6 +107,9 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
+    .shell-option {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -142,99 +142,103 @@
 
 <button type="submit" class="submit-btn">Submit Order</button>
 
-  </form>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_gnrfNMlJaNu6zSZqX7eiXzbZrnmtA2M",
-      authDomain: "snapbite-admin.firebaseapp.com",
-      databaseURL: "https://snapbite-admin-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "snapbite-admin",
-      storageBucket: "snapbite-admin.appspot.com",
-      messagingSenderId: "146625734660",
-      appId: "1:146625734660:web:23ada593e4818ed7332d51"
+  </form>  <script>
+    const menuData = {
+      Beef: [
+        { name: "Smoke Beef™", price: 10 },
+        { name: "Smoke Beef & Cheese™", price: 11 },
+        { name: "Smoke Beef & Mushroom™", price: 13 },
+        { name: "Loaded Beef Burger™", price: 15 }
+      ],
+      Chicken: [
+        { name: "Original Crispy™", price: 8 },
+        { name: "Cheesy Crispy™", price: 9 },
+        { name: "Crispy Mushroom Chicken™", price: 11 },
+        { name: "Loaded Crispy Chicken™", price: 13 }
+      ],
+      TexMex: [
+        { name: "Beef Taco™", price: 10, shell: true },
+        { name: "Chicken Taco™", price: 9, shell: true },
+        { name: "Mix Taco™", price: 12, shell: true },
+        { name: "Beef Quesadilla™", price: 16 },
+        { name: "Chicken Quesadilla™", price: 15 },
+        { name: "Mix Quesadilla™", price: 17 }
+      ],
+      Sausage: [
+        { name: "Classic Sausage™", price: 7 },
+        { name: "Coney Sausage™", price: 9 }
+      ],
+      Pasta: [
+        { name: "Mac & Cheese™", price: 8 },
+        { name: "Creamy Truffle Pasta™", price: 8 },
+        { name: "Beef Bolognese™", price: 8 },
+        { name: "Creamy Chicken Pasta™", price: 8 }
+      ],
+      Snack: [
+        { name: "Cheesy Fries™", price: 5 },
+        { name: "Popcorn Chicken™", price: 6 },
+        { name: "Loaded Fries™", price: 8 }
+      ]
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
 
-    db.ref("settings/offday").on("value", (snap) => {
-      const off = snap.val();
-      document.getElementById("orderForm").style.display = off ? "none" : "block";
-      document.getElementById("closedMsg").style.display = off ? "block" : "none";
-    });
-
-    const addonsOptions = {
-      "Beef": ["Cheese", "Egg", "Bacon"],
-      "Chicken": ["Cheese", "Egg"],
-      "Sausage": ["Cheese"]
-    };
-
-    const tacoShellItems = ["Beef Taco", "Chicken Taco", "Mix Taco"];
-
-    const menuItems = {
-      Beef: ["Smoke Beef Burger", "Beef N' Cheese", "The Fun Guy", "Loaded Beef Burger"],
-      Chicken: ["Chickbite", "Goldcut", "The Cap Cut", "Loaded Chicken"],
-      TexMex: ["Beef Taco", "Chicken Taco", "Mix Taco", "Beef Quesadilla", "Chicken Quesadilla", "Mix Quesadilla"],
-      Pasta: ["Mac & Cheese", "Creamy Truffle Pasta", "Beef Bolognese", "Creamy Chicken Pasta"],
-      Sausage: ["Classic Sausage", "Coney Sausage"],
-      Snack: ["Cheesy Fries", "Popcorn Chicken", "Loaded Fries"]
+    const addons = {
+      Beef: ["Cheese", "Egg", "Bacon"],
+      Chicken: ["Cheese", "Egg"],
+      Sausage: ["Cheese"]
     };
 
     function addMenuItem() {
-      const index = document.querySelectorAll(".menu-block").length;
+      const container = document.getElementById("menuContainer");
       const block = document.createElement("div");
       block.className = "menu-block";
+
       block.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary()">Remove</button>
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateSummary();">Remove</button>
         <label>Category</label>
         <select onchange="populateItems(this)">
-          <option value="">-- Select --</option>
-          ${Object.keys(menuItems).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+          <option value="">-- Select Category --</option>
+          ${Object.keys(menuData).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
         </select>
         <label>Item</label>
-        <select class="item-select" onchange="toggleShell(this); updateSummary()"></select>
-        <div class="shell-options" style="display:none">
-          <label>Choose Shell</label>
-          <select class="shell-select">
+        <select class="item-select" onchange="updateSummary()"></select>
+        <div class="shell-option" style="display:none">
+          <label>Shell</label>
+          <select class="shell">
             <option value="Soft">Soft</option>
             <option value="Hard">Hard</option>
           </select>
         </div>
         <label>Quantity</label>
         <div class="qty-control">
-          <button onclick="changeQty(this, -1)" type="button">-</button>
+          <button type="button" onclick="changeQty(this, -1)">-</button>
           <input type="number" class="qty" value="1" min="1" onchange="updateSummary()" />
-          <button onclick="changeQty(this, 1)" type="button">+</button>
+          <button type="button" onclick="changeQty(this, 1)">+</button>
         </div>
         <div class="addons"></div>
       `;
-      document.getElementById("menuContainer").appendChild(block);
+      container.appendChild(block);
     }
 
     function populateItems(sel) {
-      const cat = sel.value;
       const block = sel.closest(".menu-block");
-      const itemSel = block.querySelector(".item-select");
-      itemSel.innerHTML = menuItems[cat].map(m => `<option value="${m}">${m}</option>`).join('');
-
+      const itemSelect = block.querySelector(".item-select");
       const addonDiv = block.querySelector(".addons");
-      if (addonsOptions[cat]) {
-        addonDiv.innerHTML = `<label>Add-ons</label><select multiple>
-          ${addonsOptions[cat].map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-        </select>`;
-      } else addonDiv.innerHTML = '';
-    }
-
-    function toggleShell(sel) {
-      const val = sel.value;
-      const shellDiv = sel.closest(".menu-block").querySelector(".shell-options");
-      if (tacoShellItems.includes(val)) shellDiv.style.display = "block";
-      else shellDiv.style.display = "none";
+      const shellDiv = block.querySelector(".shell-option");
+      const cat = sel.value;
+      itemSelect.innerHTML = menuData[cat]?.map(item => `<option value="${item.name}" data-price="${item.price}" data-shell="${item.shell ? 1 : 0}">${item.name} (RM${item.price})</option>`).join('') || '';
+      addonDiv.innerHTML = addons[cat] ? `<label>Add-ons</label><select multiple>${addons[cat].map(opt => `<option>${opt}</option>`).join('')}</select>` : '';
+      shellDiv.style.display = 'none';
+      itemSelect.addEventListener('change', function () {
+        const selOption = itemSelect.options[itemSelect.selectedIndex];
+        shellDiv.style.display = selOption?.dataset.shell === "1" ? 'block' : 'none';
+        updateSummary();
+      });
+      updateSummary();
     }
 
     function changeQty(btn, diff) {
       const input = btn.parentElement.querySelector("input");
-      let val = parseInt(input.value) + diff;
-      if (val < 1) val = 1;
-      input.value = val;
+      input.value = Math.max(1, parseInt(input.value) + diff);
       updateSummary();
     }
 
@@ -242,21 +246,22 @@
       let total = 0;
       const list = document.getElementById("orderSummary");
       list.innerHTML = "";
-
       document.querySelectorAll(".menu-block").forEach(block => {
-        const item = block.querySelector(".item-select")?.value;
-        const qty = parseInt(block.querySelector(".qty")?.value);
-        const addons = [...block.querySelectorAll(".addons select option:checked")].map(o => o.value);
-        const shell = block.querySelector(".shell-options").style.display !== "none" ? block.querySelector(".shell-select").value : "";
-
-        if (!item || qty < 1) return;
-        let line = `${item} x${qty}`;
-        if (shell) line += ` [${shell}]`;
-        if (addons.length) line += ` + ${addons.join(", ")}`;
-        const li = document.createElement("li");
-        li.textContent = line;
-        list.appendChild(li);
+        const itemSel = block.querySelector(".item-select");
+        if (!itemSel || !itemSel.value) return;
+        const itemName = itemSel.value;
+        const itemPrice = parseFloat(itemSel.options[itemSel.selectedIndex].dataset.price);
+        const qty = parseInt(block.querySelector(".qty").value);
+        const addonList = [...block.querySelectorAll(".addons select option:checked")].map(o => o.value);
+        const shell = block.querySelector(".shell-option").style.display !== 'none' ? block.querySelector(".shell").value : null;
+        let line = `${itemName} x${qty}`;
+        if (shell) line += ` [${shell} shell]`;
+        if (addonList.length) line += ` + ${addonList.join(", ")}`;
+        const lineTotal = (itemPrice + addonList.length) * qty;
+        total += lineTotal;
+        list.innerHTML += `<li>${line} = RM${lineTotal.toFixed(2)}</li>`;
       });
+      document.getElementById("totalPrice").textContent = total.toFixed(2);
     }
   </script></body>
 </html>
