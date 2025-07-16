@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Snapbite™ Live Order</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -119,32 +118,28 @@
   <form id="orderForm">
     <label for="custName">Name</label>
     <input type="text" id="custName" required />
-
     <label for="custPhone">Phone</label>
-    <input type="tel" id="custPhone" required pattern="[0-9+]+" placeholder="e.g. 0123456789" />
-
+    <input type="tel" id="custPhone" required placeholder="Your phone number" pattern="[0-9+]+" />
     <label for="pickupTime">Pickup Time (optional)</label>
     <input type="text" id="pickupTime" placeholder="e.g. 13:30" />
+    <div id="menuContainer"></div>
+    <button type="button" class="add-menu-btn" id="addMenuBtn">+ Add Menu Item</button>
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
 
     <label for="paymentType">Payment Type</label>
     <select id="paymentType" required>
-      <option value="">-- Select Payment --</option>
-      <option value="Cash">Cash</option>
-      <option value="Online QR">Online QR</option>
+      <option value="">-- Select Payment Type --</option>
+      <option value="CASH">CASH</option>
+      <option value="ONLINE TRANSFER">ONLINE TRANSFER</option>
+      <option value="QR">QR</option>
     </select>
-
-    <div id="menuContainer"></div>
-    <button type="button" class="add-menu-btn" onclick="addMenuItem()">+ Add Menu Item</button>
-
-    <label for="notes">Notes</label>
-    <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
 
     <div class="summary">
       <h3>Order Summary</h3>
       <ul id="orderSummary"></ul>
       <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
     </div>
-
     <button type="submit" class="submit-btn">Submit Order</button>
   </form>
 
@@ -163,19 +158,81 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let menuData = {};
-    let addonPrices = {};
-    let addonEligible = [];
+    const menuData = {
+      "Beef": [
+        { name: "Smoke Beef", price: 10 },
+        { name: "Smoke Beef & Cheese", price: 11 },
+        { name: "Smoke Beef & Mushroom", price: 13 },
+        { name: "Loaded Beef Burger", price: 15 }
+      ],
+      "Chicken": [
+        { name: "Original Crispy", price: 8 },
+        { name: "Cheesy Crispy", price: 9 },
+        { name: "Crispy Mushroom Chicken", price: 11 },
+        { name: "Loaded Crispy Chicken", price: 13 }
+      ],
+      "TexMex": [
+        { name: "Beef Taco", price: 10, shell: true },
+        { name: "Chicken Taco", price: 9, shell: true },
+        { name: "Mix Taco", price: 12, shell: true },
+        { name: "Beef Quesadilla", price: 16 },
+        { name: "Chicken Quesadilla", price: 15 },
+        { name: "Mix Quesadilla", price: 17 }
+      ],
+      "Sausage": [
+        { name: "Classic Sausage", price: 7 },
+        { name: "Coney Sausage", price: 9 }
+      ],
+      "Pasta": [
+        { name: "Mac & Cheese", price: 8 },
+        { name: "Creamy Truffle Pasta", price: 8 },
+        { name: "Beef Bolognese", price: 8 },
+        { name: "Creamy Chicken Pasta", price: 8 }
+      ],
+      "Snack": [
+        { name: "Cheesy Fries", price: 5 },
+        { name: "Popcorn Chicken", price: 6 },
+        { name: "Loaded Fries", price: 8 }
+      ]
+    };
 
-    db.ref("settings/offday").on("value", snap => {
-      const isOff = snap.val();
+    const addonPrices = { "Cheese": 2, "Bacon": 4, "Egg": 1 };
+    const addonEligible = ["Beef", "Chicken", "Sausage"];
+
+    db.ref("settings/offday").on("value", (snap) => {
+      const isOff = snap.val() === true || snap.val() === "true";
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
     });
 
-    db.ref("menu").once("value").then(snap => menuData = snap.val() || {});
-    db.ref("addons/prices").once("value").then(snap => addonPrices = snap.val() || {});
-    db.ref("addons/eligible").once("value").then(snap => addonEligible = snap.val() || []);
+    function updateSummary() {
+      const summary = document.getElementById("orderSummary");
+      summary.innerHTML = "";
+      let total = 0;
+      document.querySelectorAll(".menu-block").forEach((block) => {
+        const cat = block.querySelector("select.category").value;
+        const itemSel = block.querySelector("select.item");
+        const itemName = itemSel.value;
+        if (!itemName) return;
+        const qty = parseInt(block.querySelector("input.qty").value || 1);
+        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
+        let line = `${itemName} x${qty}`;
+        const shell = block.querySelector(".shell-options input:checked");
+        if (shell) line += ` [${shell.value} shell]`;
+        let addonTotal = 0;
+        const addons = [...block.querySelectorAll(".addons input:checked")].map(i => {
+          addonTotal += addonPrices[i.value] || 0;
+          return i.value;
+        });
+        if (addons.length) line += ` + ${addons.join(", ")}`;
+        const lineTotal = (price + addonTotal) * qty;
+        total += lineTotal;
+        const li = document.createElement("li");
+        li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
+        summary.appendChild(li);
+      });
+      document.getElementById("totalPrice").textContent = total.toFixed(2);
+    }
 
     function addMenuItem() {
       const index = document.querySelectorAll(".menu-block").length;
@@ -186,7 +243,7 @@
         <label>Category</label>
         <select class="category" onchange="populateItems(this)">
           <option value="">-- Select Category --</option>
-          ${Object.keys(menuData).map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+          ${Object.keys(menuData).map(k => `<option value="${k}">${k}</option>`).join("")}
         </select>
         <label>Item</label>
         <select class="item" onchange="updateSummary()"></select>
@@ -207,112 +264,68 @@
 
     function populateItems(select) {
       const block = select.closest(".menu-block");
-      const itemSel = block.querySelector(".item");
-      const cat = select.value;
+      const itemSelect = block.querySelector("select.item");
+      const category = select.value;
       const shellDiv = block.querySelector(".shell-options");
-      const addonDiv = block.querySelector(".addons");
-
-      itemSel.innerHTML = `<option value="">-- Select --</option>`;
-      shellDiv.style.display = "none";
-      addonDiv.innerHTML = "";
-
-      if (!menuData[cat]) return;
-      menuData[cat].forEach(item => {
+      const addonsDiv = block.querySelector(".addons");
+      itemSelect.innerHTML = "<option value=''>-- Select Item --</option>";
+      if (!menuData[category]) return;
+      menuData[category].forEach(item => {
         const opt = document.createElement("option");
         opt.value = item.name;
-        opt.textContent = `${item.name} - RM${item.price}`;
+        opt.textContent = `${item.name} – RM${item.price}`;
         opt.dataset.price = item.price;
-        opt.dataset.shell = item.shell ? 1 : 0;
-        itemSel.appendChild(opt);
+        opt.dataset.shell = item.shell ? "1" : "0";
+        itemSelect.appendChild(opt);
       });
-
-      if (addonEligible.includes(cat)) {
-        addonDiv.innerHTML = `<label>Add-ons:</label>` +
-          Object.entries(addonPrices).map(([name, price]) => `
-            <label><input type="checkbox" value="${name}" onchange="updateSummary()"> ${name} (+RM${price})</label>
+      if (addonEligible.includes(category)) {
+        addonsDiv.innerHTML = `<label>Add-ons:</label>` +
+          Object.entries(addonPrices).map(([k,v]) => `
+            <label><input type="checkbox" value="${k}" onchange="updateSummary()"> ${k} (+RM${v})</label>
           `).join("");
-      }
-
-      itemSel.onchange = function () {
-        const selected = itemSel.selectedOptions[0];
+      } else addonsDiv.innerHTML = "";
+      itemSelect.onchange = function() {
+        const selected = itemSelect.selectedOptions[0];
         if (selected?.dataset.shell === "1") shellDiv.style.display = "block";
         else shellDiv.style.display = "none";
         updateSummary();
-      };
+      }
+      updateSummary();
     }
 
-    function updateSummary() {
-      const summary = document.getElementById("orderSummary");
-      summary.innerHTML = "";
-      let total = 0;
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".item");
-        const qty = parseInt(block.querySelector(".qty").value) || 1;
-        if (!itemSel.value) return;
-
-        const name = itemSel.value;
-        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
-        const shell = block.querySelector(".shell-options input:checked")?.value;
-        const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
-        const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
-
-        let line = `${name} x${qty}`;
-        if (shell) line += ` [${shell} shell]`;
-        if (addons.length) line += ` + ${addons.join(", ")}`;
-
-        const lineTotal = (price + addonCost) * qty;
-        total += lineTotal;
-
-        const li = document.createElement("li");
-        li.textContent = `${line} = RM${lineTotal.toFixed(2)}`;
-        summary.appendChild(li);
-      });
-
-      document.getElementById("totalPrice").textContent = total.toFixed(2);
-    }
+    document.getElementById("addMenuBtn").addEventListener("click", addMenuItem);
 
     document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const name = document.getElementById("custName").value;
-      const phone = document.getElementById("custPhone").value;
-      const pickup = document.getElementById("pickupTime").value;
-      const payment = document.getElementById("paymentType").value;
-      const notes = document.getElementById("notes").value;
+      const name = document.getElementById("custName").value.trim();
+      const phone = document.getElementById("custPhone").value.trim();
+      const pickup = document.getElementById("pickupTime").value.trim();
+      const notes = document.getElementById("notes").value.trim();
+      const paymentType = document.getElementById("paymentType").value;
+      if (!paymentType) return alert("Please select a payment type.");
       const items = [];
       let total = 0;
-
-      document.querySelectorAll(".menu-block").forEach(block => {
-        const itemSel = block.querySelector(".item");
-        if (!itemSel.value) return;
-        const qty = parseInt(block.querySelector(".qty").value) || 1;
-        const name = itemSel.value;
-        const price = parseFloat(itemSel.selectedOptions[0].dataset.price);
+      document.querySelectorAll(".menu-block").forEach((block) => {
+        const item = block.querySelector(".item").value;
+        if (!item) return;
+        const qty = parseInt(block.querySelector(".qty").value || 1);
+        const price = parseFloat(block.querySelector(".item").selectedOptions[0].dataset.price);
         const shell = block.querySelector(".shell-options input:checked")?.value;
         const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
-        const addonCost = addons.reduce((sum, a) => sum + (addonPrices[a] || 0), 0);
-
-        total += (price + addonCost) * qty;
-
-        let line = `${name} x${qty}`;
+        const addonCost = addons.reduce((s, a) => s + addonPrices[a], 0);
+        const lineTotal = (price + addonCost) * qty;
+        total += lineTotal;
+        let line = `${item} x${qty}`;
         if (shell) line += ` [${shell} shell]`;
         if (addons.length) line += ` + ${addons.join(", ")}`;
         items.push(line);
       });
-
-      const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}` +
-        (pickup ? `\nPickup Time: ${pickup}` : "") +
-        `\nPayment: ${payment}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}` +
-        (notes ? `\nNotes: ${notes}` : "");
-
-      const orderObj = {
-        name, phone, pickup, notes, items, total,
-        payment, status: "pending", time: new Date().toISOString()
-      };
-
+      if (!items.length) return alert("Please add at least one menu item.");
+      const msg = `Snapbite™ Order\nName: ${name}\nPhone: ${phone}${pickup ? `\nPickup Time: ${pickup}` : ""}\n\nOrder:\n${items.join("\n")}\n\nTotal: RM${total.toFixed(2)}\nPayment: ${paymentType}${notes ? `\nNotes: ${notes}` : ""}`;
+      const orderObj = { name, phone, pickup, notes, paymentType, items, total, time: new Date().toISOString(), status: "pending" };
       db.ref("orders").push(orderObj, (err) => {
         if (!err) {
-          window.open("https://wa.me/60173209379?text=" + encodeURIComponent(msg), "_blank");
+          window.location.href = "https://wa.me/60173209379?text=" + encodeURIComponent(msg);
         } else {
           alert("Failed to submit order.");
         }
