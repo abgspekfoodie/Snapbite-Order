@@ -92,6 +92,7 @@
       transform: translateY(-1px);
     }
     .addons input[type="checkbox"],
+    .addons input[type="radio"],
     .shell-options input[type="radio"] {
       appearance: none;
       width: 18px;
@@ -105,6 +106,7 @@
       transition: background 0.3s ease, border 0.3s ease;
     }
     .addons input[type="checkbox"]::before,
+    .addons input[type="radio"]::before,
     .shell-options input[type="radio"]::before {
       content: "✔";
       color: #000;
@@ -113,11 +115,13 @@
       transition: transform 0.2s ease;
     }
     .addons input[type="checkbox"]:checked,
+    .addons input[type="radio"]:checked,
     .shell-options input[type="radio"]:checked {
       background: #ff9500;
       border-color: #ff9500;
     }
     .addons input[type="checkbox"]:checked::before,
+    .addons input[type="radio"]:checked::before,
     .shell-options input[type="radio"]:checked::before {
       transform: scale(1);
     }
@@ -192,7 +196,6 @@
   </style>
 </head>
 <body>
-  <body>
   <h1>Snapbite™ Live Order</h1>
   <div id="closedMsg" class="closed-msg">
     🔒 Snapbite™ is clocked out for the day.<br><br>
@@ -213,10 +216,10 @@
     <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
     <label for="paymentType">Payment Type</label>
     <select id="paymentType" required>
-      <option value="">-- Select Payment Type --</option>
-      <option value="CASH">CASH</option>
-      <option value="ONLINE TRANSFER">ONLINE TRANSFER</option>
-      <option value="QR">QR</option>
+      <option value=\"\">-- Select Payment Type --</option>
+      <option value=\"CASH\">CASH</option>
+      <option value=\"ONLINE TRANSFER\">ONLINE TRANSFER</option>
+      <option value=\"QR\">QR</option>
     </select>
     <div class="summary">
       <h3>Order Summary</h3>
@@ -316,10 +319,20 @@
         const shell = block.querySelector(".shell-options input:checked");
         if (shell) line += ` [${shell.value} shell]`;
         let addonTotal = 0;
-        const addons = [...block.querySelectorAll(".addons input:checked")].map(i => {
-          addonTotal += addonPrices[i.value] || 0;
-          return i.value;
-        });
+        const radio = block.querySelector(".addons input[type=radio]:checked");
+        const checkboxes = block.querySelectorAll(".addons input[type=checkbox]:checked");
+        const addons = [];
+
+        if (radio) {
+          addons.push(radio.value);
+          addonTotal += addonPrices[radio.value] || 0;
+        } else {
+          checkboxes.forEach(i => {
+            addons.push(i.value);
+            addonTotal += addonPrices[i.value] || 0;
+          });
+        }
+
         if (addons.length) line += ` + ${addons.join(", ")}`;
         const lineTotal = (price + addonTotal) * qty;
         total += lineTotal;
@@ -363,6 +376,7 @@
       const addonsDiv = block.querySelector(".addons");
       itemSelect.innerHTML = "<option value=''>-- Select Item --</option>";
       if (!menuData[category]) return;
+
       menuData[category].forEach(item => {
         const opt = document.createElement("option");
         opt.value = item.name;
@@ -371,6 +385,7 @@
         opt.dataset.shell = item.shell ? "1" : "0";
         itemSelect.appendChild(opt);
       });
+
       if (addonEligible.includes(category)) {
         const icons = addonIconsMap[category];
         addonsDiv.innerHTML = Object.entries(addonPrices).map(([k,v]) => `
@@ -379,16 +394,38 @@
             <span>${icons[k]} ${k} (+RM${v})</span>
           </label>
         `).join("");
-      } else addonsDiv.innerHTML = "";
-      itemSelect.onchange = function() {
+      } else {
+        addonsDiv.innerHTML = "";
+      }
+
+      itemSelect.onchange = function () {
         const selected = itemSelect.selectedOptions[0];
+        const itemName = selected?.value || "";
         shellDiv.style.display = selected?.dataset.shell === "1" ? "grid" : "none";
         shellDiv.innerHTML = `
           <label><input type="radio" name="shell-${Date.now()}" value="Soft" onchange="updateSummary()"> <span>🌮 Soft</span></label>
           <label><input type="radio" name="shell-${Date.now()}" value="Hard" onchange="updateSummary()"> <span>🧨 Hard</span></label>
         `;
+
+        if (category === "Pasta" && itemName === "Mac & Cheese") {
+          addonsDiv.innerHTML = `
+            <p style="margin-top:10px;font-weight:bold;">Choose one:</p>
+            <label>
+              <input type="radio" name="macAddon-${Date.now()}" value="Chicken" onchange="updateSummary()" required>
+              <span>🍗 Chicken</span>
+            </label>
+            <label>
+              <input type="radio" name="macAddon-${Date.now()}" value="Bacon" onchange="updateSummary()" required>
+              <span>🥓 Bacon</span>
+            </label>
+          `;
+        } else if (!addonEligible.includes(category)) {
+          addonsDiv.innerHTML = "";
+        }
+
         updateSummary();
       };
+
       updateSummary();
     }
 
@@ -421,8 +458,22 @@
         }
 
         const shell = shellChecked?.value;
-        const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
-        const addonCost = addons.reduce((s, a) => s + addonPrices[a], 0);
+        let addons = [];
+        const category = block.querySelector(".category").value;
+
+        if (category === "Pasta" && item === "Mac & Cheese") {
+          const macAddon = block.querySelector(".addons input[type=radio]:checked");
+          if (!macAddon) {
+            alert("Please choose either Chicken or Bacon for Mac & Cheese.");
+            valid = false;
+            return;
+          }
+          addons.push(macAddon.value);
+        } else {
+          addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+        }
+
+        const addonCost = addons.reduce((s, a) => s + (addonPrices[a] || 0), 0);
         const lineTotal = (price + addonCost) * qty;
         total += lineTotal;
         let line = `${item} x${qty}`;
@@ -460,3 +511,4 @@
     });
   </script>
 </body>
+</html>
