@@ -66,7 +66,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    .addons, .shell-options {
+    .addons, .shell-options, .mac-addon-options {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
@@ -74,7 +74,7 @@
       padding-top: 12px;
       border-top: 1px solid #444;
     }
-    .addons label, .shell-options label {
+    .addons label, .shell-options label, .mac-addon-options label {
       display: flex;
       align-items: center;
       background: #2c2c2e;
@@ -87,13 +87,13 @@
       cursor: pointer;
       transition: background 0.2s ease, transform 0.2s ease;
     }
-    .addons label:hover, .shell-options label:hover {
+    .addons label:hover, .shell-options label:hover, .mac-addon-options label:hover {
       background: #3a3a3c;
       transform: translateY(-1px);
     }
     .addons input[type="checkbox"],
-    .addons input[type="radio"],
-    .shell-options input[type="radio"] {
+    .shell-options input[type="radio"],
+    .mac-addon-options input[type="radio"] {
       appearance: none;
       width: 18px;
       height: 18px;
@@ -106,8 +106,8 @@
       transition: background 0.3s ease, border 0.3s ease;
     }
     .addons input[type="checkbox"]::before,
-    .addons input[type="radio"]::before,
-    .shell-options input[type="radio"]::before {
+    .shell-options input[type="radio"]::before,
+    .mac-addon-options input[type="radio"]::before {
       content: "✔";
       color: #000;
       font-size: 0.8rem;
@@ -115,17 +115,17 @@
       transition: transform 0.2s ease;
     }
     .addons input[type="checkbox"]:checked,
-    .addons input[type="radio"]:checked,
-    .shell-options input[type="radio"]:checked {
+    .shell-options input[type="radio"]:checked,
+    .mac-addon-options input[type="radio"]:checked {
       background: #ff9500;
       border-color: #ff9500;
     }
     .addons input[type="checkbox"]:checked::before,
-    .addons input[type="radio"]:checked::before,
-    .shell-options input[type="radio"]:checked::before {
+    .shell-options input[type="radio"]:checked::before,
+    .mac-addon-options input[type="radio"]:checked::before {
       transform: scale(1);
     }
-    .summary {
+.summary {
       background: #222;
       padding: 15px;
       border-radius: 10px;
@@ -216,12 +216,12 @@
     <textarea id="notes" rows="3" placeholder="Extra instructions (optional)"></textarea>
     <label for="paymentType">Payment Type</label>
     <select id="paymentType" required>
-      <option value=\"\">-- Select Payment Type --</option>
-      <option value=\"CASH\">CASH</option>
-      <option value=\"ONLINE TRANSFER\">ONLINE TRANSFER</option>
-      <option value=\"QR\">QR</option>
+      <option value="">-- Select Payment Type --</option>
+      <option value="CASH">CASH</option>
+      <option value="ONLINE TRANSFER">ONLINE TRANSFER</option>
+      <option value="QR">QR</option>
     </select>
-    <div class="summary">
+<div class="summary">
       <h3>Order Summary</h3>
       <ul id="orderSummary"></ul>
       <p><strong>Total: RM <span id="totalPrice">0.00</span></strong></p>
@@ -279,7 +279,7 @@
         { name: "Coney Sausage", price: 9 }
       ],
       "Pasta": [
-        { name: "Mac & Cheese", price: 8 },
+        { name: "Mac & Cheese", price: 8, macaddon: true },
         { name: "Creamy Truffle Pasta", price: 8 },
         { name: "Beef Bolognese", price: 8 },
         { name: "Creamy Chicken Pasta", price: 8 }
@@ -298,8 +298,7 @@
       "Sausage": { "Cheese": "🧀", "Bacon": "🌭", "Egg": "🥚" }
     };
     const addonEligible = ["Beef", "Chicken", "Sausage"];
-
-    db.ref("settings/offday").on("value", snap => {
+db.ref("settings/offday").on("value", snap => {
       const isOff = snap.val() === true || snap.val() === "true";
       document.getElementById("orderForm").style.display = isOff ? "none" : "block";
       document.getElementById("closedMsg").style.display = isOff ? "block" : "none";
@@ -318,22 +317,22 @@
         let line = `${itemName} x${qty}`;
         const shell = block.querySelector(".shell-options input:checked");
         if (shell) line += ` [${shell.value} shell]`;
-        let addonTotal = 0;
-        const radio = block.querySelector(".addons input[type=radio]:checked");
-        const checkboxes = block.querySelectorAll(".addons input[type=checkbox]:checked");
-        const addons = [];
 
-        if (radio) {
-          addons.push(radio.value);
-          addonTotal += addonPrices[radio.value] || 0;
-        } else {
-          checkboxes.forEach(i => {
-            addons.push(i.value);
-            addonTotal += addonPrices[i.value] || 0;
-          });
+        let addonTotal = 0;
+
+        const addons = [...block.querySelectorAll(".addons input:checked")].map(i => {
+          addonTotal += addonPrices[i.value] || 0;
+          return i.value;
+        });
+
+        const macAddon = block.querySelector(".mac-addon-options input:checked");
+        if (macAddon) {
+          addonTotal += 2;
+          line += ` + ${macAddon.value}`;
         }
 
         if (addons.length) line += ` + ${addons.join(", ")}`;
+
         const lineTotal = (price + addonTotal) * qty;
         total += lineTotal;
         const li = document.createElement("li");
@@ -344,7 +343,6 @@
     }
 
     function addMenuItem() {
-      const index = document.querySelectorAll(".menu-block").length;
       const block = document.createElement("div");
       block.className = "menu-block";
       block.innerHTML = `
@@ -364,16 +362,18 @@
         </div>
         <div class="shell-options" style="display:none"></div>
         <div class="addons"></div>
+        <div class="mac-addon-options" style="display:none"></div>
       `;
       document.getElementById("menuContainer").appendChild(block);
     }
-
-    function populateItems(select) {
+function populateItems(select) {
       const block = select.closest(".menu-block");
       const itemSelect = block.querySelector("select.item");
       const category = select.value;
       const shellDiv = block.querySelector(".shell-options");
       const addonsDiv = block.querySelector(".addons");
+      const macAddonDiv = block.querySelector(".mac-addon-options");
+
       itemSelect.innerHTML = "<option value=''>-- Select Item --</option>";
       if (!menuData[category]) return;
 
@@ -383,6 +383,7 @@
         opt.textContent = `${item.name} – RM${item.price}`;
         opt.dataset.price = item.price;
         opt.dataset.shell = item.shell ? "1" : "0";
+        opt.dataset.macaddon = item.macaddon ? "1" : "0";
         itemSelect.appendChild(opt);
       });
 
@@ -394,33 +395,26 @@
             <span>${icons[k]} ${k} (+RM${v})</span>
           </label>
         `).join("");
-      } else {
-        addonsDiv.innerHTML = "";
-      }
+      } else addonsDiv.innerHTML = "";
 
-      itemSelect.onchange = function () {
+      itemSelect.onchange = function() {
         const selected = itemSelect.selectedOptions[0];
-        const itemName = selected?.value || "";
         shellDiv.style.display = selected?.dataset.shell === "1" ? "grid" : "none";
         shellDiv.innerHTML = `
           <label><input type="radio" name="shell-${Date.now()}" value="Soft" onchange="updateSummary()"> <span>🌮 Soft</span></label>
           <label><input type="radio" name="shell-${Date.now()}" value="Hard" onchange="updateSummary()"> <span>🧨 Hard</span></label>
         `;
 
-        if (category === "Pasta" && itemName === "Mac & Cheese") {
-          addonsDiv.innerHTML = `
-            <p style="margin-top:10px;font-weight:bold;">Choose one:</p>
-            <label>
-              <input type="radio" name="macAddon-${Date.now()}" value="Chicken" onchange="updateSummary()" required>
-              <span>🍗 Chicken</span>
-            </label>
-            <label>
-              <input type="radio" name="macAddon-${Date.now()}" value="Bacon" onchange="updateSummary()" required>
-              <span>🥓 Bacon</span>
-            </label>
+        if (selected?.dataset.macaddon === "1") {
+          macAddonDiv.style.display = "grid";
+          macAddonDiv.innerHTML = `
+            <label><input type="radio" name="mac-${Date.now()}" value="Beef" onchange="updateSummary()"> <span>🥩 Beef</span></label>
+            <label><input type="radio" name="mac-${Date.now()}" value="Chicken" onchange="updateSummary()"> <span>🍗 Chicken</span></label>
+            <label><input type="radio" name="mac-${Date.now()}" value="Mix" onchange="updateSummary()"> <span>🌪️ Mix</span></label>
           `;
-        } else if (!addonEligible.includes(category)) {
-          addonsDiv.innerHTML = "";
+        } else {
+          macAddonDiv.style.display = "none";
+          macAddonDiv.innerHTML = "";
         }
 
         updateSummary();
@@ -457,27 +451,24 @@
           return;
         }
 
-        const shell = shellChecked?.value;
-        let addons = [];
-        const category = block.querySelector(".category").value;
-
-        if (category === "Pasta" && item === "Mac & Cheese") {
-          const macAddon = block.querySelector(".addons input[type=radio]:checked");
-          if (!macAddon) {
-            alert("Please choose either Chicken or Bacon for Mac & Cheese.");
-            valid = false;
-            return;
-          }
-          addons.push(macAddon.value);
-        } else {
-          addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+        const macAddonRequired = block.querySelector(".mac-addon-options").style.display === "grid";
+        const macAddonChecked = block.querySelector(".mac-addon-options input:checked");
+        if (macAddonRequired && !macAddonChecked) {
+          alert("Please select an add-on for Mac & Cheese.");
+          valid = false;
+          return;
         }
 
-        const addonCost = addons.reduce((s, a) => s + (addonPrices[a] || 0), 0);
+        const shell = shellChecked?.value;
+        const macAddon = macAddonChecked?.value;
+        const addons = [...block.querySelectorAll(".addons input:checked")].map(a => a.value);
+        const addonCost = addons.reduce((s, a) => s + addonPrices[a], 0) + (macAddon ? 2 : 0);
         const lineTotal = (price + addonCost) * qty;
         total += lineTotal;
+
         let line = `${item} x${qty}`;
         if (shell) line += ` [${shell} shell]`;
+        if (macAddon) line += ` + ${macAddon}`;
         if (addons.length) line += ` + ${addons.join(", ")}`;
         items.push(line);
       });
