@@ -67,7 +67,59 @@
       cursor: pointer;
     }
     .addons, .shell-options {
-      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #444;
+    }
+    .addons label, .shell-options label {
+      display: flex;
+      align-items: center;
+      background: #2c2c2e;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #fff;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .addons label:hover, .shell-options label:hover {
+      background: #3a3a3c;
+      transform: translateY(-1px);
+    }
+    .addons input[type="checkbox"],
+    .shell-options input[type="radio"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ff9500;
+      border-radius: 4px;
+      background: transparent;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      transition: background 0.3s ease, border 0.3s ease;
+    }
+    .addons input[type="checkbox"]::before,
+    .shell-options input[type="radio"]::before {
+      content: "✔";
+      color: #000;
+      font-size: 0.8rem;
+      transform: scale(0);
+      transition: transform 0.2s ease;
+    }
+    .addons input[type="checkbox"]:checked,
+    .shell-options input[type="radio"]:checked {
+      background: #ff9500;
+      border-color: #ff9500;
+    }
+    .addons input[type="checkbox"]:checked::before,
+    .shell-options input[type="radio"]:checked::before {
+      transform: scale(1);
     }
     .summary {
       background: #222;
@@ -106,7 +158,6 @@
       border-radius: 10px;
       color: #ff6b6b;
     }
-
     @keyframes bounce {
       0% { transform: scale(1); }
       25% { transform: scale(1.2); }
@@ -141,6 +192,7 @@
   </style>
 </head>
 <body>
+  <body>
   <h1>Snapbite™ Live Order</h1>
   <div id="closedMsg" class="closed-msg">
     🔒 Snapbite™ is clocked out for the day.<br><br>
@@ -182,6 +234,7 @@
   </div>
   <div id="screenDim"></div>
 
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script>
@@ -236,6 +289,11 @@
     };
 
     const addonPrices = { "Cheese": 2, "Bacon": 4, "Egg": 1 };
+    const addonIconsMap = {
+      "Beef": { "Cheese": "🧀", "Bacon": "🥓", "Egg": "🥚" },
+      "Chicken": { "Cheese": "🧀", "Bacon": "🥓", "Egg": "🥚" },
+      "Sausage": { "Cheese": "🧀", "Bacon": "🌭", "Egg": "🥚" }
+    };
     const addonEligible = ["Beef", "Chicken", "Sausage"];
 
     db.ref("settings/offday").on("value", snap => {
@@ -291,10 +349,7 @@
           <input type="number" value="1" class="qty" min="1" onchange="updateSummary()">
           <button type="button" onclick="this.previousElementSibling.stepUp(); updateSummary()">+</button>
         </div>
-        <div class="shell-options" style="display:none">
-          <label><input type="radio" name="shell-${index}" value="Soft" onchange="updateSummary()"> Soft</label>
-          <label><input type="radio" name="shell-${index}" value="Hard" onchange="updateSummary()"> Hard</label>
-        </div>
+        <div class="shell-options" style="display:none"></div>
         <div class="addons"></div>
       `;
       document.getElementById("menuContainer").appendChild(block);
@@ -317,16 +372,23 @@
         itemSelect.appendChild(opt);
       });
       if (addonEligible.includes(category)) {
-        addonsDiv.innerHTML = `<label>Add-ons:</label>` +
-          Object.entries(addonPrices).map(([k,v]) => `
-            <label><input type="checkbox" value="${k}" onchange="updateSummary()"> ${k} (+RM${v})</label>
-          `).join("");
+        const icons = addonIconsMap[category];
+        addonsDiv.innerHTML = Object.entries(addonPrices).map(([k,v]) => `
+          <label>
+            <input type="checkbox" value="${k}" onchange="updateSummary()">
+            <span>${icons[k]} ${k} (+RM${v})</span>
+          </label>
+        `).join("");
       } else addonsDiv.innerHTML = "";
       itemSelect.onchange = function() {
         const selected = itemSelect.selectedOptions[0];
-        shellDiv.style.display = selected?.dataset.shell === "1" ? "block" : "none";
+        shellDiv.style.display = selected?.dataset.shell === "1" ? "grid" : "none";
+        shellDiv.innerHTML = `
+          <label><input type="radio" name="shell-${Date.now()}" value="Soft" onchange="updateSummary()"> <span>🌮 Soft</span></label>
+          <label><input type="radio" name="shell-${Date.now()}" value="Hard" onchange="updateSummary()"> <span>🧨 Hard</span></label>
+        `;
         updateSummary();
-      }
+      };
       updateSummary();
     }
 
@@ -349,7 +411,7 @@
         if (!item) return;
         const qty = parseInt(block.querySelector(".qty").value || 1);
         const price = parseFloat(block.querySelector(".item").selectedOptions[0].dataset.price);
-        const shellRequired = block.querySelector(".shell-options").style.display === "block";
+        const shellRequired = block.querySelector(".shell-options").style.display === "grid";
         const shellChecked = block.querySelector(".shell-options input:checked");
 
         if (shellRequired && !shellChecked) {
@@ -377,7 +439,11 @@
 
       db.ref("orders").push(orderObj, (err) => {
         if (!err) {
-          document.getElementById("orderForm").style.display = "none";
+          document.getElementById("orderForm").reset();
+          document.getElementById("menuContainer").innerHTML = "";
+          document.getElementById("orderSummary").innerHTML = "";
+          document.getElementById("totalPrice").textContent = "0.00";
+
           document.getElementById("animContainer").style.display = "block";
           document.getElementById("screenDim").style.display = "block";
 
@@ -394,4 +460,3 @@
     });
   </script>
 </body>
-</html>
